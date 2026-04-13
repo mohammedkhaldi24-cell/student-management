@@ -1,0 +1,62 @@
+<!DOCTYPE html>
+<html lang="fr" xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{fragments/layout :: head('Mon Emploi du Temps')}"></head>
+<body class="dashboard-body">
+<div class="layout-wrapper">
+    <div th:replace="~{fragments/layout :: sidebar-student}"></div>
+    <div class="main-content">
+        <div th:replace="~{fragments/layout :: topbar('Mon Emploi du Temps')}"></div>
+        <div class="content-area">
+            <div class="d-flex flex-wrap gap-2 mb-3">
+                <a th:href="@{/student/dashboard}" class="btn btn-outline-secondary btn-sm">
+                    <i class="bi bi-arrow-left me-1"></i>Retour Dashboard
+                </a>
+                <a th:href="@{/student/courses}" class="btn btn-outline-primary btn-sm">
+                    <i class="bi bi-journals me-1"></i>Cours
+                </a>
+                <a th:href="@{/student/assignments}" class="btn btn-outline-primary btn-sm">
+                    <i class="bi bi-journal-check me-1"></i>Devoirs
+                </a>
+            </div>
+
+            <div class="card">
+                <div class="card-header d-flex justify-content-between align-items-center">
+                    <h6 class="mb-0"><i class="bi bi-calendar3-week me-2"></i>Planning hebdomadaire</h6>
+                    <span class="badge bg-primary" th:text="${student.classe != null ? student.classe.nom : '-'}">Classe</span>
+                </div>
+                <div class="card-body p-0">
+                    <div class="table-responsive">
+                        <table class="table table-hover mb-0">
+                            <thead>
+                            <tr>
+                                <th>Jour</th>
+                                <th>Horaire</th>
+                                <th>Module</th>
+                                <th>Enseignant</th>
+                                <th>Salle</th>
+                            </tr>
+                            </thead>
+                            <tbody>
+                            <tr th:each="e : ${emplois}">
+                                <td class="fw-semibold" th:text="${e.jour}">LUNDI</td>
+                                <td th:text="${#temporals.format(e.heureDebut,'HH:mm') + ' - ' + #temporals.format(e.heureFin,'HH:mm')}">08:30-10:30</td>
+                                <td th:text="${e.module != null ? e.module.nom : '-'}">Module</td>
+                                <td th:text="${e.teacher != null ? e.teacher.fullName : '-'}">Enseignant</td>
+                                <td th:text="${e.salle}">S12</td>
+                            </tr>
+                            <tr th:if="${#lists.isEmpty(emplois)}">
+                                <td colspan="5" class="text-center py-4 text-muted">
+                                    Aucun emploi du temps disponible pour votre classe.
+                                </td>
+                            </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<div th:replace="~{fragments/layout :: scripts}"></div>
+</body>
+</html>

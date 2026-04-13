@@ -1,0 +1,127 @@
+<!DOCTYPE html>
+<html lang="fr" xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{fragments/layout :: head('Gestion des Utilisateurs')}"></head>
+<body class="dashboard-body">
+<div class="layout-wrapper">
+    <div th:replace="~{fragments/layout :: sidebar-admin}"></div>
+    <div class="main-content">
+        <div th:replace="~{fragments/layout :: topbar('Gestion des Utilisateurs')}"></div>
+        <div class="content-area">
+            <div th:replace="~{fragments/layout :: alerts}"></div>
+
+            <div class="card">
+                <div class="card-header d-flex justify-content-between align-items-center">
+                    <h6 class="card-title mb-0">
+                        <i class="bi bi-people-fill me-2"></i>Liste des Utilisateurs
+                    </h6>
+                    <a th:href="@{/admin/users/new}" class="btn btn-primary btn-sm">
+                        <i class="bi bi-person-plus me-2"></i>Nouvel Utilisateur
+                    </a>
+                </div>
+                <div class="card-body p-0">
+                    <!-- Filtres -->
+                    <div class="p-3 border-bottom">
+                        <input type="text" id="searchInput" class="form-control form-control-sm w-auto d-inline-block"
+                               placeholder="Rechercher..." oninput="filterTable()"/>
+                        <select id="roleFilter" class="form-select form-select-sm w-auto d-inline-block ms-2"
+                                onchange="filterTable()">
+                            <option value="">Tous les rôles</option>
+                            <option value="ADMIN">ADMIN</option>
+                            <option value="CHEF_FILIERE">CHEF_FILIERE</option>
+                            <option value="TEACHER">TEACHER</option>
+                            <option value="STUDENT">STUDENT</option>
+                        </select>
+                    </div>
+                    <div class="table-responsive">
+                        <table class="table table-hover mb-0" id="usersTable">
+                            <thead>
+                                <tr>
+                                    <th>#</th>
+                                    <th>Nom Complet</th>
+                                    <th>Identifiant</th>
+                                    <th>Email</th>
+                                    <th>Rôle</th>
+                                    <th>Statut</th>
+                                    <th>Créé le</th>
+                                    <th class="text-center">Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr th:each="user, stat : ${users}">
+                                    <td class="text-muted" th:text="${stat.count}">1</td>
+                                    <td>
+                                        <div class="d-flex align-items-center gap-2">
+                                            <div class="user-avatar-sm">
+                                                <span th:text="${#strings.substring(user.firstName,0,1) + #strings.substring(user.lastName,0,1)}">AB</span>
+                                            </div>
+                                            <span th:text="${user.fullName}">Nom</span>
+                                        </div>
+                                    </td>
+                                    <td><code th:text="${user.username}">-</code></td>
+                                    <td th:text="${user.email ?: '-'}">-</td>
+                                    <td>
+                                        <span class="role-badge"
+                                              th:classappend="${'role-' + #strings.toLowerCase(user.role.name())}"
+                                              th:text="${user.role}">ROLE</span>
+                                    </td>
+                                    <td>
+                                        <span th:if="${user.enabled}" class="badge bg-success">Actif</span>
+                                        <span th:unless="${user.enabled}" class="badge bg-secondary">Inactif</span>
+                                    </td>
+                                    <td th:text="${#temporals.format(user.createdAt, 'dd/MM/yyyy')}">-</td>
+                                    <td class="text-center">
+                                        <div class="btn-group btn-group-sm">
+                                            <a th:href="@{/admin/users/{id}/edit(id=${user.id})}"
+                                               class="btn btn-outline-primary" title="Modifier">
+                                                <i class="bi bi-pencil"></i>
+                                            </a>
+                                            <form th:action="@{/admin/users/{id}/toggle(id=${user.id})}"
+                                                  method="post" class="d-inline">
+                                                <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}"/>
+                                                <button type="submit" class="btn"
+                                                        th:classappend="${user.enabled} ? 'btn-outline-warning' : 'btn-outline-success'"
+                                                        th:title="${user.enabled} ? 'Désactiver' : 'Activer'">
+                                                    <i th:class="${user.enabled} ? 'bi bi-toggle-on' : 'bi bi-toggle-off'"></i>
+                                                </button>
+                                            </form>
+                                            <form th:action="@{/admin/users/{id}/delete(id=${user.id})}"
+                                                  method="post" class="d-inline"
+                                                  onsubmit="return confirm('Supprimer cet utilisateur ?')">
+                                                <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}"/>
+                                                <button type="submit" class="btn btn-outline-danger" title="Supprimer">
+                                                    <i class="bi bi-trash"></i>
+                                                </button>
+                                            </form>
+                                        </div>
+                                    </td>
+                                </tr>
+                                <tr th:if="${#lists.isEmpty(users)}">
+                                    <td colspan="8" class="text-center py-4 text-muted">
+                                        <i class="bi bi-inbox fs-3 d-block mb-2"></i>
+                                        Aucun utilisateur trouvé
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<div th:replace="~{fragments/layout :: scripts}"></div>
+<script>
+function filterTable() {
+    const search = document.getElementById('searchInput').value.toLowerCase();
+    const roleFilter = document.getElementById('roleFilter').value;
+    const rows = document.querySelectorAll('#usersTable tbody tr');
+    rows.forEach(row => {
+        const text = row.textContent.toLowerCase();
+        const roleCell = row.querySelector('td:nth-child(5)');
+        const roleMatch = !roleFilter || (roleCell && roleCell.textContent.trim() === roleFilter);
+        row.style.display = (text.includes(search) && roleMatch) ? '' : 'none';
+    });
+}
+</script>
+</body>
+</html>

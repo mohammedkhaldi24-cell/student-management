@@ -1,0 +1,55 @@
+<!DOCTYPE html>
+<html lang="fr" xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{fragments/layout :: head('Classes')}"></head>
+<body class="dashboard-body">
+<div class="layout-wrapper">
+    <div th:replace="~{fragments/layout :: sidebar-admin}"></div>
+    <div class="main-content">
+        <div th:replace="~{fragments/layout :: topbar('Gestion des Classes')}"></div>
+        <div class="content-area">
+            <div th:replace="~{fragments/layout :: alerts}"></div>
+            <div class="card">
+                <div class="card-header d-flex justify-content-between align-items-center">
+                    <h6 class="mb-0"><i class="bi bi-building me-2"></i>Classes</h6>
+                    <a th:href="@{/admin/classes/new}" class="btn btn-primary btn-sm">
+                        <i class="bi bi-plus-circle me-1"></i>Nouvelle Classe
+                    </a>
+                </div>
+                <div class="card-body p-0">
+                    <div class="table-responsive">
+                        <table class="table table-hover mb-0">
+                            <thead>
+                                <tr><th>Nom</th><th>Niveau</th><th>Année</th><th>Filière</th><th>Étudiants</th><th>Actions</th></tr>
+                            </thead>
+                            <tbody>
+                                <tr th:each="c : ${classes}">
+                                    <td class="fw-semibold" th:text="${c.nom}">-</td>
+                                    <td><span class="badge bg-secondary" th:text="${c.niveau}">-</span></td>
+                                    <td th:text="${c.anneeAcademique}">-</td>
+                                    <td th:text="${c.filiere.nom}">-</td>
+                                    <td><span class="badge bg-info" th:text="${#lists.size(c.students)}">0</span></td>
+                                    <td>
+                                        <a th:href="@{/admin/classes/{id}/edit(id=${c.id})}" class="btn btn-sm btn-outline-primary me-1">
+                                            <i class="bi bi-pencil"></i>
+                                        </a>
+                                        <form th:action="@{/admin/classes/{id}/delete(id=${c.id})}" method="post" class="d-inline"
+                                              onsubmit="return confirm('Supprimer cette classe ?')">
+                                            <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}"/>
+                                            <button class="btn btn-sm btn-outline-danger"><i class="bi bi-trash"></i></button>
+                                        </form>
+                                    </td>
+                                </tr>
+                                <tr th:if="${#lists.isEmpty(classes)}">
+                                    <td colspan="6" class="text-center py-4 text-muted">Aucune classe</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<div th:replace="~{fragments/layout :: scripts}"></div>
+</body>
+</html>

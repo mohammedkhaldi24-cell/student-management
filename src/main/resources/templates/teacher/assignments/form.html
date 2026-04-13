@@ -1,0 +1,176 @@
+<!DOCTYPE html>
+<html lang="fr" xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{fragments/layout :: head(${assignment.id == null ? 'Nouveau Devoir' : 'Modifier Devoir'})}"></head>
+<body class="dashboard-body">
+<div class="layout-wrapper">
+    <div th:replace="~{fragments/layout :: sidebar-teacher}"></div>
+    <div class="main-content">
+        <div th:replace="~{fragments/layout :: topbar(${assignment.id == null ? 'Creer un Devoir' : 'Modifier le Devoir'})}"></div>
+        <div class="content-area">
+            <div th:replace="~{fragments/layout :: alerts}"></div>
+
+            <div class="row justify-content-center">
+                <div class="col-xl-9">
+                    <div class="card">
+                        <div class="card-header">
+                            <h6 class="mb-0">
+                                <i class="bi bi-journal-check me-2"></i>
+                                <span th:text="${assignment.id == null ? 'Nouveau devoir' : 'Edition du devoir'}">Form</span>
+                            </h6>
+                        </div>
+                        <div class="card-body">
+                            <form th:action="${assignment.id == null} ? @{/teacher/assignments/new} : @{/teacher/assignments/{id}/edit(id=${assignment.id})}"
+                                  method="post" enctype="multipart/form-data">
+                                <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}"/>
+
+                                <div class="row g-3">
+                                    <div class="col-12">
+                                        <label class="form-label fw-semibold">Titre *</label>
+                                        <input type="text" class="form-control" name="title"
+                                               th:value="${assignment.title}" required maxlength="180"
+                                               placeholder="ex: TP 2 - Base de donnees"/>
+                                    </div>
+
+                                    <div class="col-12">
+                                        <label class="form-label fw-semibold">Instructions *</label>
+                                        <textarea class="form-control" name="description" rows="5" required
+                                                  placeholder="Consignes du devoir, livrables, criteres...">[[${assignment.description}]]</textarea>
+                                    </div>
+
+                                    <div class="col-md-6">
+                                        <label class="form-label fw-semibold">Date limite *</label>
+                                        <input type="datetime-local" class="form-control" name="dueDate" required
+                                               th:min="${#temporals.format(nowDateTime, 'yyyy-MM-dd''T''HH:mm')}"
+                                               th:value="${assignment.dueDate != null ? #temporals.format(assignment.dueDate, 'yyyy-MM-dd''T''HH:mm') : ''}"/>
+                                    </div>
+
+                                    <div class="col-md-6">
+                                        <label class="form-label fw-semibold">Module (optionnel)</label>
+                                        <select class="form-select" id="moduleSelect" name="moduleId" onchange="syncTargets()">
+                                            <option value="">-- Sans module --</option>
+                                            <option th:each="m : ${modules}"
+                                                    th:value="${m.id}"
+                                                    th:data-filiere-id="${m.filiere.id}"
+                                                    th:text="${m.nom + ' (' + m.code + ')'}"
+                                                    th:selected="${selectedModuleId != null and selectedModuleId == m.id}">
+                                                Module
+                                            </option>
+                                        </select>
+                                    </div>
+
+                                    <div class="col-md-6">
+                                        <label class="form-label fw-semibold">Filiere cible *</label>
+                                        <select class="form-select" id="filiereSelect" name="filiereId" onchange="syncClassesByFiliere()">
+                                            <option value="">-- Choisir une filiere --</option>
+                                            <option th:each="m : ${modules}"
+                                                    th:value="${m.filiere.id}"
+                                                    th:text="${m.filiere.nom}"
+                                                    th:selected="${selectedFiliereId != null and selectedFiliereId == m.filiere.id}">
+                                                Filiere
+                                            </option>
+                                        </select>
+                                        <small class="text-muted">Obligatoire. La classe est optionnelle.</small>
+                                    </div>
+
+                                    <div class="col-md-6">
+                                        <label class="form-label fw-semibold">Classe cible (optionnel)</label>
+                                        <select class="form-select" id="classeSelect" name="classeId">
+                                            <option value="">-- Toute la filiere --</option>
+                                        </select>
+                                    </div>
+
+                                    <div class="col-md-8">
+                                        <label class="form-label fw-semibold">Piece jointe (optionnel)</label>
+                                        <input type="file" class="form-control" name="attachment"/>
+                                        <small class="text-muted">PDF, DOCX, ZIP, image...</small>
+                                        <div class="mt-2" th:if="${assignment.attachmentPath != null}">
+                                            <span class="badge bg-light text-dark">Fichier existant</span>
+                                            <a th:href="@{/teacher/assignments/{id}/attachment(id=${assignment.id})}" class="ms-2">
+                                                Telecharger
+                                            </a>
+                                        </div>
+                                    </div>
+
+                                    <div class="col-md-4 d-flex align-items-end">
+                                        <div class="form-check form-switch">
+                                            <input class="form-check-input" type="checkbox" role="switch" id="publishedSwitch"
+                                                   name="published" value="true" th:checked="${assignment.published}">
+                                            <label class="form-check-label fw-semibold" for="publishedSwitch">Publier maintenant</label>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <div class="alert alert-info mt-3 mb-0">
+                                    Le devoir est visible par les etudiants seulement s'il est publie.
+                                </div>
+
+                                <div class="d-flex justify-content-end gap-2 mt-4">
+                                    <a th:href="@{/teacher/assignments}" class="btn btn-secondary">Annuler</a>
+                                    <button type="submit" class="btn btn-primary">
+                                        <i class="bi bi-check-circle me-1"></i>
+                                        <span th:text="${assignment.id == null ? 'Creer le devoir' : 'Enregistrer'}">Save</span>
+                                    </button>
+                                </div>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<div th:replace="~{fragments/layout :: scripts}"></div>
+<script th:inline="javascript">
+    const classesByFiliere = /*[[${classesByFiliere}]]*/ {};
+    const selectedClasseId = /*[[${selectedClasseId}]]*/ null;
+
+    function dedupeFiliereOptions() {
+        const select = document.getElementById('filiereSelect');
+        const seen = new Set();
+        Array.from(select.options).forEach((opt) => {
+            if (!opt.value) {
+                return;
+            }
+            if (seen.has(opt.value)) {
+                opt.remove();
+            } else {
+                seen.add(opt.value);
+            }
+        });
+    }
+
+    function syncTargets() {
+        const moduleSelect = document.getElementById('moduleSelect');
+        const filiereSelect = document.getElementById('filiereSelect');
+        const selectedOption = moduleSelect.options[moduleSelect.selectedIndex];
+        if (!selectedOption) {
+            return;
+        }
+        const filiereId = selectedOption.getAttribute('data-filiere-id');
+        if (filiereId) {
+            filiereSelect.value = filiereId;
+        }
+        syncClassesByFiliere();
+    }
+
+    function syncClassesByFiliere() {
+        const filiereId = document.getElementById('filiereSelect').value;
+        const classeSelect = document.getElementById('classeSelect');
+        classeSelect.innerHTML = '<option value="">-- Toute la filiere --</option>';
+
+        (classesByFiliere[filiereId] || []).forEach((c) => {
+            const opt = document.createElement('option');
+            opt.value = c.id;
+            opt.textContent = c.nom + ' (' + c.niveau + ')';
+            if (selectedClasseId != null && Number(selectedClasseId) === Number(c.id)) {
+                opt.selected = true;
+            }
+            classeSelect.appendChild(opt);
+        });
+    }
+
+    dedupeFiliereOptions();
+    syncClassesByFiliere();
+</script>
+</body>
+</html>

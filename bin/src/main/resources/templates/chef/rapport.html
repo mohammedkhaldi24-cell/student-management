@@ -1,0 +1,122 @@
+<!DOCTYPE html>
+<html lang="fr" xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{fragments/layout :: head('Rapports PDF')}"></head>
+<body class="dashboard-body">
+<div class="layout-wrapper">
+    <div th:replace="~{fragments/layout :: sidebar-chef}"></div>
+    <div class="main-content">
+        <div th:replace="~{fragments/layout :: topbar('Génération de Rapports PDF')}"></div>
+        <div class="content-area">
+            <div class="row g-4">
+                <div class="col-lg-8">
+                    <div class="card">
+                        <div class="card-header">
+                            <h6 class="mb-0">
+                                <i class="bi bi-file-earmark-pdf text-danger me-2"></i>
+                                Générer les Bulletins de Notes
+                            </h6>
+                        </div>
+                        <div class="card-body">
+                            <p class="text-muted mb-4">
+                                Sélectionnez une classe et un semestre pour générer les bulletins PDF des étudiants.
+                            </p>
+
+                            <div th:if="${filiere == null}" class="alert alert-warning">
+                                Aucune filière assignée.
+                            </div>
+
+                            <div th:if="${filiere != null}">
+                                <!-- Filtres -->
+                                <div class="row g-3 mb-4">
+                                    <div class="col-md-6">
+                                        <label class="form-label fw-semibold">Classe</label>
+                                        <select id="classeSelect" class="form-select" onchange="chargerEtudiants()">
+                                            <option value="">-- Sélectionner une classe --</option>
+                                            <option th:each="c : ${classes}" th:value="${c.id}" th:text="${c.nom}">Classe</option>
+                                        </select>
+                                    </div>
+                                    <div class="col-md-6">
+                                        <label class="form-label fw-semibold">Semestre</label>
+                                        <select id="semestreSelect" class="form-select">
+                                            <option value="S1">Semestre 1</option>
+                                            <option value="S2">Semestre 2</option>
+                                        </select>
+                                    </div>
+                                </div>
+
+                                <!-- Liste des étudiants avec boutons PDF -->
+                                <div id="etudiantsSection" class="d-none">
+                                    <h6 class="fw-semibold mb-3">Étudiants de la classe :</h6>
+                                    <div class="table-responsive">
+                                        <table class="table table-hover">
+                                            <thead>
+                                                <tr><th>Matricule</th><th>Nom Prénom</th><th>Action</th></tr>
+                                            </thead>
+                                            <tbody id="etudiantsTableBody">
+                                            </tbody>
+                                        </table>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="col-lg-4">
+                    <div class="card">
+                        <div class="card-header">
+                            <h6 class="mb-0"><i class="bi bi-info-circle me-2"></i>Informations</h6>
+                        </div>
+                        <div class="card-body">
+                            <div class="info-item mb-3">
+                                <i class="bi bi-filetype-pdf text-danger fs-4 me-2"></i>
+                                <strong>Format PDF</strong><br>
+                                <small class="text-muted">Bulletins générés en PDF professionnel</small>
+                            </div>
+                            <div class="info-item mb-3">
+                                <i class="bi bi-calculator text-primary fs-4 me-2"></i>
+                                <strong>Calcul Automatique</strong><br>
+                                <small class="text-muted">Moyenne = Σ(Note × Coeff) / Σ(Coeff)</small>
+                            </div>
+                            <div class="info-item">
+                                <i class="bi bi-award text-warning fs-4 me-2"></i>
+                                <strong>Mention et Décision</strong><br>
+                                <small class="text-muted">Calculées automatiquement selon la moyenne</small>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<div th:replace="~{fragments/layout :: scripts}"></div>
+<script th:inline="javascript">
+    // Données des étudiants par classe (chargées depuis Thymeleaf)
+    const classes = [[${classes}]] || [];
+
+    function chargerEtudiants() {
+        const classeId = document.getElementById('classeSelect').value;
+        const section = document.getElementById('etudiantsSection');
+        const tbody = document.getElementById('etudiantsTableBody');
+
+        if (!classeId) {
+            section.classList.add('d-none');
+            return;
+        }
+
+        // Charger les étudiants via AJAX ou rediriger
+        const semestre = document.getElementById('semestreSelect').value;
+        fetch(`/chef/etudiants?classeId=${classeId}`)
+            .then(() => {
+                // Simple: afficher le lien de génération PDF
+                section.classList.remove('d-none');
+                tbody.innerHTML = '<tr><td colspan="3" class="text-center py-3">' +
+                    '<a href="/chef/notes?classeId=' + classeId + '" class="btn btn-sm btn-primary">' +
+                    '<i class="bi bi-eye me-1"></i>Voir les notes et générer</a>' +
+                    '</td></tr>';
+            });
+    }
+</script>
+</body>
+</html>

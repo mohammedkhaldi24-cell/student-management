@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+<html lang="fr" xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{fragments/layout :: head('Mes Modules')}"></head>
+<body class="dashboard-body">
+<div class="layout-wrapper">
+    <div th:replace="~{fragments/layout :: sidebar-teacher}"></div>
+    <div class="main-content">
+        <div th:replace="~{fragments/layout :: topbar('Mes Modules')}"></div>
+        <div class="content-area">
+            <div class="row g-3">
+                <div th:each="m : ${modules}" class="col-md-4">
+                    <div class="card h-100">
+                        <div class="card-header d-flex justify-content-between">
+                            <span class="badge bg-warning text-dark" th:text="${m.code}">CODE</span>
+                            <span class="badge bg-info" th:text="${m.semestre}">S1</span>
+                        </div>
+                        <div class="card-body">
+                            <h6 class="fw-bold" th:text="${m.nom}">Module</h6>
+                            <p class="text-muted small mb-2" th:text="${m.filiere.nom}">Filière</p>
+                            <p class="mb-0 small">
+                                <i class="bi bi-clock me-1"></i>
+                                <span th:text="${m.volumeHoraire + 'h'}">30h</span>
+                                &bull; Coeff. <strong th:text="${m.coefficient}">1</strong>
+                            </p>
+                        </div>
+                        <div class="card-footer bg-transparent">
+                            <div class="d-flex gap-2">
+                                <a th:href="@{/teacher/modules/{id}/etudiants(id=${m.id})}" class="btn btn-sm btn-outline-success flex-fill">
+                                    <i class="bi bi-people me-1"></i>Etudiants
+                                </a>
+                                <a th:href="@{/teacher/notes}" class="btn btn-sm btn-primary flex-fill">
+                                    <i class="bi bi-pencil me-1"></i>Notes
+                                </a>
+                                <a th:href="@{/teacher/absences}" class="btn btn-sm btn-outline-danger flex-fill">
+                                    <i class="bi bi-calendar-x me-1"></i>Absences
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div th:if="${#lists.isEmpty(modules)}" class="col-12">
+                    <div class="text-center py-5 text-muted">
+                        <i class="bi bi-book fs-1 d-block mb-3 opacity-50"></i>
+                        <h5>Aucun module assigné</h5>
+                        <p>Contactez l'administrateur pour l'affectation des modules.</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<div th:replace="~{fragments/layout :: scripts}"></div>
+</body>
+</html>

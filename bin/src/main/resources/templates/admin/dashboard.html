@@ -1,0 +1,160 @@
+<!DOCTYPE html>
+<html lang="fr" xmlns:th="http://www.thymeleaf.org"
+      xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
+<head th:replace="~{fragments/layout :: head('Tableau de bord Admin')}"></head>
+<body class="dashboard-body">
+
+<div class="layout-wrapper">
+    <!-- Sidebar -->
+    <div th:replace="~{fragments/layout :: sidebar-admin}"></div>
+
+    <!-- Contenu principal -->
+    <div class="main-content">
+        <!-- Topbar -->
+        <div th:replace="~{fragments/layout :: topbar('Tableau de bord Administrateur')}"></div>
+
+        <div class="content-area">
+            <!-- Alerts -->
+            <div th:replace="~{fragments/layout :: alerts}"></div>
+
+            <!-- Cartes statistiques -->
+            <div class="row g-4 mb-4">
+                <div class="col-xl-2 col-md-4 col-sm-6">
+                    <div class="stat-card stat-card-primary">
+                        <div class="stat-icon"><i class="bi bi-people-fill"></i></div>
+                        <div class="stat-info">
+                            <div class="stat-value" th:text="${totalEtudiants}">0</div>
+                            <div class="stat-label">Étudiants</div>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-xl-2 col-md-4 col-sm-6">
+                    <div class="stat-card stat-card-success">
+                        <div class="stat-icon"><i class="bi bi-person-workspace"></i></div>
+                        <div class="stat-info">
+                            <div class="stat-value" th:text="${totalEnseignants}">0</div>
+                            <div class="stat-label">Enseignants</div>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-xl-2 col-md-4 col-sm-6">
+                    <div class="stat-card stat-card-warning">
+                        <div class="stat-icon"><i class="bi bi-diagram-3-fill"></i></div>
+                        <div class="stat-info">
+                            <div class="stat-value" th:text="${totalFilieres}">0</div>
+                            <div class="stat-label">Filières</div>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-xl-2 col-md-4 col-sm-6">
+                    <div class="stat-card stat-card-info">
+                        <div class="stat-icon"><i class="bi bi-building"></i></div>
+                        <div class="stat-info">
+                            <div class="stat-value" th:text="${totalClasses}">0</div>
+                            <div class="stat-label">Classes</div>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-xl-2 col-md-4 col-sm-6">
+                    <div class="stat-card stat-card-danger">
+                        <div class="stat-icon"><i class="bi bi-book-fill"></i></div>
+                        <div class="stat-info">
+                            <div class="stat-value" th:text="${totalModules}">0</div>
+                            <div class="stat-label">Modules</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="row g-4">
+                <!-- Accès rapides -->
+                <div class="col-lg-4">
+                    <div class="card h-100">
+                        <div class="card-header">
+                            <h6 class="card-title mb-0">
+                                <i class="bi bi-lightning-fill text-warning me-2"></i>
+                                Accès Rapides
+                            </h6>
+                        </div>
+                        <div class="card-body">
+                            <div class="d-grid gap-2">
+                                <a th:href="@{/admin/users/new}" class="btn btn-outline-primary">
+                                    <i class="bi bi-person-plus me-2"></i>Nouvel Utilisateur
+                                </a>
+                                <a th:href="@{/admin/filieres/new}" class="btn btn-outline-success">
+                                    <i class="bi bi-plus-circle me-2"></i>Nouvelle Filière
+                                </a>
+                                <a th:href="@{/admin/classes/new}" class="btn btn-outline-info">
+                                    <i class="bi bi-plus-circle me-2"></i>Nouvelle Classe
+                                </a>
+                                <a th:href="@{/admin/modules/new}" class="btn btn-outline-warning">
+                                    <i class="bi bi-plus-circle me-2"></i>Nouveau Module
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Derniers utilisateurs -->
+                <div class="col-lg-8">
+                    <div class="card h-100">
+                        <div class="card-header d-flex justify-content-between align-items-center">
+                            <h6 class="card-title mb-0">
+                                <i class="bi bi-clock-history me-2"></i>
+                                Derniers Utilisateurs Ajoutés
+                            </h6>
+                            <a th:href="@{/admin/users}" class="btn btn-sm btn-outline-secondary">
+                                Voir tous
+                            </a>
+                        </div>
+                        <div class="card-body p-0">
+                            <div class="table-responsive">
+                                <table class="table table-hover mb-0">
+                                    <thead>
+                                        <tr>
+                                            <th>Nom</th>
+                                            <th>Identifiant</th>
+                                            <th>Rôle</th>
+                                            <th>Statut</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        <tr th:each="user : ${recentUsers}">
+                                            <td>
+                                                <div class="d-flex align-items-center gap-2">
+                                                    <div class="user-avatar-sm">
+                                                        <span th:text="${#strings.substring(user.firstName,0,1) + #strings.substring(user.lastName,0,1)}">AB</span>
+                                                    </div>
+                                                    <span th:text="${user.fullName}">Nom</span>
+                                                </div>
+                                            </td>
+                                            <td><code th:text="${user.username}">-</code></td>
+                                            <td>
+                                                <span class="role-badge"
+                                                      th:classappend="${'role-' + #strings.toLowerCase(user.role.name())}"
+                                                      th:text="${user.role}">ROLE</span>
+                                            </td>
+                                            <td>
+                                                <span th:if="${user.enabled}" class="badge bg-success">Actif</span>
+                                                <span th:unless="${user.enabled}" class="badge bg-danger">Inactif</span>
+                                            </td>
+                                        </tr>
+                                        <tr th:if="${#lists.isEmpty(recentUsers)}">
+                                            <td colspan="4" class="text-center text-muted py-3">
+                                                Aucun utilisateur enregistré
+                                            </td>
+                                        </tr>
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div th:replace="~{fragments/layout :: scripts}"></div>
+</body>
+</html>

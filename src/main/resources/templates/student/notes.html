@@ -1,0 +1,148 @@
+<!DOCTYPE html>
+<html lang="fr" xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{fragments/layout :: head('Mes Notes')}"></head>
+<body class="dashboard-body">
+<div class="layout-wrapper">
+    <div th:replace="~{fragments/layout :: sidebar-student}"></div>
+    <div class="main-content">
+        <div th:replace="~{fragments/layout :: topbar('Mes Notes')}"></div>
+        <div class="content-area">
+            <div class="d-flex flex-wrap gap-2 mb-3">
+                <a th:href="@{/student/dashboard}" class="btn btn-outline-secondary btn-sm">
+                    <i class="bi bi-arrow-left me-1"></i>Retour Dashboard
+                </a>
+                <a th:href="@{/student/absences}" class="btn btn-outline-primary btn-sm">
+                    <i class="bi bi-calendar-x me-1"></i>Voir mes absences
+                </a>
+                <a th:href="@{/student/assignments}" class="btn btn-outline-primary btn-sm">
+                    <i class="bi bi-journal-check me-1"></i>Voir mes devoirs
+                </a>
+            </div>
+
+            <div class="card mb-3">
+                <div class="card-body">
+                    <div class="row g-3 align-items-center">
+                        <div class="col-md-4">
+                            <div class="fw-semibold">Moyenne S1</div>
+                            <div class="fs-5" th:text="${#numbers.formatDecimal(moyenneS1,1,2) + ' /20'}">0 /20</div>
+                        </div>
+                        <div class="col-md-4">
+                            <div class="fw-semibold">Moyenne S2</div>
+                            <div class="fs-5" th:text="${#numbers.formatDecimal(moyenneS2,1,2) + ' /20'}">0 /20</div>
+                        </div>
+                        <div class="col-md-4">
+                            <div class="fw-semibold">Moyenne Generale</div>
+                            <div class="fs-5 fw-bold"
+                                 th:text="${#numbers.formatDecimal(moyenneGenerale,1,2) + ' /20'}"
+                                 th:classappend="${moyenneGenerale >= 10} ? ' text-success' : ' text-danger'">0 /20</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="card mb-4">
+                <div class="card-header">
+                    <ul class="nav nav-tabs card-header-tabs" role="tablist">
+                        <li class="nav-item">
+                            <a class="nav-link active" data-bs-toggle="tab" href="#tabS1">
+                                Notes S1
+                                <span class="badge bg-primary ms-1" th:text="${#lists.size(notesS1)}">0</span>
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" data-bs-toggle="tab" href="#tabS2">
+                                Notes S2
+                                <span class="badge bg-primary ms-1" th:text="${#lists.size(notesS2)}">0</span>
+                            </a>
+                        </li>
+                    </ul>
+                </div>
+                <div class="card-body p-0">
+                    <div class="tab-content">
+                        <div class="tab-pane fade show active" id="tabS1">
+                            <div class="table-responsive">
+                                <table class="table mb-0">
+                                    <thead>
+                                    <tr>
+                                        <th>Module</th>
+                                        <th class="text-center">Coeff.</th>
+                                        <th class="text-center">CC</th>
+                                        <th class="text-center">Examen</th>
+                                        <th class="text-center">Note /20</th>
+                                        <th class="text-center">Statut</th>
+                                    </tr>
+                                    </thead>
+                                    <tbody>
+                                    <tr th:each="note : ${notesS1}">
+                                        <td class="fw-semibold" th:text="${note.module.nom}">-</td>
+                                        <td class="text-center" th:text="${note.module.coefficient}">1</td>
+                                        <td class="text-center" th:text="${note.noteCC != null ? #numbers.formatDecimal(note.noteCC,1,2) : '-'}">-</td>
+                                        <td class="text-center" th:text="${note.noteExamen != null ? #numbers.formatDecimal(note.noteExamen,1,2) : '-'}">-</td>
+                                        <td class="text-center fw-bold" th:text="${note.noteFinal != null ? #numbers.formatDecimal(note.noteFinal,1,2) : '-'}">-</td>
+                                        <td class="text-center">
+                                            <span th:text="${note.statut}"
+                                                  th:classappend="${note.statut == 'Admis'} ? 'badge bg-success' :
+                                                                  (${note.statut == 'Rattrapage'} ? 'badge bg-warning text-dark' :
+                                                                  (${note.statut != null and #strings.contains(note.statut, 'Ajourn')} ? 'badge bg-danger' : 'badge bg-secondary'))">-</span>
+                                        </td>
+                                    </tr>
+                                    <tr th:if="${#lists.isEmpty(notesS1)}">
+                                        <td colspan="6" class="text-center py-4 text-muted">Aucune note disponible en S1.</td>
+                                    </tr>
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+
+                        <div class="tab-pane fade" id="tabS2">
+                            <div class="table-responsive">
+                                <table class="table mb-0">
+                                    <thead>
+                                    <tr>
+                                        <th>Module</th>
+                                        <th class="text-center">Coeff.</th>
+                                        <th class="text-center">CC</th>
+                                        <th class="text-center">Examen</th>
+                                        <th class="text-center">Note /20</th>
+                                        <th class="text-center">Statut</th>
+                                    </tr>
+                                    </thead>
+                                    <tbody>
+                                    <tr th:each="note : ${notesS2}">
+                                        <td class="fw-semibold" th:text="${note.module.nom}">-</td>
+                                        <td class="text-center" th:text="${note.module.coefficient}">1</td>
+                                        <td class="text-center" th:text="${note.noteCC != null ? #numbers.formatDecimal(note.noteCC,1,2) : '-'}">-</td>
+                                        <td class="text-center" th:text="${note.noteExamen != null ? #numbers.formatDecimal(note.noteExamen,1,2) : '-'}">-</td>
+                                        <td class="text-center fw-bold" th:text="${note.noteFinal != null ? #numbers.formatDecimal(note.noteFinal,1,2) : '-'}">-</td>
+                                        <td class="text-center">
+                                            <span th:text="${note.statut}"
+                                                  th:classappend="${note.statut == 'Admis'} ? 'badge bg-success' :
+                                                                  (${note.statut == 'Rattrapage'} ? 'badge bg-warning text-dark' :
+                                                                  (${note.statut != null and #strings.contains(note.statut, 'Ajourn')} ? 'badge bg-danger' : 'badge bg-secondary'))">-</span>
+                                        </td>
+                                    </tr>
+                                    <tr th:if="${#lists.isEmpty(notesS2)}">
+                                        <td colspan="6" class="text-center py-4 text-muted">Aucune note disponible en S2.</td>
+                                    </tr>
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="d-flex flex-wrap gap-2">
+                <a th:href="@{/student/bulletin/S1}" class="btn btn-danger btn-sm" target="_blank">
+                    <i class="bi bi-file-earmark-pdf me-1"></i>Bulletin S1
+                </a>
+                <a th:href="@{/student/bulletin/S2}" class="btn btn-danger btn-sm" target="_blank">
+                    <i class="bi bi-file-earmark-pdf me-1"></i>Bulletin S2
+                </a>
+            </div>
+        </div>
+    </div>
+</div>
+<div th:replace="~{fragments/layout :: scripts}"></div>
+</body>
+</html>

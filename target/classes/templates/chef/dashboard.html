@@ -1,0 +1,241 @@
+﻿<!DOCTYPE html>
+<html lang="fr" xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{fragments/layout :: head('Dashboard Chef Filière')}"></head>
+<body class="dashboard-body">
+<div class="layout-wrapper">
+    <div th:replace="~{fragments/layout :: sidebar-chef}"></div>
+    <div class="main-content">
+        <div th:replace="~{fragments/layout :: topbar('Tableau de bord Chef de Filière')}"></div>
+        <div class="content-area">
+            <div th:replace="~{fragments/layout :: alerts}"></div>
+
+            <!-- Si pas de filière assignée -->
+            <div th:if="${filiere == null}" class="alert alert-warning">
+                <i class="bi bi-exclamation-triangle-fill me-2"></i>
+                Aucune filière ne vous est assignée. Contactez l'administrateur.
+            </div>
+
+            <div th:if="${filiere != null}">
+                <!-- Titre filière -->
+                <div class="filiere-header mb-4 p-4 rounded d-flex justify-content-between align-items-center">
+                    <div>
+                        <h4 class="fw-bold mb-1">
+                            <i class="bi bi-diagram-3-fill me-2"></i>
+                            Filiere : <span th:text="${filiere.nom}">-</span>
+                        </h4>
+                        <p class="text-muted mb-0">
+                            Code : <strong th:text="${filiere.code}">-</strong>
+                            &bull; Annee academique : <strong th:text="${anneeAcademique}">-</strong>
+                        </p>
+                    </div>
+                    <img th:src="@{/images/esto-logo.jpg}" alt="Logo ESTO" class="dashboard-brand-logo d-none d-md-block"/>
+                </div>
+
+                <!-- Cartes statistiques -->
+                <div class="row g-4 mb-4">
+                    <div class="col-md-3">
+                        <div class="stat-card stat-card-primary">
+                            <div class="stat-icon"><i class="bi bi-people-fill"></i></div>
+                            <div class="stat-info">
+                                <div class="stat-value" th:text="${totalEtudiants}">0</div>
+                                <div class="stat-label">Étudiants</div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-3">
+                        <div class="stat-card stat-card-success">
+                            <div class="stat-icon"><i class="bi bi-building"></i></div>
+                            <div class="stat-info">
+                                <div class="stat-value" th:text="${totalClasses}">0</div>
+                                <div class="stat-label">Classes</div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-3">
+                        <div class="stat-card stat-card-warning">
+                            <div class="stat-icon"><i class="bi bi-calendar-x"></i></div>
+                            <div class="stat-info">
+                                <div class="stat-value" th:text="${totalAbsencesHeures}">0</div>
+                                <div class="stat-label">Heures d'absences</div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-3">
+                        <div class="stat-card stat-card-info">
+                            <div class="stat-icon"><i class="bi bi-book-fill"></i></div>
+                            <div class="stat-info">
+                                <div class="stat-value" th:text="${#lists.size(filiere.modules)}">0</div>
+                                <div class="stat-label">Modules</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="row g-4 mb-4">
+                    <div class="col-md-4">
+                        <div class="stat-card stat-card-primary">
+                            <div class="stat-icon"><i class="bi bi-calendar3-week"></i></div>
+                            <div class="stat-info">
+                                <div class="stat-value" th:text="${totalSeances}">0</div>
+                                <div class="stat-label">Seances EDT</div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-4">
+                        <div class="stat-card stat-card-success">
+                            <div class="stat-icon"><i class="bi bi-journals"></i></div>
+                            <div class="stat-info">
+                                <div class="stat-value" th:text="${totalCourses}">0</div>
+                                <div class="stat-label">Cours publies</div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-4">
+                        <div class="stat-card stat-card-warning">
+                            <div class="stat-icon"><i class="bi bi-megaphone"></i></div>
+                            <div class="stat-info">
+                                <div class="stat-value" th:text="${totalAnnouncements}">0</div>
+                                <div class="stat-label">Annonces</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Graphiques -->
+                <div class="row g-4 mb-4">
+                    <!-- Graphique moyennes par classe -->
+                    <div class="col-lg-7">
+                        <div class="card h-100">
+                            <div class="card-header">
+                                <h6 class="card-title mb-0">
+                                    <i class="bi bi-bar-chart-fill me-2 text-primary"></i>
+                                    Moyennes par Classe
+                                </h6>
+                            </div>
+                            <div class="card-body">
+                                <canvas id="chartMoyennes" height="200"></canvas>
+                            </div>
+                        </div>
+                    </div>
+                    <!-- Graphique absences -->
+                    <div class="col-lg-5">
+                        <div class="card h-100">
+                            <div class="card-header">
+                                <h6 class="card-title mb-0">
+                                    <i class="bi bi-pie-chart-fill me-2 text-danger"></i>
+                                    Absences par Classe (heures)
+                                </h6>
+                            </div>
+                            <div class="card-body d-flex justify-content-center align-items-center">
+                                <canvas id="chartAbsences" style="max-height: 250px;"></canvas>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Tableau récapitulatif -->
+                <div class="card">
+                    <div class="card-header d-flex justify-content-between align-items-center">
+                        <h6 class="mb-0">
+                            <i class="bi bi-table me-2"></i>Récapitulatif par Classe
+                        </h6>
+                        <a th:href="@{/chef/rapport}" class="btn btn-sm btn-outline-danger">
+                            <i class="bi bi-file-earmark-pdf me-1"></i>Générer Rapports PDF
+                        </a>
+                    </div>
+                    <div class="card-body p-0">
+                        <div class="table-responsive">
+                            <table class="table table-hover mb-0">
+                                <thead>
+                                    <tr><th>Classe</th><th>Étudiants</th><th>Moyenne</th><th>Absences (h)</th><th>Appréciation</th></tr>
+                                </thead>
+                                <tbody>
+                                    <tr th:each="classe : ${classes}">
+                                        <td class="fw-semibold" th:text="${classe.nom}">-</td>
+                                        <td><span class="badge bg-primary" th:text="${#lists.size(classe.students)}">0</span></td>
+                                        <td>
+                                            <span class="fw-bold"
+                                                  th:text="${moyennesParClasse.get(classe.nom) != null ? #numbers.formatDecimal(moyennesParClasse.get(classe.nom),1,2) + '/20' : '-'}"
+                                                  th:classappend="${moyennesParClasse.get(classe.nom) != null and moyennesParClasse.get(classe.nom) >= 10} ? 'text-success' : 'text-danger'">-</span>
+                                        </td>
+                                        <td th:text="${absencesParClasse.get(classe.nom) != null ? absencesParClasse.get(classe.nom) + 'h' : '0h'}">-</td>
+                                        <td>
+                                            <span th:with="moy=${moyennesParClasse.get(classe.nom)}"
+                                                  th:if="${moy != null}">
+                                                <span th:if="${moy >= 14}" class="badge bg-success">Excellent</span>
+                                                <span th:if="${moy >= 12 and moy < 14}" class="badge bg-info">Bien</span>
+                                                <span th:if="${moy >= 10 and moy < 12}" class="badge bg-warning text-dark">Passable</span>
+                                                <span th:if="${moy < 10}" class="badge bg-danger">Insuffisant</span>
+                                            </span>
+                                        </td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div th:replace="~{fragments/layout :: scripts}"></div>
+<script th:inline="javascript">
+    const labels = [[${chartLabels}]];
+    const moyennesData = [[${chartMoyennes}]];
+    const absencesData = [[${chartAbsences}]];
+
+    // Graphique Barres - Moyennes
+    if (labels && labels.length > 0) {
+        new Chart(document.getElementById('chartMoyennes'), {
+            type: 'bar',
+            data: {
+                labels: labels,
+                datasets: [{
+                    label: 'Moyenne / 20',
+                    data: moyennesData,
+                    backgroundColor: moyennesData.map(v => v >= 10 ? 'rgba(40,167,69,0.7)' : 'rgba(220,53,69,0.7)'),
+                    borderColor: moyennesData.map(v => v >= 10 ? '#28a745' : '#dc3545'),
+                    borderWidth: 2,
+                    borderRadius: 6
+                }]
+            },
+            options: {
+                responsive: true,
+                scales: {
+                    y: { beginAtZero: true, max: 20,
+                         title: { display: true, text: 'Moyenne /20' } }
+                },
+                plugins: { legend: { display: false } }
+            }
+        });
+
+        // Graphique Doughnut - Absences
+        new Chart(document.getElementById('chartAbsences'), {
+            type: 'doughnut',
+            data: {
+                labels: labels,
+                datasets: [{
+                    data: absencesData,
+                    backgroundColor: ['#1F497D','#4472C4','#70AD47','#ED7D31','#A9D18E','#FFD966'],
+                    borderWidth: 2
+                }]
+            },
+            options: {
+                responsive: true,
+                plugins: {
+                    legend: { position: 'bottom' },
+                    tooltip: {
+                        callbacks: {
+                            label: ctx => ctx.label + ': ' + ctx.raw + 'h'
+                        }
+                    }
+                }
+            }
+        });
+    }
+</script>
+</body>
+</html>
+
+

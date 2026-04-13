@@ -1,0 +1,58 @@
+<!DOCTYPE html>
+<html lang="fr" xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{fragments/layout :: head('Filière')}"></head>
+<body class="dashboard-body">
+<div class="layout-wrapper">
+    <div th:replace="~{fragments/layout :: sidebar-admin}"></div>
+    <div class="main-content">
+        <div th:replace="~{fragments/layout :: topbar('Filière')}"></div>
+        <div class="content-area">
+            <div class="row justify-content-center">
+                <div class="col-lg-6">
+                    <div class="card">
+                        <div class="card-header">
+                            <h6 class="mb-0"><i class="bi bi-diagram-3-fill me-2"></i>Filière</h6>
+                        </div>
+                        <div class="card-body">
+                            <form th:action="${filiere.id != null} ? @{/admin/filieres/{id}/edit(id=${filiere.id})} : @{/admin/filieres/new}"
+                                  th:object="${filiere}" method="post">
+                                <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}"/>
+                                <div class="mb-3">
+                                    <label class="form-label fw-semibold">Nom de la filière *</label>
+                                    <input type="text" class="form-control" th:field="*{nom}" placeholder="ex: Informatique" required/>
+                                </div>
+                                <div class="mb-3">
+                                    <label class="form-label fw-semibold">Code *</label>
+                                    <input type="text" class="form-control" th:field="*{code}" placeholder="ex: INFO" required/>
+                                </div>
+                                <div class="mb-3">
+                                    <label class="form-label fw-semibold">Description</label>
+                                    <textarea class="form-control" th:field="*{description}" rows="3"></textarea>
+                                </div>
+                                <div class="mb-3">
+                                    <label class="form-label fw-semibold">Chef de Filière</label>
+                                    <select class="form-select" name="chefFiliereId">
+                                        <option value="">-- Non assigné --</option>
+                                        <option th:each="chef : ${chefsFiliere}"
+                                                th:value="${chef.id}"
+                                                th:text="${chef.fullName}"
+                                                th:selected="${filiere.chefFiliere != null and filiere.chefFiliere.id == chef.id}">Chef</option>
+                                    </select>
+                                </div>
+                                <div class="d-flex justify-content-end gap-2 mt-4">
+                                    <a th:href="@{/admin/filieres}" class="btn btn-secondary">Annuler</a>
+                                    <button type="submit" class="btn btn-primary">
+                                        <i class="bi bi-save me-1"></i>Enregistrer
+                                    </button>
+                                </div>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<div th:replace="~{fragments/layout :: scripts}"></div>
+</body>
+</html>

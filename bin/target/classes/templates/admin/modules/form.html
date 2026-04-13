@@ -1,0 +1,76 @@
+<!DOCTYPE html>
+<html lang="fr" xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{fragments/layout :: head('Module')}"></head>
+<body class="dashboard-body">
+<div class="layout-wrapper">
+    <div th:replace="~{fragments/layout :: sidebar-admin}"></div>
+    <div class="main-content">
+        <div th:replace="~{fragments/layout :: topbar('Module')}"></div>
+        <div class="content-area">
+            <div class="row justify-content-center">
+                <div class="col-lg-7">
+                    <div class="card">
+                        <div class="card-header"><h6 class="mb-0"><i class="bi bi-book-fill me-2"></i>Module</h6></div>
+                        <div class="card-body">
+                            <form th:action="${module.id != null} ? @{/admin/modules/{id}/edit(id=${module.id})} : @{/admin/modules/new}"
+                                  th:object="${module}" method="post">
+                                <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}"/>
+                                <div class="row g-3">
+                                    <div class="col-md-8">
+                                        <label class="form-label fw-semibold">Nom du module *</label>
+                                        <input type="text" class="form-control" th:field="*{nom}" placeholder="ex: Algorithmique Avancée" required/>
+                                    </div>
+                                    <div class="col-md-4">
+                                        <label class="form-label fw-semibold">Code *</label>
+                                        <input type="text" class="form-control" th:field="*{code}" placeholder="ex: ALG301" required/>
+                                    </div>
+                                    <div class="col-md-4">
+                                        <label class="form-label fw-semibold">Coefficient *</label>
+                                        <input type="number" class="form-control" th:field="*{coefficient}" min="1" max="6" required/>
+                                    </div>
+                                    <div class="col-md-4">
+                                        <label class="form-label fw-semibold">Volume Horaire (h)</label>
+                                        <input type="number" class="form-control" th:field="*{volumeHoraire}" min="15" max="90"/>
+                                    </div>
+                                    <div class="col-md-4">
+                                        <label class="form-label fw-semibold">Semestre *</label>
+                                        <select class="form-select" th:field="*{semestre}" required>
+                                            <option th:each="s : ${semestres}" th:value="${s}" th:text="${s}">S1</option>
+                                        </select>
+                                    </div>
+                                    <div class="col-md-6">
+                                        <label class="form-label fw-semibold">Filière *</label>
+                                        <select class="form-select" name="filiereId" required>
+                                            <option value="">-- Sélectionner --</option>
+                                            <option th:each="f : ${filieres}"
+                                                    th:value="${f.id}"
+                                                    th:text="${f.nom}"
+                                                    th:selected="${module.filiere != null and module.filiere.id == f.id}">Filière</option>
+                                        </select>
+                                    </div>
+                                    <div class="col-md-6">
+                                        <label class="form-label fw-semibold">Enseignant</label>
+                                        <select class="form-select" name="teacherId">
+                                            <option value="">-- Non assigné --</option>
+                                            <option th:each="t : ${teachers}"
+                                                    th:value="${t.id}"
+                                                    th:text="${t.fullName}"
+                                                    th:selected="${module.teacher != null and module.teacher.id == t.id}">Prof</option>
+                                        </select>
+                                    </div>
+                                </div>
+                                <div class="d-flex justify-content-end gap-2 mt-4">
+                                    <a th:href="@{/admin/modules}" class="btn btn-secondary">Annuler</a>
+                                    <button type="submit" class="btn btn-primary"><i class="bi bi-save me-1"></i>Enregistrer</button>
+                                </div>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<div th:replace="~{fragments/layout :: scripts}"></div>
+</body>
+</html>

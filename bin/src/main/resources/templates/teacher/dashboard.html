@@ -1,0 +1,100 @@
+<!DOCTYPE html>
+<html lang="fr" xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{fragments/layout :: head('Dashboard Enseignant')}"></head>
+<body class="dashboard-body">
+<div class="layout-wrapper">
+    <div th:replace="~{fragments/layout :: sidebar-teacher}"></div>
+    <div class="main-content">
+        <div th:replace="~{fragments/layout :: topbar('Tableau de bord Enseignant')}"></div>
+        <div class="content-area">
+            <div th:replace="~{fragments/layout :: alerts}"></div>
+
+            <!-- Salutation -->
+            <div class="welcome-banner mb-4 p-4 rounded">
+                <h4 class="fw-bold mb-1">
+                    Bonjour, <span th:text="${teacher.firstName + ' ' + teacher.lastName}">Prof</span> !
+                </h4>
+                <p class="text-muted mb-0">
+                    <i class="bi bi-calendar3 me-2"></i>
+                    <span th:text="${#temporals.format(#temporals.createNow(), 'EEEE dd MMMM yyyy')}">Date</span>
+                </p>
+            </div>
+
+            <!-- Statistiques -->
+            <div class="row g-4 mb-4">
+                <div class="col-md-4">
+                    <div class="stat-card stat-card-primary">
+                        <div class="stat-icon"><i class="bi bi-book-fill"></i></div>
+                        <div class="stat-info">
+                            <div class="stat-value" th:text="${totalModules}">0</div>
+                            <div class="stat-label">Modules enseignés</div>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-4">
+                    <div class="stat-card stat-card-success">
+                        <div class="stat-icon"><i class="bi bi-people-fill"></i></div>
+                        <div class="stat-info">
+                            <div class="stat-value" th:text="${totalStudents}">0</div>
+                            <div class="stat-label">Étudiants concernés</div>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-4">
+                    <div class="stat-card stat-card-warning">
+                        <div class="stat-icon"><i class="bi bi-pencil-square"></i></div>
+                        <div class="stat-info">
+                            <div class="stat-value">
+                                <a th:href="@{/teacher/notes}" class="text-white text-decoration-none">Saisir</a>
+                            </div>
+                            <div class="stat-label">Notes en attente</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Mes modules -->
+            <div class="card">
+                <div class="card-header d-flex justify-content-between align-items-center">
+                    <h6 class="mb-0">
+                        <i class="bi bi-book-fill me-2 text-primary"></i>Mes Modules
+                    </h6>
+                    <a th:href="@{/teacher/notes}" class="btn btn-sm btn-primary">
+                        <i class="bi bi-pencil me-1"></i>Saisir Notes
+                    </a>
+                </div>
+                <div class="card-body">
+                    <div class="row g-3">
+                        <div th:each="m : ${modules}" class="col-md-4">
+                            <div class="module-card p-3 rounded border">
+                                <div class="d-flex justify-content-between align-items-start mb-2">
+                                    <span class="badge bg-warning text-dark" th:text="${m.code}">CODE</span>
+                                    <span class="badge bg-info" th:text="${m.semestre}">S1</span>
+                                </div>
+                                <h6 class="fw-bold mb-1" th:text="${m.nom}">Module</h6>
+                                <p class="text-muted small mb-2" th:text="${m.filiere.nom}">Filière</p>
+                                <div class="d-flex gap-1 mt-2">
+                                    <a th:href="@{/teacher/notes/module/{mid}/classe/0(mid=${m.id})}" class="btn btn-xs btn-outline-primary flex-fill">
+                                        <i class="bi bi-pencil"></i> Notes
+                                    </a>
+                                    <a th:href="@{/teacher/absences}" class="btn btn-xs btn-outline-danger flex-fill">
+                                        <i class="bi bi-calendar-x"></i> Absences
+                                    </a>
+                                </div>
+                            </div>
+                        </div>
+                        <div th:if="${#lists.isEmpty(modules)}" class="col-12">
+                            <div class="text-center py-4 text-muted">
+                                <i class="bi bi-book fs-3 d-block mb-2"></i>
+                                Aucun module assigné pour le moment.
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<div th:replace="~{fragments/layout :: scripts}"></div>
+</body>
+</html>

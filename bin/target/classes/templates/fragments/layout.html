@@ -1,0 +1,215 @@
+<!DOCTYPE html>
+<html lang="fr" xmlns:th="http://www.thymeleaf.org"
+      xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
+
+<!-- ============================================================
+     FRAGMENT : HEAD
+     ============================================================ -->
+<head th:fragment="head(title)">
+    <meta charset="UTF-8"/>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+    <title th:text="${title} + ' | GestionEtu'">GestionEtu</title>
+
+    <!-- Bootstrap 5 -->
+    <link rel="stylesheet"
+          href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css"/>
+    <!-- Bootstrap Icons -->
+    <link rel="stylesheet"
+          href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.css"/>
+    <!-- Custom CSS -->
+    <link rel="stylesheet" th:href="@{/css/style.css}"/>
+</head>
+
+<!-- ============================================================
+     FRAGMENT : SIDEBAR ADMIN
+     ============================================================ -->
+<nav th:fragment="sidebar-admin" class="sidebar d-flex flex-column">
+    <div class="sidebar-header">
+        <div class="sidebar-logo">
+            <i class="bi bi-mortarboard-fill"></i>
+            <span>GestionEtu</span>
+        </div>
+        <div class="sidebar-role-badge">ADMIN</div>
+    </div>
+    <ul class="sidebar-menu">
+        <li><a th:href="@{/admin/dashboard}"
+               th:classappend="${#httpServletRequest.requestURI.contains('/admin/dashboard')} ? 'active'">
+            <i class="bi bi-speedometer2"></i><span>Tableau de bord</span></a></li>
+        <li class="menu-header">Gestion</li>
+        <li><a th:href="@{/admin/users}"
+               th:classappend="${#httpServletRequest.requestURI.contains('/admin/users')} ? 'active'">
+            <i class="bi bi-people-fill"></i><span>Utilisateurs</span></a></li>
+        <li><a th:href="@{/admin/filieres}"
+               th:classappend="${#httpServletRequest.requestURI.contains('/admin/filieres')} ? 'active'">
+            <i class="bi bi-diagram-3-fill"></i><span>Filières</span></a></li>
+        <li><a th:href="@{/admin/classes}"
+               th:classappend="${#httpServletRequest.requestURI.contains('/admin/classes')} ? 'active'">
+            <i class="bi bi-building"></i><span>Classes</span></a></li>
+        <li><a th:href="@{/admin/modules}"
+               th:classappend="${#httpServletRequest.requestURI.contains('/admin/modules')} ? 'active'">
+            <i class="bi bi-book-fill"></i><span>Modules</span></a></li>
+    </ul>
+    <div class="sidebar-footer">
+        <a th:href="@{/logout}" class="btn-logout">
+            <i class="bi bi-box-arrow-right"></i> Déconnexion
+        </a>
+    </div>
+</nav>
+
+<!-- ============================================================
+     FRAGMENT : SIDEBAR CHEF FILIÈRE
+     ============================================================ -->
+<nav th:fragment="sidebar-chef" class="sidebar d-flex flex-column sidebar-chef">
+    <div class="sidebar-header">
+        <div class="sidebar-logo">
+            <i class="bi bi-mortarboard-fill"></i>
+            <span>GestionEtu</span>
+        </div>
+        <div class="sidebar-role-badge badge-chef">CHEF FILIÈRE</div>
+    </div>
+    <ul class="sidebar-menu">
+        <li><a th:href="@{/chef/dashboard}"
+               th:classappend="${#httpServletRequest.requestURI.contains('/chef/dashboard')} ? 'active'">
+            <i class="bi bi-speedometer2"></i><span>Tableau de bord</span></a></li>
+        <li class="menu-header">Ma Filière</li>
+        <li><a th:href="@{/chef/etudiants}"
+               th:classappend="${#httpServletRequest.requestURI.contains('/chef/etudiants')} ? 'active'">
+            <i class="bi bi-person-lines-fill"></i><span>Étudiants</span></a></li>
+        <li><a th:href="@{/chef/notes}"
+               th:classappend="${#httpServletRequest.requestURI.contains('/chef/notes')} ? 'active'">
+            <i class="bi bi-journal-text"></i><span>Notes globales</span></a></li>
+        <li><a th:href="@{/chef/rapport}"
+               th:classappend="${#httpServletRequest.requestURI.contains('/chef/rapport')} ? 'active'">
+            <i class="bi bi-file-earmark-pdf"></i><span>Rapports PDF</span></a></li>
+    </ul>
+    <div class="sidebar-footer">
+        <a th:href="@{/logout}" class="btn-logout">
+            <i class="bi bi-box-arrow-right"></i> Déconnexion
+        </a>
+    </div>
+</nav>
+
+<!-- ============================================================
+     FRAGMENT : SIDEBAR ENSEIGNANT
+     ============================================================ -->
+<nav th:fragment="sidebar-teacher" class="sidebar d-flex flex-column sidebar-teacher">
+    <div class="sidebar-header">
+        <div class="sidebar-logo">
+            <i class="bi bi-mortarboard-fill"></i>
+            <span>GestionEtu</span>
+        </div>
+        <div class="sidebar-role-badge badge-teacher">ENSEIGNANT</div>
+    </div>
+    <ul class="sidebar-menu">
+        <li><a th:href="@{/teacher/dashboard}"
+               th:classappend="${#httpServletRequest.requestURI.contains('/teacher/dashboard')} ? 'active'">
+            <i class="bi bi-speedometer2"></i><span>Tableau de bord</span></a></li>
+        <li class="menu-header">Enseignement</li>
+        <li><a th:href="@{/teacher/modules}"
+               th:classappend="${#httpServletRequest.requestURI.contains('/teacher/modules')} ? 'active'">
+            <i class="bi bi-book-fill"></i><span>Mes Modules</span></a></li>
+        <li><a th:href="@{/teacher/notes}"
+               th:classappend="${#httpServletRequest.requestURI.contains('/teacher/notes')} ? 'active'">
+            <i class="bi bi-pencil-square"></i><span>Saisie Notes</span></a></li>
+        <li><a th:href="@{/teacher/absences}"
+               th:classappend="${#httpServletRequest.requestURI.contains('/teacher/absences')} ? 'active'">
+            <i class="bi bi-calendar-x"></i><span>Absences</span></a></li>
+    </ul>
+    <div class="sidebar-footer">
+        <a th:href="@{/logout}" class="btn-logout">
+            <i class="bi bi-box-arrow-right"></i> Déconnexion
+        </a>
+    </div>
+</nav>
+
+<!-- ============================================================
+     FRAGMENT : SIDEBAR ÉTUDIANT
+     ============================================================ -->
+<nav th:fragment="sidebar-student" class="sidebar d-flex flex-column sidebar-student">
+    <div class="sidebar-header">
+        <div class="sidebar-logo">
+            <i class="bi bi-mortarboard-fill"></i>
+            <span>GestionEtu</span>
+        </div>
+        <div class="sidebar-role-badge badge-student">ÉTUDIANT</div>
+    </div>
+    <ul class="sidebar-menu">
+        <li><a th:href="@{/student/dashboard}"
+               th:classappend="${#httpServletRequest.requestURI.contains('/student/dashboard')} ? 'active'">
+            <i class="bi bi-speedometer2"></i><span>Mon Espace</span></a></li>
+        <li class="menu-header">Mon dossier</li>
+        <li><a href="#notesSection" onclick="scrollToSection('notesSection')">
+            <i class="bi bi-journal-check"></i><span>Mes Notes</span></a></li>
+        <li><a href="#absencesSection" onclick="scrollToSection('absencesSection')">
+            <i class="bi bi-calendar-x"></i><span>Mes Absences</span></a></li>
+        <li><a href="#bulletinSection">
+            <i class="bi bi-file-earmark-pdf"></i><span>Télécharger Bulletin</span></a></li>
+    </ul>
+    <div class="sidebar-footer">
+        <a th:href="@{/logout}" class="btn-logout">
+            <i class="bi bi-box-arrow-right"></i> Déconnexion
+        </a>
+    </div>
+</nav>
+
+<!-- ============================================================
+     FRAGMENT : TOPBAR
+     ============================================================ -->
+<header th:fragment="topbar(pageTitle)" class="topbar d-flex align-items-center justify-content-between px-4">
+    <div class="d-flex align-items-center gap-3">
+        <button class="btn btn-icon sidebar-toggle" id="sidebarToggle">
+            <i class="bi bi-list fs-4"></i>
+        </button>
+        <div class="page-breadcrumb">
+            <h5 class="mb-0 fw-semibold" th:text="${pageTitle}">Page</h5>
+        </div>
+    </div>
+    <div class="d-flex align-items-center gap-3">
+        <span class="text-muted small" th:text="${#dates.format(#dates.createNow(), 'dd MMMM yyyy')}">Date</span>
+        <div class="user-info d-flex align-items-center gap-2">
+            <div class="user-avatar">
+                <i class="bi bi-person-circle fs-4"></i>
+            </div>
+            <div>
+                <div class="fw-semibold small" sec:authentication="name">Utilisateur</div>
+            </div>
+        </div>
+    </div>
+</header>
+
+<!-- ============================================================
+     FRAGMENT : ALERTS
+     ============================================================ -->
+<div th:fragment="alerts">
+    <div th:if="${successMessage}" class="alert alert-success alert-dismissible fade show" role="alert">
+        <i class="bi bi-check-circle-fill me-2"></i>
+        <span th:text="${successMessage}"></span>
+        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+    </div>
+    <div th:if="${errorMessage}" class="alert alert-danger alert-dismissible fade show" role="alert">
+        <i class="bi bi-exclamation-triangle-fill me-2"></i>
+        <span th:text="${errorMessage}"></span>
+        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+    </div>
+    <div th:if="${warningMessage}" class="alert alert-warning alert-dismissible fade show" role="alert">
+        <i class="bi bi-exclamation-circle-fill me-2"></i>
+        <span th:text="${warningMessage}"></span>
+        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+    </div>
+    <div th:if="${infoMessage}" class="alert alert-info alert-dismissible fade show" role="alert">
+        <i class="bi bi-info-circle-fill me-2"></i>
+        <span th:text="${infoMessage}"></span>
+        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+    </div>
+</div>
+
+<!-- ============================================================
+     FRAGMENT : SCRIPTS
+     ============================================================ -->
+<div th:fragment="scripts">
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+    <script th:src="@{/js/app.js}"></script>
+</div>
+
+</html>

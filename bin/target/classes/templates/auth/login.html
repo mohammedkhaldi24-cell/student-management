@@ -1,0 +1,131 @@
+<!DOCTYPE html>
+<html lang="fr" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8"/>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+    <title>Connexion | GestionEtu</title>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css"/>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.css"/>
+    <link rel="stylesheet" th:href="@{/css/style.css}"/>
+</head>
+<body class="login-body">
+
+<div class="login-wrapper">
+    <!-- Côté gauche - Branding -->
+    <div class="login-left d-none d-lg-flex flex-column justify-content-center align-items-center">
+        <div class="login-brand">
+            <i class="bi bi-mortarboard-fill login-brand-icon"></i>
+            <h1 class="login-brand-title">GestionEtu</h1>
+            <p class="login-brand-subtitle">Plateforme de Gestion des Notes et Absences</p>
+        </div>
+        <div class="login-features mt-5">
+            <div class="feature-item">
+                <i class="bi bi-check-circle-fill text-success me-2"></i>
+                Suivi des notes en temps réel
+            </div>
+            <div class="feature-item">
+                <i class="bi bi-check-circle-fill text-success me-2"></i>
+                Gestion des absences
+            </div>
+            <div class="feature-item">
+                <i class="bi bi-check-circle-fill text-success me-2"></i>
+                Bulletins PDF automatiques
+            </div>
+            <div class="feature-item">
+                <i class="bi bi-check-circle-fill text-success me-2"></i>
+                Statistiques et rapports
+            </div>
+        </div>
+    </div>
+
+    <!-- Côté droit - Formulaire -->
+    <div class="login-right d-flex flex-column justify-content-center align-items-center">
+        <div class="login-card">
+            <div class="login-card-header text-center mb-4">
+                <div class="d-lg-none mb-3">
+                    <i class="bi bi-mortarboard-fill login-brand-icon-sm"></i>
+                </div>
+                <h2 class="fw-bold">Connexion</h2>
+                <p class="text-muted">Entrez vos identifiants pour accéder à votre espace</p>
+            </div>
+
+            <!-- Messages -->
+            <div th:if="${errorMessage}" class="alert alert-danger d-flex align-items-center gap-2" role="alert">
+                <i class="bi bi-exclamation-triangle-fill"></i>
+                <span th:text="${errorMessage}"></span>
+            </div>
+            <div th:if="${logoutMessage}" class="alert alert-success d-flex align-items-center gap-2" role="alert">
+                <i class="bi bi-check-circle-fill"></i>
+                <span th:text="${logoutMessage}"></span>
+            </div>
+
+            <!-- Formulaire de connexion -->
+            <form th:action="@{/login}" method="post" class="login-form">
+                <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}"/>
+
+                <div class="mb-3">
+                    <label for="username" class="form-label fw-semibold">
+                        <i class="bi bi-person me-1"></i>Nom d'utilisateur
+                    </label>
+                    <input type="text" class="form-control form-control-lg"
+                           id="username" name="username"
+                           placeholder="ex : admin"
+                           required autofocus/>
+                </div>
+
+                <div class="mb-4">
+                    <label for="password" class="form-label fw-semibold">
+                        <i class="bi bi-lock me-1"></i>Mot de passe
+                    </label>
+                    <div class="input-group">
+                        <input type="password" class="form-control form-control-lg"
+                               id="password" name="password"
+                               placeholder="••••••••" required/>
+                        <button class="btn btn-outline-secondary" type="button" id="togglePwd"
+                                onclick="togglePassword()">
+                            <i class="bi bi-eye" id="eyeIcon"></i>
+                        </button>
+                    </div>
+                </div>
+
+                <button type="submit" class="btn btn-primary btn-lg w-100 login-btn">
+                    <i class="bi bi-box-arrow-in-right me-2"></i>Se Connecter
+                </button>
+            </form>
+
+            <!-- Aide -->
+            <div class="login-help mt-4 p-3 rounded">
+                <p class="text-muted small mb-2 fw-semibold">
+                    <i class="bi bi-info-circle me-1"></i>Comptes de démonstration :
+                </p>
+                <div class="demo-accounts">
+                    <span class="badge bg-danger me-1">admin / admin123</span>
+                    <span class="badge bg-warning text-dark me-1">chef.info / chef123</span>
+                    <span class="badge bg-info me-1">prof.ali / teacher123</span>
+                    <span class="badge bg-success">etudiant.1 / student123</span>
+                </div>
+            </div>
+        </div>
+
+        <p class="text-muted small mt-3">
+            &copy; 2025 GestionEtu — Projet de Fin d'Études
+        </p>
+    </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+<script>
+    function togglePassword() {
+        const pwd = document.getElementById('password');
+        const icon = document.getElementById('eyeIcon');
+        if (pwd.type === 'password') {
+            pwd.type = 'text';
+            icon.className = 'bi bi-eye-slash';
+        } else {
+            pwd.type = 'password';
+            icon.className = 'bi bi-eye';
+        }
+    }
+</script>
+</body>
+</html>

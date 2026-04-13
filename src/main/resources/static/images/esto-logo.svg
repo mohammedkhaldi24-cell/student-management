@@ -1,0 +1,20 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 420 420" role="img" aria-labelledby="title desc">
+  <title id="title">Logo ESTO</title>
+  <desc id="desc">Logo geometrique inspire de l'identite EST Oujda</desc>
+  <defs>
+    <linearGradient id="g" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#b16b52"/>
+      <stop offset="100%" stop-color="#8f4d38"/>
+    </linearGradient>
+  </defs>
+  <polygon points="210,18 402,210 210,402 18,210" fill="url(#g)" stroke="#2c1a14" stroke-width="8"/>
+  <polygon points="210,62 358,210 210,358 62,210" fill="#1e1e1e" opacity=".1"/>
+  <rect x="132" y="106" width="156" height="156" rx="6" fill="#1f1f1f" stroke="#d29a7f" stroke-width="10"/>
+  <rect x="154" y="128" width="34" height="112" fill="#d29a7f"/>
+  <rect x="202" y="128" width="34" height="112" fill="#d29a7f"/>
+  <rect x="250" y="128" width="16" height="112" fill="#d29a7f"/>
+  <circle cx="210" cy="210" r="20" fill="#0d0d0d" stroke="#d29a7f" stroke-width="6"/>
+  <path d="M106 260 L314 260" stroke="#d29a7f" stroke-width="8"/>
+  <text x="210" y="330" text-anchor="middle" fill="#1a0f0c" font-family="Segoe UI, Arial, sans-serif" font-size="26" font-weight="700">EST Oujda</text>
+  <text x="210" y="356" text-anchor="middle" fill="#1a0f0c" font-family="Segoe UI, Arial, sans-serif" font-size="18" font-weight="700">1978</text>
+</svg>

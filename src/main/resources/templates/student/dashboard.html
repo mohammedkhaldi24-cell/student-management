@@ -1,0 +1,526 @@
+﻿<!DOCTYPE html>
+<html lang="fr" xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{fragments/layout :: head('Mon Espace Étudiant')}"></head>
+<body class="dashboard-body">
+<div class="layout-wrapper">
+    <div th:replace="~{fragments/layout :: sidebar-student}"></div>
+    <div class="main-content">
+        <div th:replace="~{fragments/layout :: topbar('Mon Espace Étudiant')}"></div>
+        <div class="content-area">
+
+            <!-- Profil étudiant -->
+            <div class="student-profile-card mb-4 p-4 rounded d-flex align-items-center gap-4">
+                <div class="profile-avatar">
+                    <span th:text="${#strings.substring(student.user.firstName,0,1) + #strings.substring(student.user.lastName,0,1)}">AB</span>
+                </div>
+                <div>
+                    <h4 class="fw-bold mb-1" th:text="${student.fullName}">Nom</h4>
+                    <p class="mb-0 text-muted">
+                        <i class="bi bi-credit-card me-1"></i>
+                        Matricule : <strong th:text="${student.matricule}">-</strong>
+                        &bull;
+                        <i class="bi bi-building me-1 ms-2"></i>
+                        <span th:text="${student.classe?.nom ?: 'Non assigné'}">Classe</span>
+                        &bull;
+                        <i class="bi bi-diagram-3 me-1 ms-2"></i>
+                        <span th:text="${student.classe?.filiere?.nom ?: '-'}">Filière</span>
+                    </p>
+                </div>
+                <div class="ms-auto d-none d-md-block">
+                    <img th:src="@{/images/esto-logo.jpg}" alt="Logo ESTO" class="dashboard-brand-logo"/>
+                </div>
+            </div>
+
+            <!-- Cartes moyennes -->
+            <div class="row g-4 mb-4">
+                <div class="col-md-4">
+                    <div class="stat-card" th:classappend="${moyenneS1 >= 10} ? 'stat-card-success' : 'stat-card-danger'">
+                        <div class="stat-icon"><i class="bi bi-graph-up"></i></div>
+                        <div class="stat-info">
+                            <div class="stat-value" th:text="${#numbers.formatDecimal(moyenneS1,1,2)}">0</div>
+                            <div class="stat-label">Moyenne S1 /20</div>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-4">
+                    <div class="stat-card" th:classappend="${moyenneS2 >= 10} ? 'stat-card-success' : 'stat-card-danger'">
+                        <div class="stat-icon"><i class="bi bi-graph-up-arrow"></i></div>
+                        <div class="stat-info">
+                            <div class="stat-value" th:text="${#numbers.formatDecimal(moyenneS2,1,2)}">0</div>
+                            <div class="stat-label">Moyenne S2 /20</div>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-4">
+                    <div class="stat-card" th:classappend="${totalHeuresNJ <= 6} ? 'stat-card-warning' : 'stat-card-danger'">
+                        <div class="stat-icon"><i class="bi bi-calendar-x"></i></div>
+                        <div class="stat-info">
+                            <div class="stat-value" th:text="${totalHeuresAbsence + 'h'}">0h</div>
+                            <div class="stat-label">Absences totales</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Graphique radar notes + Téléchargement -->
+            <div class="row g-4 mb-4">
+                <div class="col-lg-7">
+                    <div class="card h-100">
+                        <div class="card-header">
+                            <h6 class="mb-0">
+                                <i class="bi bi-bar-chart-fill me-2 text-primary"></i>
+                                Mes Notes — Semestre 1
+                            </h6>
+                        </div>
+                        <div class="card-body">
+                            <canvas id="chartNotes" height="220"></canvas>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-lg-5">
+                    <div class="card h-100">
+                        <div class="card-header">
+                            <h6 class="mb-0">
+                                <i class="bi bi-file-earmark-pdf text-danger me-2"></i>
+                                Télécharger mes Bulletins
+                            </h6>
+                        </div>
+                        <div class="card-body d-flex flex-column gap-3 justify-content-center" id="bulletinSection">
+                            <div class="bulletin-card p-3 border rounded">
+                                <div class="d-flex justify-content-between align-items-center">
+                                    <div>
+                                        <h6 class="mb-1 fw-bold">Bulletin Semestre 1</h6>
+                                        <small class="text-muted" th:text="${anneeAcademique}">2024-2025</small>
+                                    </div>
+                                    <a th:href="@{/student/bulletin/S1}"
+                                       class="btn btn-danger" target="_blank">
+                                        <i class="bi bi-download me-1"></i>Télécharger PDF
+                                    </a>
+                                </div>
+                            </div>
+                            <div class="bulletin-card p-3 border rounded">
+                                <div class="d-flex justify-content-between align-items-center">
+                                    <div>
+                                        <h6 class="mb-1 fw-bold">Bulletin Semestre 2</h6>
+                                        <small class="text-muted" th:text="${anneeAcademique}">2024-2025</small>
+                                    </div>
+                                    <a th:href="@{/student/bulletin/S2}"
+                                       class="btn btn-danger" target="_blank">
+                                        <i class="bi bi-download me-1"></i>Télécharger PDF
+                                    </a>
+                                </div>
+                            </div>
+
+                            <!-- Résumé -->
+                            <div class="moyenne-summary p-3 rounded text-center"
+                                 th:classappend="${moyenneGenerale >= 10} ? 'bg-success bg-opacity-10 border-success' : 'bg-danger bg-opacity-10 border-danger'">
+                                <div class="fw-bold fs-4"
+                                     th:text="${#numbers.formatDecimal(moyenneGenerale,1,2) + ' / 20'}"
+                                     th:classappend="${moyenneGenerale >= 10} ? 'text-success' : 'text-danger'">-</div>
+                                <div class="text-muted small">Moyenne Générale Annuelle</div>
+                                <div class="badge mt-1"
+                                     th:classappend="${moyenneGenerale >= 16} ? 'bg-success' :
+                                                     (${moyenneGenerale >= 14} ? 'bg-info' :
+                                                     (${moyenneGenerale >= 12} ? 'bg-warning text-dark' :
+                                                     (${moyenneGenerale >= 10} ? 'bg-secondary' : 'bg-danger')))"
+                                     th:text="${moyenneGenerale >= 16} ? 'Très Bien' :
+                                              (${moyenneGenerale >= 14} ? 'Bien' :
+                                              (${moyenneGenerale >= 12} ? 'Assez Bien' :
+                                              (${moyenneGenerale >= 10} ? 'Passable' : 'Insuffisant')))">Mention</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Apercus plateforme -->
+            <div class="row g-4 mb-4">
+                <div class="col-lg-4">
+                    <div class="card h-100">
+                        <div class="card-header">
+                            <h6 class="mb-0"><i class="bi bi-calendar3-week me-2"></i>Prochaines seances</h6>
+                        </div>
+                        <div class="card-body">
+                            <ul class="list-group list-group-flush">
+                                <li th:each="s : ${upcomingSessions}" class="list-group-item px-0">
+                                    <div class="fw-semibold" th:text="${s.jour + ' ' + #temporals.format(s.heureDebut,'HH:mm')}">LUNDI 08:30</div>
+                                    <small class="text-muted" th:text="${s.module != null ? s.module.nom : '-'}">Module</small>
+                                </li>
+                                <li th:if="${#lists.isEmpty(upcomingSessions)}" class="list-group-item px-0 text-muted">
+                                    Aucun planning disponible.
+                                </li>
+                            </ul>
+                            <a th:href="@{/student/emploi-du-temps}" class="btn btn-sm btn-outline-primary mt-3 w-100">
+                                Voir tout l'emploi du temps
+                            </a>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-lg-4">
+                    <div class="card h-100">
+                        <div class="card-header">
+                            <h6 class="mb-0"><i class="bi bi-journals me-2"></i>Nouveaux cours</h6>
+                        </div>
+                        <div class="card-body">
+                            <ul class="list-group list-group-flush">
+                                <li th:each="c : ${recentCourses}" class="list-group-item px-0">
+                                    <div class="fw-semibold" th:text="${c.title}">Titre</div>
+                                    <small class="text-muted" th:text="${c.module != null ? c.module.nom : '-'}">Module</small>
+                                </li>
+                                <li th:if="${#lists.isEmpty(recentCourses)}" class="list-group-item px-0 text-muted">
+                                    Aucun cours publie.
+                                </li>
+                            </ul>
+                            <a th:href="@{/student/courses}" class="btn btn-sm btn-outline-primary mt-3 w-100">Voir tous les cours</a>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-lg-4">
+                    <div class="card h-100">
+                        <div class="card-header d-flex justify-content-between align-items-center">
+                            <h6 class="mb-0"><i class="bi bi-journal-check me-2"></i>Mes devoirs</h6>
+                            <span class="badge bg-danger" th:text="${overdueAssignmentsCount + ' en retard'}">0 en retard</span>
+                        </div>
+                        <div class="card-body">
+                            <ul class="list-group list-group-flush">
+                                <li th:each="a : ${upcomingAssignments}" class="list-group-item px-0">
+                                    <div class="fw-semibold" th:text="${a.assignment.title}">Titre</div>
+                                    <small class="text-muted">
+                                        Limite:
+                                        <span th:text="${#temporals.format(a.assignment.dueDate,'dd/MM/yyyy HH:mm')}">Date</span>
+                                    </small>
+                                </li>
+                                <li th:if="${#lists.isEmpty(upcomingAssignments)}" class="list-group-item px-0 text-muted">
+                                    Aucun devoir a venir.
+                                </li>
+                            </ul>
+                            <a th:href="@{/student/assignments}" class="btn btn-sm btn-outline-primary mt-3 w-100">Voir tous les devoirs</a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="card mb-4">
+                <div class="card-header">
+                    <h6 class="mb-0"><i class="bi bi-grid me-2"></i>Acces rapide</h6>
+                </div>
+                <div class="card-body">
+                    <div class="row g-2">
+                        <div class="col-md-4 col-lg-3">
+                            <a th:href="@{/student/notes}" class="btn btn-outline-primary w-100">
+                                <i class="bi bi-journal-check me-1"></i>Mes notes
+                            </a>
+                        </div>
+                        <div class="col-md-4 col-lg-3">
+                            <a th:href="@{/student/absences}" class="btn btn-outline-primary w-100">
+                                <i class="bi bi-calendar-x me-1"></i>Mes absences
+                            </a>
+                        </div>
+                        <div class="col-md-4 col-lg-3">
+                            <a th:href="@{/student/emploi-du-temps}" class="btn btn-outline-primary w-100">
+                                <i class="bi bi-calendar3-week me-1"></i>Emploi du temps
+                            </a>
+                        </div>
+                        <div class="col-md-4 col-lg-3">
+                            <a th:href="@{/student/courses}" class="btn btn-outline-primary w-100">
+                                <i class="bi bi-journals me-1"></i>Cours
+                            </a>
+                        </div>
+                        <div class="col-md-4 col-lg-3">
+                            <a th:href="@{/student/announcements}" class="btn btn-outline-primary w-100">
+                                <i class="bi bi-megaphone me-1"></i>Annonces
+                            </a>
+                        </div>
+                        <div class="col-md-4 col-lg-3">
+                            <a th:href="@{/student/assignments}" class="btn btn-outline-primary w-100">
+                                <i class="bi bi-journal-check me-1"></i>Devoirs
+                            </a>
+                        </div>
+                        <div class="col-md-4 col-lg-3">
+                            <a href="#bulletinSection" class="btn btn-outline-primary w-100">
+                                <i class="bi bi-file-earmark-pdf me-1"></i>Bulletins
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="row g-4 mb-4">
+                <div class="col-lg-6">
+                    <div class="card h-100">
+                        <div class="card-header">
+                            <h6 class="mb-0"><i class="bi bi-megaphone me-2"></i>Dernieres annonces</h6>
+                        </div>
+                        <div class="card-body">
+                            <ul class="list-group list-group-flush">
+                                <li th:each="a : ${recentAnnouncements}" class="list-group-item px-0">
+                                    <div class="fw-semibold" th:text="${a.title}">Titre</div>
+                                    <small class="text-muted" th:text="${#temporals.format(a.createdAt,'dd/MM HH:mm')}">Date</small>
+                                </li>
+                                <li th:if="${#lists.isEmpty(recentAnnouncements)}" class="list-group-item px-0 text-muted">
+                                    Aucune annonce.
+                                </li>
+                            </ul>
+                            <a th:href="@{/student/announcements}" class="btn btn-sm btn-outline-primary mt-3 w-100">Voir toutes les annonces</a>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-lg-6">
+                    <div class="card h-100">
+                        <div class="card-header">
+                            <h6 class="mb-0"><i class="bi bi-chat-left-text me-2"></i>Derniers feedbacks</h6>
+                        </div>
+                        <div class="card-body">
+                            <ul class="list-group list-group-flush">
+                                <li th:each="fb : ${recentFeedback}" class="list-group-item px-0">
+                                    <div class="d-flex justify-content-between">
+                                        <span class="fw-semibold" th:text="${fb.assignment.title}">Devoir</span>
+                                        <span class="badge bg-success" th:if="${fb.score != null}" th:text="${fb.score}">16.0</span>
+                                    </div>
+                                    <small class="text-muted" th:text="${fb.feedback != null && !fb.feedback.isBlank() ? fb.feedback : 'Feedback disponible'}">Feedback</small>
+                                </li>
+                                <li th:if="${#lists.isEmpty(recentFeedback)}" class="list-group-item px-0 text-muted">
+                                    Aucun feedback pour le moment.
+                                </li>
+                            </ul>
+                            <a th:href="@{/student/assignments?filter=submitted}" class="btn btn-sm btn-outline-primary mt-3 w-100">Voir mes soumissions</a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Tableau Notes S1 -->
+            <div class="card mb-4" id="notesSection">
+                <div class="card-header d-flex justify-content-between align-items-center">
+                    <ul class="nav nav-tabs card-header-tabs" role="tablist">
+                        <li class="nav-item">
+                            <a class="nav-link active" data-bs-toggle="tab" href="#tabS1">
+                                <i class="bi bi-journal-text me-1"></i>Notes S1
+                                <span class="badge bg-primary ms-1" th:text="${#lists.size(notesS1)}">0</span>
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" data-bs-toggle="tab" href="#tabS2">
+                                <i class="bi bi-journal-text me-1"></i>Notes S2
+                                <span class="badge bg-primary ms-1" th:text="${#lists.size(notesS2)}">0</span>
+                            </a>
+                        </li>
+                    </ul>
+                    <a th:href="@{/student/notes}" class="btn btn-sm btn-outline-primary">
+                        Ouvrir page notes
+                    </a>
+                </div>
+                <div class="card-body p-0">
+                    <div class="tab-content">
+                        <!-- Notes S1 -->
+                        <div class="tab-pane fade show active" id="tabS1">
+                            <div class="table-responsive">
+                                <table class="table mb-0">
+                                    <thead>
+                                        <tr>
+                                            <th>Module</th>
+                                            <th class="text-center">Coeff.</th>
+                                            <th class="text-center">CC (40%)</th>
+                                            <th class="text-center">Examen (60%)</th>
+                                            <th class="text-center">Note /20</th>
+                                            <th class="text-center">Note × Coeff</th>
+                                            <th class="text-center">Résultat</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        <tr th:each="note : ${notesS1}">
+                                            <td class="fw-semibold" th:text="${note.module.nom}">-</td>
+                                            <td class="text-center"><span class="badge bg-secondary" th:text="${note.module.coefficient}">1</span></td>
+                                            <td class="text-center" th:text="${note.noteCC != null ? #numbers.formatDecimal(note.noteCC,1,2) : '—'}">—</td>
+                                            <td class="text-center" th:text="${note.noteExamen != null ? #numbers.formatDecimal(note.noteExamen,1,2) : '—'}">—</td>
+                                            <td class="text-center">
+                                                <span th:text="${note.noteFinal != null ? #numbers.formatDecimal(note.noteFinal,1,2) : '—'}"
+                                                      class="fw-bold"
+                                                      th:classappend="${note.noteFinal != null and note.noteFinal >= 10} ? 'text-success' : 'text-danger'">—</span>
+                                            </td>
+                                            <td class="text-center"
+                                                th:text="${note.noteFinal != null ? #numbers.formatDecimal(note.noteFinal * note.module.coefficient,1,2) : '—'}">—</td>
+                                            <td class="text-center">
+                                                <span th:text="${note.statut}"
+                                                      th:classappend="${note.statut == 'Admis'} ? 'badge bg-success' :
+                                                                      (${note.statut == 'Rattrapage'} ? 'badge bg-warning text-dark' :
+                                                                      (${note.statut == 'Ajourné'} ? 'badge bg-danger' : 'badge bg-secondary'))">-</span>
+                                            </td>
+                                        </tr>
+                                        <!-- Ligne Moyenne -->
+                                        <tr th:if="${!#lists.isEmpty(notesS1)}" class="table-light fw-bold">
+                                            <td colspan="4" class="text-end pe-3">Moyenne S1 :</td>
+                                            <td class="text-center fw-bold fs-6"
+                                                th:text="${#numbers.formatDecimal(moyenneS1,1,2) + '/20'}"
+                                                th:classappend="${moyenneS1 >= 10} ? 'text-success' : 'text-danger'">-</td>
+                                            <td colspan="2"></td>
+                                        </tr>
+                                        <tr th:if="${#lists.isEmpty(notesS1)}">
+                                            <td colspan="7" class="text-center py-4 text-muted">Aucune note disponible</td>
+                                        </tr>
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+
+                        <!-- Notes S2 -->
+                        <div class="tab-pane fade" id="tabS2">
+                            <div class="table-responsive">
+                                <table class="table mb-0">
+                                    <thead>
+                                        <tr>
+                                            <th>Module</th>
+                                            <th class="text-center">Coeff.</th>
+                                            <th class="text-center">CC (40%)</th>
+                                            <th class="text-center">Examen (60%)</th>
+                                            <th class="text-center">Note /20</th>
+                                            <th class="text-center">Note × Coeff</th>
+                                            <th class="text-center">Résultat</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        <tr th:each="note : ${notesS2}">
+                                            <td class="fw-semibold" th:text="${note.module.nom}">-</td>
+                                            <td class="text-center"><span class="badge bg-secondary" th:text="${note.module.coefficient}">1</span></td>
+                                            <td class="text-center" th:text="${note.noteCC != null ? #numbers.formatDecimal(note.noteCC,1,2) : '—'}">—</td>
+                                            <td class="text-center" th:text="${note.noteExamen != null ? #numbers.formatDecimal(note.noteExamen,1,2) : '—'}">—</td>
+                                            <td class="text-center">
+                                                <span th:text="${note.noteFinal != null ? #numbers.formatDecimal(note.noteFinal,1,2) : '—'}"
+                                                      class="fw-bold"
+                                                      th:classappend="${note.noteFinal != null and note.noteFinal >= 10} ? 'text-success' : 'text-danger'">—</span>
+                                            </td>
+                                            <td class="text-center"
+                                                th:text="${note.noteFinal != null ? #numbers.formatDecimal(note.noteFinal * note.module.coefficient,1,2) : '—'}">—</td>
+                                            <td class="text-center">
+                                                <span th:text="${note.statut}"
+                                                      th:classappend="${note.statut == 'Admis'} ? 'badge bg-success' :
+                                                                      (${note.statut == 'Rattrapage'} ? 'badge bg-warning text-dark' :
+                                                                      (${note.statut == 'Ajourné'} ? 'badge bg-danger' : 'badge bg-secondary'))">-</span>
+                                            </td>
+                                        </tr>
+                                        <tr th:if="${!#lists.isEmpty(notesS2)}" class="table-light fw-bold">
+                                            <td colspan="4" class="text-end pe-3">Moyenne S2 :</td>
+                                            <td class="text-center fw-bold fs-6"
+                                                th:text="${#numbers.formatDecimal(moyenneS2,1,2) + '/20'}"
+                                                th:classappend="${moyenneS2 >= 10} ? 'text-success' : 'text-danger'">-</td>
+                                            <td colspan="2"></td>
+                                        </tr>
+                                        <tr th:if="${#lists.isEmpty(notesS2)}">
+                                            <td colspan="7" class="text-center py-4 text-muted">Aucune note disponible</td>
+                                        </tr>
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Tableau des absences -->
+            <div class="card" id="absencesSection">
+                <div class="card-header d-flex justify-content-between align-items-center">
+                    <h6 class="mb-0">
+                        <i class="bi bi-calendar-x me-2 text-danger"></i>Mes Absences
+                    </h6>
+                    <div class="d-flex gap-2 align-items-center">
+                        <span class="badge bg-danger">
+                            <span th:text="${totalHeuresNJ}">0</span>h non justifiees
+                        </span>
+                        <span class="badge bg-success">
+                            <span th:text="${totalHeuresAbsence - totalHeuresNJ}">0</span>h justifiees
+                        </span>
+                        <a th:href="@{/student/absences}" class="btn btn-sm btn-outline-primary">
+                            Ouvrir page absences
+                        </a>
+                    </div>
+                </div>
+                <div class="card-body p-0">
+                    <div class="table-responsive">
+                        <table class="table mb-0">
+                            <thead>
+                                <tr><th>Date</th><th>Module</th><th>Heures</th><th>Justifiée</th><th>Motif</th></tr>
+                            </thead>
+                            <tbody>
+                                <tr th:each="abs : ${absences}">
+                                    <td th:text="${#temporals.format(abs.dateAbsence,'dd/MM/yyyy')}">-</td>
+                                    <td th:text="${abs.module.nom}">-</td>
+                                    <td class="text-center">
+                                        <span class="badge bg-secondary" th:text="${abs.nombreHeures + 'h'}">-</span>
+                                    </td>
+                                    <td class="text-center">
+                                        <span th:if="${abs.justifiee}" class="badge bg-success">
+                                            <i class="bi bi-check-circle me-1"></i>Oui
+                                        </span>
+                                        <span th:unless="${abs.justifiee}" class="badge bg-danger">
+                                            <i class="bi bi-x-circle me-1"></i>Non
+                                        </span>
+                                    </td>
+                                    <td class="text-muted small" th:text="${abs.motif ?: '—'}">—</td>
+                                </tr>
+                                <tr th:if="${#lists.isEmpty(absences)}">
+                                    <td colspan="5" class="text-center py-4 text-success">
+                                        <i class="bi bi-check-circle-fill fs-3 d-block mb-2"></i>
+                                        Félicitations ! Aucune absence enregistrée.
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+
+        </div>
+    </div>
+</div>
+
+<div th:replace="~{fragments/layout :: scripts}"></div>
+<script th:inline="javascript">
+    const labels = [[${chartLabels}]];
+    const data = [[${chartData}]];
+
+    if (labels && labels.length > 0 && document.getElementById('chartNotes')) {
+        new Chart(document.getElementById('chartNotes'), {
+            type: 'bar',
+            data: {
+                labels: labels,
+                datasets: [{
+                    label: 'Note /20',
+                    data: data,
+                    backgroundColor: data.map(v => v >= 10 ? 'rgba(40,167,69,0.7)' : 'rgba(220,53,69,0.7)'),
+                    borderColor: data.map(v => v >= 10 ? '#28a745' : '#dc3545'),
+                    borderWidth: 2,
+                    borderRadius: 6
+                }, {
+                    label: 'Seuil (10/20)',
+                    type: 'line',
+                    data: data.map(() => 10),
+                    borderColor: '#ffc107',
+                    borderDash: [5, 5],
+                    borderWidth: 2,
+                    pointRadius: 0,
+                    fill: false
+                }]
+            },
+            options: {
+                responsive: true,
+                scales: {
+                    y: { beginAtZero: true, max: 20,
+                         title: { display: true, text: 'Note /20' } }
+                },
+                plugins: {
+                    legend: { position: 'top' },
+                    tooltip: {
+                        callbacks: {
+                            label: ctx => ctx.dataset.label + ': ' + ctx.raw + '/20'
+                        }
+                    }
+                }
+            }
+        });
+    }
+
+</script>
+</body>
+</html>
+
+

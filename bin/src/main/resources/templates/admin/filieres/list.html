@@ -1,0 +1,58 @@
+<!DOCTYPE html>
+<html lang="fr" xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{fragments/layout :: head('Filières')}"></head>
+<body class="dashboard-body">
+<div class="layout-wrapper">
+    <div th:replace="~{fragments/layout :: sidebar-admin}"></div>
+    <div class="main-content">
+        <div th:replace="~{fragments/layout :: topbar('Gestion des Filières')}"></div>
+        <div class="content-area">
+            <div th:replace="~{fragments/layout :: alerts}"></div>
+            <div class="card">
+                <div class="card-header d-flex justify-content-between align-items-center">
+                    <h6 class="mb-0"><i class="bi bi-diagram-3-fill me-2"></i>Filières</h6>
+                    <a th:href="@{/admin/filieres/new}" class="btn btn-primary btn-sm">
+                        <i class="bi bi-plus-circle me-1"></i>Nouvelle Filière
+                    </a>
+                </div>
+                <div class="card-body p-0">
+                    <div class="table-responsive">
+                        <table class="table table-hover mb-0">
+                            <thead>
+                                <tr>
+                                    <th>Code</th><th>Nom</th><th>Description</th>
+                                    <th>Chef de Filière</th><th>Classes</th><th>Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr th:each="f : ${filieres}">
+                                    <td><span class="badge bg-primary" th:text="${f.code}">-</span></td>
+                                    <td class="fw-semibold" th:text="${f.nom}">-</td>
+                                    <td class="text-muted small" th:text="${f.description ?: '-'}">-</td>
+                                    <td th:text="${f.chefFiliere != null ? f.chefFiliere.fullName : 'Non assigné'}">-</td>
+                                    <td><span class="badge bg-info" th:text="${#lists.size(f.classes)}">0</span></td>
+                                    <td>
+                                        <a th:href="@{/admin/filieres/{id}/edit(id=${f.id})}" class="btn btn-sm btn-outline-primary me-1">
+                                            <i class="bi bi-pencil"></i>
+                                        </a>
+                                        <form th:action="@{/admin/filieres/{id}/delete(id=${f.id})}" method="post" class="d-inline"
+                                              onsubmit="return confirm('Supprimer cette filière ?')">
+                                            <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}"/>
+                                            <button class="btn btn-sm btn-outline-danger"><i class="bi bi-trash"></i></button>
+                                        </form>
+                                    </td>
+                                </tr>
+                                <tr th:if="${#lists.isEmpty(filieres)}">
+                                    <td colspan="6" class="text-center py-4 text-muted">Aucune filière</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<div th:replace="~{fragments/layout :: scripts}"></div>
+</body>
+</html>

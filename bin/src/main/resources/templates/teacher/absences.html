@@ -1,0 +1,67 @@
+<!DOCTYPE html>
+<html lang="fr" xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{fragments/layout :: head('Absences')}"></head>
+<body class="dashboard-body">
+<div class="layout-wrapper">
+    <div th:replace="~{fragments/layout :: sidebar-teacher}"></div>
+    <div class="main-content">
+        <div th:replace="~{fragments/layout :: topbar('Gestion des Absences')}"></div>
+        <div class="content-area">
+            <div th:replace="~{fragments/layout :: alerts}"></div>
+
+            <div class="card mb-4">
+                <div class="card-header">
+                    <h6 class="mb-0"><i class="bi bi-funnel me-2"></i>Sélectionner Module et Classe</h6>
+                </div>
+                <div class="card-body">
+                    <div class="row g-3 align-items-end">
+                        <div class="col-md-4">
+                            <label class="form-label fw-semibold">Module</label>
+                            <select id="moduleAbs" class="form-select">
+                                <option value="">-- Sélectionner --</option>
+                                <option th:each="m : ${modules}"
+                                        th:value="${m.id}"
+                                        th:text="${m.nom + ' (' + m.semestre + ')'}">Module</option>
+                            </select>
+                        </div>
+                        <div class="col-md-4">
+                            <label class="form-label fw-semibold">Classe</label>
+                            <select id="classeAbs" class="form-select">
+                                <option value="">-- Sélectionner --</option>
+                                <option th:each="c : ${classes}"
+                                        th:value="${c.id}"
+                                        th:text="${c.nom}">Classe</option>
+                            </select>
+                        </div>
+                        <div class="col-md-2">
+                            <button type="button" class="btn btn-primary w-100" onclick="chargerAbsences()">
+                                <i class="bi bi-search me-1"></i>Charger
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Information -->
+            <div class="text-center py-5 text-muted">
+                <i class="bi bi-calendar-x fs-1 d-block mb-3 text-danger opacity-50"></i>
+                <h5>Sélectionnez un module et une classe</h5>
+                <p>Vous pourrez ensuite marquer les absences des étudiants</p>
+            </div>
+        </div>
+    </div>
+</div>
+<div th:replace="~{fragments/layout :: scripts}"></div>
+<script>
+function chargerAbsences() {
+    const moduleId = document.getElementById('moduleAbs').value;
+    const classeId = document.getElementById('classeAbs').value;
+    if (!moduleId || !classeId) {
+        alert('Veuillez sélectionner un module et une classe.');
+        return;
+    }
+    window.location.href = `/teacher/absences/module/${moduleId}/classe/${classeId}`;
+}
+</script>
+</body>
+</html>

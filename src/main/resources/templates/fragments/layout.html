@@ -1,0 +1,247 @@
+﻿<!DOCTYPE html>
+<html lang="fr" xmlns:th="http://www.thymeleaf.org"
+      xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
+
+<!-- ============================================================
+     FRAGMENT : HEAD
+     ============================================================ -->
+<head th:fragment="head(title)">
+    <meta charset="UTF-8"/>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+    <title th:text="${title} + ' | GestionEtu'">GestionEtu</title>
+
+    <!-- Bootstrap 5 -->
+    <link rel="stylesheet"
+          href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css"/>
+    <!-- Bootstrap Icons -->
+    <link rel="stylesheet"
+          href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.css"/>
+    <!-- Custom CSS -->
+    <link rel="stylesheet" th:href="@{/css/style.css}"/>
+</head>
+
+<!-- ============================================================
+     FRAGMENT : SIDEBAR ADMIN
+     ============================================================ -->
+<nav th:fragment="sidebar-admin" class="sidebar d-flex flex-column">
+    <div class="sidebar-header">
+        <a th:href="@{/admin/dashboard}" class="sidebar-logo text-decoration-none">
+            <img th:src="@{/images/esto-logo.jpg}" alt="Logo ESTO" class="brand-logo"/>
+            <div class="d-flex flex-column lh-sm">
+                <span>GestionEtu</span>
+                <small class="brand-subtitle">ESTO Oujda</small>
+            </div>
+        </a>
+        <div class="sidebar-role-badge">ADMIN</div>
+    </div>
+    <ul class="sidebar-menu">
+        <li><a th:href="@{/admin/dashboard}">
+            <i class="bi bi-house-door-fill"></i><span>Tableau de bord</span></a></li>
+        <li class="menu-header">Gestion</li>
+        <li><a th:href="@{/admin/users}">
+            <i class="bi bi-people-fill"></i><span>Utilisateurs</span></a></li>
+        <li><a th:href="@{/admin/filieres}">
+            <i class="bi bi-diagram-3-fill"></i><span>FiliÃ¨res</span></a></li>
+        <li><a th:href="@{/admin/classes}">
+            <i class="bi bi-mortarboard-fill"></i><span>Classes</span></a></li>
+        <li><a th:href="@{/admin/modules}">
+            <i class="bi bi-journal-bookmark-fill"></i><span>Modules</span></a></li>
+        <li><a th:href="@{/admin/emploi-du-temps}">
+            <i class="bi bi-calendar3-week"></i><span>Emploi du Temps</span></a></li>
+    </ul>
+    <div class="sidebar-footer">
+        <a th:href="@{/logout}" class="btn-logout">
+            <i class="bi bi-box-arrow-right"></i> DÃ©connexion
+        </a>
+    </div>
+</nav>
+
+<!-- ============================================================
+     FRAGMENT : SIDEBAR CHEF FILIÃˆRE
+     ============================================================ -->
+<nav th:fragment="sidebar-chef" class="sidebar d-flex flex-column sidebar-chef">
+    <div class="sidebar-header">
+        <a th:href="@{/chef/dashboard}" class="sidebar-logo text-decoration-none">
+            <img th:src="@{/images/esto-logo.jpg}" alt="Logo ESTO" class="brand-logo"/>
+            <div class="d-flex flex-column lh-sm">
+                <span>GestionEtu</span>
+                <small class="brand-subtitle">ESTO Oujda</small>
+            </div>
+        </a>
+        <div class="sidebar-role-badge badge-chef">CHEF FILIÃˆRE</div>
+    </div>
+    <ul class="sidebar-menu">
+        <li><a th:href="@{/chef/dashboard}">
+            <i class="bi bi-house-door-fill"></i><span>Tableau de bord</span></a></li>
+        <li class="menu-header">Ma FiliÃ¨re</li>
+        <li><a th:href="@{/chef/etudiants}">
+            <i class="bi bi-person-vcard-fill"></i><span>Ã‰tudiants</span></a></li>
+        <li><a th:href="@{/chef/notes}">
+            <i class="bi bi-clipboard2-data-fill"></i><span>Notes globales</span></a></li>
+        <li><a th:href="@{/chef/absences}">
+            <i class="bi bi-calendar-x"></i><span>Absences</span></a></li>
+        <li><a th:href="@{/chef/emploi-du-temps}">
+            <i class="bi bi-calendar3-week"></i><span>Emploi du temps</span></a></li>
+        <li><a th:href="@{/chef/courses}">
+            <i class="bi bi-book-fill"></i><span>Cours publies</span></a></li>
+        <li><a th:href="@{/chef/announcements}">
+            <i class="bi bi-bell-fill"></i><span>Annonces</span></a></li>
+        <li><a th:href="@{/chef/rapport}">
+            <i class="bi bi-file-earmark-pdf"></i><span>Rapports PDF</span></a></li>
+    </ul>
+    <div class="sidebar-footer">
+        <a th:href="@{/logout}" class="btn-logout">
+            <i class="bi bi-box-arrow-right"></i> DÃ©connexion
+        </a>
+    </div>
+</nav>
+
+<!-- ============================================================
+     FRAGMENT : SIDEBAR ENSEIGNANT
+     ============================================================ -->
+<nav th:fragment="sidebar-teacher" class="sidebar d-flex flex-column sidebar-teacher">
+    <div class="sidebar-header">
+        <a th:href="@{/teacher/dashboard}" class="sidebar-logo text-decoration-none">
+            <img th:src="@{/images/esto-logo.jpg}" alt="Logo ESTO" class="brand-logo"/>
+            <div class="d-flex flex-column lh-sm">
+                <span>GestionEtu</span>
+                <small class="brand-subtitle">ESTO Oujda</small>
+            </div>
+        </a>
+        <div class="sidebar-role-badge badge-teacher">ENSEIGNANT</div>
+    </div>
+    <ul class="sidebar-menu">
+        <li><a th:href="@{/teacher/dashboard}">
+            <i class="bi bi-house-door-fill"></i><span>Tableau de bord</span></a></li>
+        <li class="menu-header">Enseignement</li>
+        <li><a th:href="@{/teacher/modules}">
+            <i class="bi bi-book-fill"></i><span>Mes Modules</span></a></li>
+        <li><a th:href="@{/teacher/notes}">
+            <i class="bi bi-clipboard2-check-fill"></i><span>Saisie Notes</span></a></li>
+        <li><a th:href="@{/teacher/absences}">
+            <i class="bi bi-calendar-x"></i><span>Absences</span></a></li>
+        <li><a th:href="@{/teacher/assignments}">
+            <i class="bi bi-file-earmark-text-fill"></i><span>Devoirs</span></a></li>
+        <li><a th:href="@{/teacher/courses}">
+            <i class="bi bi-journal-richtext"></i><span>Contenus Cours</span></a></li>
+        <li><a th:href="@{/teacher/announcements}">
+            <i class="bi bi-bell-fill"></i><span>Annonces</span></a></li>
+    </ul>
+    <div class="sidebar-footer">
+        <a th:href="@{/logout}" class="btn-logout">
+            <i class="bi bi-box-arrow-right"></i> DÃ©connexion
+        </a>
+    </div>
+</nav>
+
+<!-- ============================================================
+     FRAGMENT : SIDEBAR Ã‰TUDIANT
+     ============================================================ -->
+<nav th:fragment="sidebar-student" class="sidebar d-flex flex-column sidebar-student">
+    <div class="sidebar-header">
+        <a th:href="@{/student/dashboard}" class="sidebar-logo text-decoration-none">
+            <img th:src="@{/images/esto-logo.jpg}" alt="Logo ESTO" class="brand-logo"/>
+            <div class="d-flex flex-column lh-sm">
+                <span>GestionEtu</span>
+                <small class="brand-subtitle">ESTO Oujda</small>
+            </div>
+        </a>
+        <div class="sidebar-role-badge badge-student">Ã‰TUDIANT</div>
+    </div>
+    <ul class="sidebar-menu">
+        <li><a th:href="@{/student/dashboard}">
+            <i class="bi bi-house-door-fill"></i><span>Mon Espace</span></a></li>
+        <li class="menu-header">Mon dossier</li>
+        <li><a th:href="@{/student/emploi-du-temps}">
+            <i class="bi bi-calendar-week-fill"></i><span>Emploi du temps</span></a></li>
+        <li><a th:href="@{/student/courses}">
+            <i class="bi bi-book-fill"></i><span>Mes Cours</span></a></li>
+        <li><a th:href="@{/student/announcements}">
+            <i class="bi bi-bell-fill"></i><span>Annonces</span></a></li>
+        <li><a th:href="@{/student/assignments}">
+            <i class="bi bi-file-earmark-text-fill"></i><span>Mes Devoirs</span></a></li>
+        <li><a th:href="@{/student/notes}">
+            <i class="bi bi-clipboard2-data-fill"></i><span>Mes Notes</span></a></li>
+        <li><a th:href="@{/student/absences}">
+            <i class="bi bi-calendar-x"></i><span>Mes Absences</span></a></li>
+    </ul>
+    <div class="sidebar-footer">
+        <a th:href="@{/logout}" class="btn-logout">
+            <i class="bi bi-box-arrow-right"></i> DÃ©connexion
+        </a>
+    </div>
+</nav>
+
+<!-- ============================================================
+     FRAGMENT : TOPBAR
+     ============================================================ -->
+<header th:fragment="topbar(pageTitle)" class="topbar d-flex align-items-center justify-content-between px-4">
+    <div class="d-flex align-items-center gap-3">
+        <button class="btn btn-icon sidebar-toggle" id="sidebarToggle">
+            <i class="bi bi-list fs-4"></i>
+        </button>
+        <div class="topbar-brand">
+            <img th:src="@{/images/esto-logo.jpg}" alt="Logo ESTO" class="brand-logo brand-logo-sm"/>
+            <span class="topbar-brand-text">GestionEtu</span>
+        </div>
+        <div class="page-breadcrumb">
+            <h5 class="mb-0 fw-semibold" th:text="${pageTitle}">Page</h5>
+            <nav aria-label="breadcrumb" class="mt-1">
+                <ol class="breadcrumb breadcrumb-mini mb-0" id="pageBreadcrumb"></ol>
+            </nav>
+        </div>
+    </div>
+    <div class="d-flex align-items-center gap-3">
+        <button class="btn btn-icon position-relative" id="notificationBtn" type="button" title="Notifications">
+            <i class="bi bi-bell fs-5"></i>
+            <span class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger" id="notificationCount">0</span>
+        </button>
+        <span class="text-muted small" th:text="${#dates.format(#dates.createNow(), 'dd MMMM yyyy')}">Date</span>
+        <div class="user-info d-flex align-items-center gap-2">
+            <div class="user-avatar-sm user-avatar-top" id="topbarAvatar">
+                <span id="topbarAvatarInitial">U</span>
+            </div>
+            <div>
+                <div class="fw-semibold small" id="topbarUsername" sec:authentication="name">Utilisateur</div>
+            </div>
+        </div>
+    </div>
+</header>
+
+<!-- ============================================================
+     FRAGMENT : ALERTS
+     ============================================================ -->
+<div th:fragment="alerts">
+    <div th:if="${successMessage}" class="alert alert-success alert-dismissible fade show" role="alert">
+        <i class="bi bi-check-circle-fill me-2"></i>
+        <span th:text="${successMessage}"></span>
+        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+    </div>
+    <div th:if="${errorMessage}" class="alert alert-danger alert-dismissible fade show" role="alert">
+        <i class="bi bi-exclamation-triangle-fill me-2"></i>
+        <span th:text="${errorMessage}"></span>
+        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+    </div>
+    <div th:if="${warningMessage}" class="alert alert-warning alert-dismissible fade show" role="alert">
+        <i class="bi bi-exclamation-circle-fill me-2"></i>
+        <span th:text="${warningMessage}"></span>
+        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+    </div>
+    <div th:if="${infoMessage}" class="alert alert-info alert-dismissible fade show" role="alert">
+        <i class="bi bi-info-circle-fill me-2"></i>
+        <span th:text="${infoMessage}"></span>
+        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+    </div>
+</div>
+
+<!-- ============================================================
+     FRAGMENT : SCRIPTS
+     ============================================================ -->
+<div th:fragment="scripts">
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+    <script th:src="@{/js/app.js}"></script>
+</div>
+
+</html>
+

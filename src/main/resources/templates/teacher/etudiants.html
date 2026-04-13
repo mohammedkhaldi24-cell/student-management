@@ -1,0 +1,59 @@
+<!DOCTYPE html>
+<html lang="fr" xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{fragments/layout :: head('Étudiants du Module')}"></head>
+<body class="dashboard-body">
+<div class="layout-wrapper">
+    <div th:replace="~{fragments/layout :: sidebar-teacher}"></div>
+    <div class="main-content">
+        <div th:replace="~{fragments/layout :: topbar('Liste des Étudiants')}"></div>
+        <div class="content-area">
+            <!-- Filtre de classe -->
+            <div class="card mb-4">
+                <div class="card-body">
+                    <form method="get" th:action="@{/teacher/modules/{id}/etudiants(id=${module.id})}" class="row g-2 align-items-end">
+                        <div class="col-md-4">
+                            <label class="form-label fw-semibold">Sélectionner une Classe</label>
+                            <select name="classeId" class="form-select" onchange="this.form.submit()">
+                                <option value="">-- Toutes les classes --</option>
+                                <option th:each="c : ${classes}"
+                                        th:value="${c.id}"
+                                        th:text="${c.nom}"
+                                        th:selected="${classeSelectionnee != null and c.id == classeSelectionnee}">Classe</option>
+                            </select>
+                        </div>
+                    </form>
+                </div>
+            </div>
+
+            <!-- Liste étudiants -->
+            <div class="card" th:if="${etudiants != null}">
+                <div class="card-header">
+                    <h6 class="mb-0">
+                        <i class="bi bi-people me-2"></i>
+                        Étudiants — Module : <span th:text="${module.nom}">-</span>
+                    </h6>
+                </div>
+                <div class="card-body p-0">
+                    <div class="table-responsive">
+                        <table class="table table-hover mb-0">
+                            <thead>
+                                <tr><th>#</th><th>Matricule</th><th>Nom Prénom</th><th>Classe</th></tr>
+                            </thead>
+                            <tbody>
+                                <tr th:each="s, stat : ${etudiants}">
+                                    <td th:text="${stat.count}">1</td>
+                                    <td><code th:text="${s.matricule}">-</code></td>
+                                    <td th:text="${s.fullName}">-</td>
+                                    <td th:text="${s.classe?.nom ?: '-'}">-</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<div th:replace="~{fragments/layout :: scripts}"></div>
+</body>
+</html>

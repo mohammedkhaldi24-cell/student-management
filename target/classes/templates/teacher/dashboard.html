@@ -1,0 +1,202 @@
+﻿<!DOCTYPE html>
+<html lang="fr" xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{fragments/layout :: head('Dashboard Enseignant')}"></head>
+<body class="dashboard-body">
+<div class="layout-wrapper">
+    <div th:replace="~{fragments/layout :: sidebar-teacher}"></div>
+    <div class="main-content">
+        <div th:replace="~{fragments/layout :: topbar('Tableau de bord Enseignant')}"></div>
+        <div class="content-area">
+            <div th:replace="~{fragments/layout :: alerts}"></div>
+
+            <div class="welcome-banner mb-4 p-4 rounded d-flex justify-content-between align-items-center">
+                <div>
+                    <h4 class="fw-bold mb-1">
+                        Bonjour, <span th:text="${teacher.firstName + ' ' + teacher.lastName}">Prof</span> !
+                    </h4>
+                    <p class="text-muted mb-0">
+                        <i class="bi bi-calendar3 me-2"></i>
+                        <span th:text="${#temporals.format(#temporals.createNow(), 'EEEE dd MMMM yyyy')}">Date</span>
+                    </p>
+                </div>
+                <img th:src="@{/images/esto-logo.jpg}" alt="Logo ESTO" class="dashboard-brand-logo d-none d-md-block"/>
+            </div>
+
+            <div class="row g-4 mb-4">
+                <div class="col-md-4">
+                    <div class="stat-card stat-card-primary">
+                        <div class="stat-icon"><i class="bi bi-book-fill"></i></div>
+                        <div class="stat-info">
+                            <div class="stat-value" th:text="${totalModules}">0</div>
+                            <div class="stat-label">Modules enseignes</div>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-4">
+                    <div class="stat-card stat-card-success">
+                        <div class="stat-icon"><i class="bi bi-people-fill"></i></div>
+                        <div class="stat-info">
+                            <div class="stat-value" th:text="${totalStudents}">0</div>
+                            <div class="stat-label">Etudiants concernes</div>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-4">
+                    <div class="stat-card stat-card-warning">
+                        <div class="stat-icon"><i class="bi bi-hourglass-split"></i></div>
+                        <div class="stat-info">
+                            <div class="stat-value" th:text="${pendingSubmissions}">0</div>
+                            <div class="stat-label">Soumissions en attente</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="row g-4 mb-4">
+                <div class="col-md-4">
+                    <div class="stat-card stat-card-info">
+                        <div class="stat-icon"><i class="bi bi-journals"></i></div>
+                        <div class="stat-info">
+                            <div class="stat-value" th:text="${totalCourses}">0</div>
+                            <div class="stat-label">Contenus de cours publies</div>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-4">
+                    <div class="stat-card stat-card-primary">
+                        <div class="stat-icon"><i class="bi bi-megaphone"></i></div>
+                        <div class="stat-info">
+                            <div class="stat-value" th:text="${totalAnnouncements}">0</div>
+                            <div class="stat-label">Annonces publiees</div>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-4">
+                    <div class="stat-card stat-card-success">
+                        <div class="stat-icon"><i class="bi bi-journal-check"></i></div>
+                        <div class="stat-info">
+                            <div class="stat-value" th:text="${totalAssignments}">0</div>
+                            <div class="stat-label">Devoirs publies</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="card mb-4">
+                <div class="card-header d-flex justify-content-between align-items-center">
+                    <h6 class="mb-0">
+                        <i class="bi bi-book-fill me-2 text-primary"></i>Mes Modules
+                    </h6>
+                    <div class="d-flex gap-2">
+                        <a th:href="@{/teacher/courses/new}" class="btn btn-sm btn-outline-primary">
+                            <i class="bi bi-upload me-1"></i>Nouveau cours
+                        </a>
+                        <a th:href="@{/teacher/announcements/new}" class="btn btn-sm btn-primary">
+                            <i class="bi bi-megaphone me-1"></i>Nouvelle annonce
+                        </a>
+                    </div>
+                </div>
+                <div class="card-body">
+                    <div class="row g-3">
+                        <div th:each="m : ${modules}" class="col-md-4">
+                            <div class="module-card p-3 rounded border">
+                                <div class="d-flex justify-content-between align-items-start mb-2">
+                                    <span class="badge bg-warning text-dark" th:text="${m.code}">CODE</span>
+                                    <span class="badge bg-info" th:text="${m.semestre}">S1</span>
+                                </div>
+                                <h6 class="fw-bold mb-1" th:text="${m.nom}">Module</h6>
+                                <p class="text-muted small mb-2" th:text="${m.filiere.nom}">Filiere</p>
+                                <div class="d-flex gap-1 mt-2">
+                                    <a th:href="@{/teacher/notes}" class="btn btn-xs btn-outline-primary flex-fill">
+                                        <i class="bi bi-pencil"></i> Notes
+                                    </a>
+                                    <a th:href="@{/teacher/modules/{mid}/etudiants(mid=${m.id})}" class="btn btn-xs btn-outline-success flex-fill">
+                                        <i class="bi bi-people"></i> Etudiants
+                                    </a>
+                                    <a th:href="@{/teacher/absences}" class="btn btn-xs btn-outline-danger flex-fill">
+                                        <i class="bi bi-calendar-x"></i> Absences
+                                    </a>
+                                </div>
+                            </div>
+                        </div>
+                        <div th:if="${#lists.isEmpty(modules)}" class="col-12">
+                            <div class="text-center py-4 text-muted">
+                                <i class="bi bi-book fs-3 d-block mb-2"></i>
+                                Aucun module assigne pour le moment.
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="row g-4">
+                <div class="col-lg-4">
+                    <div class="card h-100">
+                        <div class="card-header">
+                            <h6 class="mb-0"><i class="bi bi-journals me-2"></i>Derniers contenus de cours</h6>
+                        </div>
+                        <div class="card-body">
+                            <ul class="list-group list-group-flush">
+                                <li th:each="c : ${recentCourses}" class="list-group-item d-flex justify-content-between align-items-center">
+                                    <div>
+                                        <div class="fw-semibold" th:text="${c.title}">Titre</div>
+                                        <small class="text-muted" th:text="${c.module != null ? c.module.nom : '-'}">Module</small>
+                                    </div>
+                                    <small class="text-muted" th:text="${#temporals.format(c.createdAt,'dd/MM HH:mm')}">Date</small>
+                                </li>
+                                <li th:if="${#lists.isEmpty(recentCourses)}" class="list-group-item text-muted">Aucun contenu publie.</li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-lg-4">
+                    <div class="card h-100">
+                        <div class="card-header">
+                            <h6 class="mb-0"><i class="bi bi-megaphone me-2"></i>Dernieres annonces</h6>
+                        </div>
+                        <div class="card-body">
+                            <ul class="list-group list-group-flush">
+                                <li th:each="a : ${recentAnnouncements}" class="list-group-item d-flex justify-content-between align-items-center">
+                                    <div>
+                                        <div class="fw-semibold" th:text="${a.title}">Titre</div>
+                                        <small class="text-muted" th:text="${a.targetClasse != null ? 'Classe: ' + a.targetClasse.nom : (a.targetFiliere != null ? 'Filiere: ' + a.targetFiliere.nom : '-')}">Cible</small>
+                                    </div>
+                                    <small class="text-muted" th:text="${#temporals.format(a.createdAt,'dd/MM HH:mm')}">Date</small>
+                                </li>
+                                <li th:if="${#lists.isEmpty(recentAnnouncements)}" class="list-group-item text-muted">Aucune annonce publiee.</li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-lg-4">
+                    <div class="card h-100">
+                        <div class="card-header d-flex justify-content-between align-items-center">
+                            <h6 class="mb-0"><i class="bi bi-journal-check me-2"></i>Devoirs recents</h6>
+                            <a th:href="@{/teacher/assignments}" class="btn btn-sm btn-outline-primary">Voir tout</a>
+                        </div>
+                        <div class="card-body">
+                            <ul class="list-group list-group-flush">
+                                <li th:each="a : ${recentAssignments}" class="list-group-item d-flex justify-content-between align-items-center">
+                                    <div>
+                                        <div class="fw-semibold" th:text="${a.title}">Titre</div>
+                                        <small class="text-muted" th:text="${#temporals.format(a.dueDate,'dd/MM HH:mm')}">Date limite</small>
+                                    </div>
+                                    <span class="badge bg-success" th:if="${a.published}">Publie</span>
+                                    <span class="badge bg-secondary" th:unless="${a.published}">Brouillon</span>
+                                </li>
+                                <li th:if="${#lists.isEmpty(recentAssignments)}" class="list-group-item text-muted">
+                                    Aucun devoir publie.
+                                </li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+        </div>
+    </div>
+</div>
+<div th:replace="~{fragments/layout :: scripts}"></div>
+</body>
+</html>
+

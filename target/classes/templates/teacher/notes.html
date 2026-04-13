@@ -1,0 +1,106 @@
+﻿<!DOCTYPE html>
+<html lang="fr" xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{fragments/layout :: head('Saisie des Notes')}"></head>
+<body class="dashboard-body">
+<div class="layout-wrapper">
+    <div th:replace="~{fragments/layout :: sidebar-teacher}"></div>
+    <div class="main-content">
+        <div th:replace="~{fragments/layout :: topbar('Saisie des Notes')}"></div>
+        <div class="content-area">
+            <div th:replace="~{fragments/layout :: alerts}"></div>
+
+            <!-- SÃ©lection module / classe -->
+            <div class="card mb-4">
+                <div class="card-header">
+                    <h6 class="mb-0"><i class="bi bi-funnel me-2"></i>SÃ©lectionner Module et Classe</h6>
+                </div>
+                <div class="card-body">
+                    <form id="selectionForm" class="row g-3 align-items-end">
+                        <div class="col-md-4">
+                            <label class="form-label fw-semibold">Module</label>
+                            <select id="moduleSelect" class="form-select" onchange="updateClasses()">
+                                <option value="">-- SÃ©lectionner un module --</option>
+                                <option th:each="m : ${modules}"
+                                        th:value="${m.id}"
+                                        th:data-filiere="${m.filiere.id}"
+                                        th:text="${m.nom + ' (' + m.semestre + ')'}">Module</option>
+                            </select>
+                        </div>
+                        <div class="col-md-3">
+                            <label class="form-label fw-semibold">Classe</label>
+                            <select id="classeSelect" class="form-select">
+                                <option value="">-- SÃ©lectionner une classe --</option>
+                            </select>
+                        </div>
+                        <div class="col-md-2">
+                            <label class="form-label fw-semibold">Semestre</label>
+                            <select id="semestreSelect" class="form-select">
+                                <option value="S1">S1</option>
+                                <option value="S2">S2</option>
+                            </select>
+                        </div>
+                        <div class="col-md-2">
+                            <label class="form-label fw-semibold">AnnÃ©e</label>
+                            <input type="text" id="anneeInput" class="form-control" value="2024-2025"/>
+                        </div>
+                        <div class="col-md-1">
+                            <button type="button" class="btn btn-primary w-100" onclick="chargerNotes()">
+                                <i class="bi bi-search"></i>
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+
+            <!-- Instructions -->
+            <div id="instructionsZone" class="text-center py-5 text-muted">
+                <i class="bi bi-arrow-up-circle fs-1 mb-3 d-block text-primary"></i>
+                <h5>SÃ©lectionnez un module et une classe pour commencer la saisie</h5>
+                <p>Utilisez les filtres ci-dessus pour accÃ©der Ã  la grille de notes</p>
+            </div>
+        </div>
+    </div>
+</div>
+<div th:replace="~{fragments/layout :: scripts}"></div>
+<script th:inline="javascript">
+    const classesByFiliere = /*[[${classesByFiliere}]]*/ {};
+
+    function chargerNotes() {
+        const moduleId = document.getElementById('moduleSelect').value;
+        const classeId = document.getElementById('classeSelect').value;
+        const semestre = document.getElementById('semestreSelect').value;
+        const annee = document.getElementById('anneeInput').value;
+
+        if (!moduleId || !classeId) {
+            alert('Veuillez sélectionner un module et une classe.');
+            return;
+        }
+
+        const url = `/teacher/notes/module/${moduleId}/classe/${classeId}?semestre=${semestre}&annee=${encodeURIComponent(annee)}`;
+        window.location.href = url;
+    }
+
+    function updateClasses() {
+        const moduleSelect = document.getElementById('moduleSelect');
+        const classeSelect = document.getElementById('classeSelect');
+        const selectedOption = moduleSelect.options[moduleSelect.selectedIndex];
+        const filiereId = selectedOption ? selectedOption.getAttribute('data-filiere') : null;
+
+        classeSelect.innerHTML = '<option value="">-- Sélectionner une classe --</option>';
+
+        if (!filiereId || !classesByFiliere[filiereId]) {
+            return;
+        }
+
+        classesByFiliere[filiereId].forEach(c => {
+            const option = document.createElement('option');
+            option.value = c.id;
+            option.textContent = `${c.nom} (${c.niveau})`;
+            classeSelect.appendChild(option);
+        });
+    }
+
+    updateClasses();
+</script>
+</body>
+</html>

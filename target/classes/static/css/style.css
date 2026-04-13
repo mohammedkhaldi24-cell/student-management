@@ -1,0 +1,638 @@
+/* ============================================================
+   GestionEtu - Styles Principaux
+   Plateforme de Gestion des Notes et Absences
+   ============================================================ */
+
+:root {
+    --primary:       #1F497D;
+    --primary-light: #4472C4;
+    --secondary:     #2E7D32;
+    --warning:       #F2C94C;
+    --danger:        #C62828;
+    --info:          #00B0F0;
+    --neutral:       #6C757D;
+    --sidebar-width: 260px;
+    --topbar-height: 64px;
+    --bg-body:       #F4F6FB;
+    --bg-card:       #FFFFFF;
+    --text-main:     #2D3436;
+    --text-muted:    #636E72;
+    --border-color:  #E8ECF4;
+    --shadow-sm:     0 2px 8px rgba(0,0,0,.06);
+    --shadow-md:     0 4px 20px rgba(0,0,0,.10);
+    --radius:        12px;
+    --radius-sm:     8px;
+    --transition:    all .25s ease;
+}
+
+* { box-sizing: border-box; margin: 0; padding: 0; }
+
+body { font-family: 'Segoe UI', system-ui, -apple-system, sans-serif; font-size: 0.9rem; }
+
+/* ============================================================
+   PAGE DE CONNEXION
+   ============================================================ */
+.login-body {
+    background:
+        radial-gradient(circle at 10% 20%, rgba(255,255,255,.18) 0%, transparent 38%),
+        radial-gradient(circle at 90% 80%, rgba(255,255,255,.12) 0%, transparent 32%),
+        linear-gradient(135deg, #143a66 0%, #2c5f9a 55%, #4f8f4f 100%);
+    min-height: 100vh;
+}
+
+.login-wrapper {
+    display: flex;
+    min-height: 100vh;
+    position: relative;
+}
+
+.login-left {
+    width: 44%;
+    padding: 3.5rem 3rem;
+    color: white;
+}
+.login-brand,
+.login-features {
+    width: 100%;
+    max-width: 460px;
+}
+
+.login-brand-icon {
+    font-size: 4rem;
+    color: rgba(255,255,255,0.9);
+    display: block;
+    margin-bottom: 1rem;
+}
+.login-brand-icon-sm { font-size: 2.5rem; color: var(--primary); }
+.login-brand-logo {
+    width: 160px;
+    height: 160px;
+    object-fit: contain;
+    display: block;
+    margin: 0 auto 1.25rem;
+    padding: 10px;
+    border-radius: 22px;
+    background: rgba(255,255,255,.92);
+    box-shadow: 0 14px 30px rgba(0, 0, 0, 0.28);
+}
+.login-brand-logo-sm {
+    width: 92px;
+    height: 92px;
+    object-fit: contain;
+    padding: 8px;
+    border-radius: 18px;
+    background: #fff;
+    box-shadow: 0 8px 20px rgba(25, 56, 95, 0.12);
+}
+.login-brand-title {
+    font-size: 2.55rem;
+    font-weight: 800;
+    color: white;
+    letter-spacing: .2px;
+}
+.login-brand-subtitle {
+    font-size: 1.08rem;
+    color: rgba(255,255,255,0.84);
+    margin-top: .55rem;
+}
+.feature-item {
+    color: rgba(255,255,255,0.94);
+    padding: .55rem .85rem;
+    font-size: 1rem;
+    background: rgba(255,255,255,.08);
+    border: 1px solid rgba(255,255,255,.16);
+    border-radius: 12px;
+    margin-bottom: .5rem;
+}
+
+.login-right {
+    flex: 1;
+    background: linear-gradient(180deg, #f6f9ff 0%, #ffffff 100%);
+    padding: 2rem;
+}
+
+.login-card {
+    width: 100%;
+    max-width: 470px;
+    background: white;
+    border-radius: 16px;
+    padding: 2.5rem;
+    border: 1px solid #e5ebf5;
+    box-shadow: 0 14px 32px rgba(14, 36, 66, 0.12);
+}
+
+.login-form .form-control { border-radius: var(--radius-sm); padding: .75rem 1rem; }
+.login-form .form-control:focus { border-color: var(--primary); box-shadow: 0 0 0 3px rgba(31,73,125,0.15); }
+.login-form .input-group .btn {
+    border-radius: 0 var(--radius-sm) var(--radius-sm) 0;
+}
+.login-form .input-group .btn:hover {
+    background-color: #eef3fb;
+}
+
+.login-btn {
+    background: linear-gradient(135deg, var(--primary), var(--primary-light));
+    border: none;
+    border-radius: var(--radius-sm);
+    padding: .85rem;
+    font-weight: 600;
+    letter-spacing: .5px;
+    transition: var(--transition);
+}
+.login-btn:hover { transform: translateY(-2px); box-shadow: 0 10px 20px rgba(31,73,125,.22); }
+
+.login-help { background: #F8F9FA; border: 1px solid var(--border-color); }
+.demo-accounts .badge { font-size: 0.75rem; padding: .35em .6em; }
+
+/* ============================================================
+   LAYOUT DASHBOARD
+   ============================================================ */
+.dashboard-body { background: var(--bg-body); min-height: 100vh; }
+
+.layout-wrapper { display: flex; min-height: 100vh; }
+
+/* ── SIDEBAR ────────────────────────────────────────────── */
+.sidebar {
+    width: var(--sidebar-width);
+    min-height: 100vh;
+    background: linear-gradient(180deg, var(--primary) 0%, #152f52 100%);
+    color: white;
+    position: fixed;
+    top: 0; left: 0;
+    z-index: 1000;
+    transition: var(--transition);
+    overflow-y: auto;
+    overflow-x: hidden;
+}
+
+.sidebar.sidebar-chef    { background: linear-gradient(180deg, #1a5276 0%, #0e3451 100%); }
+.sidebar.sidebar-teacher { background: linear-gradient(180deg, #145a32 0%, #0b3d21 100%); }
+.sidebar.sidebar-student { background: linear-gradient(180deg, #4a235a 0%, #2e1437 100%); }
+
+.sidebar-header {
+    padding: 1.5rem 1.25rem;
+    border-bottom: 1px solid rgba(255,255,255,.12);
+}
+
+.sidebar-logo {
+    display: flex;
+    align-items: center;
+    gap: .75rem;
+    font-size: 1.25rem;
+    font-weight: 700;
+    color: white;
+}
+.sidebar-logo:hover {
+    color: white;
+    opacity: .95;
+}
+.brand-logo {
+    width: 38px;
+    height: 38px;
+    object-fit: contain;
+    border-radius: 7px;
+    background: rgba(255,255,255,.96);
+    padding: 3px;
+    box-shadow: inset 0 0 0 1px rgba(20,58,102,.1);
+}
+.brand-logo-sm {
+    width: 30px;
+    height: 30px;
+    border-radius: 6px;
+    padding: 2px;
+}
+.brand-subtitle {
+    font-size: .68rem;
+    color: rgba(255,255,255,.72);
+    font-weight: 500;
+}
+
+.sidebar-role-badge {
+    display: inline-block;
+    font-size: .65rem;
+    font-weight: 700;
+    letter-spacing: 1px;
+    background: rgba(255,255,255,.2);
+    color: rgba(255,255,255,.9);
+    border-radius: 20px;
+    padding: .25rem .75rem;
+    margin-top: .5rem;
+}
+.badge-chef    { background: rgba(100,200,255,.25); }
+.badge-teacher { background: rgba(100,255,150,.25); }
+.badge-student { background: rgba(255,150,255,.25); }
+
+.sidebar-menu { list-style: none; padding: 1rem 0; flex: 1; }
+.sidebar-menu .menu-header {
+    font-size: .65rem;
+    font-weight: 700;
+    letter-spacing: 1.5px;
+    text-transform: uppercase;
+    color: rgba(255,255,255,.5);
+    padding: 1rem 1.25rem .25rem;
+}
+.sidebar-menu li a {
+    display: flex;
+    align-items: center;
+    gap: .75rem;
+    color: rgba(255,255,255,.8);
+    text-decoration: none;
+    padding: .75rem 1.25rem;
+    border-radius: 0 50px 50px 0;
+    margin-right: .75rem;
+    transition: var(--transition);
+    font-size: .875rem;
+}
+.sidebar-menu li a i { font-size: 1.1rem; min-width: 1.25rem; }
+.sidebar-menu li a:hover { background: rgba(255,255,255,.12); color: white; }
+.sidebar-menu li a.active { background: rgba(255,255,255,.18); color: white; font-weight: 600; }
+
+.sidebar-footer {
+    padding: 1rem 1.25rem;
+    border-top: 1px solid rgba(255,255,255,.12);
+}
+.btn-logout {
+    display: flex;
+    align-items: center;
+    gap: .5rem;
+    color: rgba(255,255,255,.7);
+    text-decoration: none;
+    font-size: .875rem;
+    transition: var(--transition);
+}
+.btn-logout:hover { color: white; }
+
+/* ── MAIN CONTENT ───────────────────────────────────────── */
+.main-content {
+    margin-left: var(--sidebar-width);
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    min-height: 100vh;
+}
+
+/* ── TOPBAR ─────────────────────────────────────────────── */
+.topbar {
+    min-height: var(--topbar-height);
+    height: auto;
+    background: white;
+    border-bottom: 1px solid var(--border-color);
+    position: sticky;
+    top: 0;
+    z-index: 999;
+    box-shadow: var(--shadow-sm);
+    padding-top: .35rem;
+    padding-bottom: .35rem;
+}
+.topbar .page-breadcrumb h5 { color: var(--text-main); }
+.page-breadcrumb {
+    display: flex;
+    flex-direction: column;
+}
+.topbar .page-breadcrumb h5 {
+    line-height: 1.15;
+}
+.user-info .user-avatar i { color: var(--primary); }
+.btn-icon { background: none; border: none; padding: .5rem; border-radius: var(--radius-sm); }
+.btn-icon:hover { background: var(--bg-body); }
+.topbar-brand {
+    display: flex;
+    align-items: center;
+    gap: .45rem;
+    background: #f5f7fb;
+    border: 1px solid var(--border-color);
+    padding: .2rem .55rem;
+    border-radius: 999px;
+}
+.topbar-brand-text {
+    color: var(--primary);
+    font-size: .82rem;
+    font-weight: 700;
+}
+.breadcrumb-mini .breadcrumb-item,
+.breadcrumb-mini .breadcrumb-item a {
+    font-size: .72rem;
+    color: #7b8697;
+    text-decoration: none;
+}
+.breadcrumb-mini .breadcrumb-item.active {
+    color: var(--primary);
+    font-weight: 700;
+}
+.user-avatar-top {
+    width: 34px;
+    height: 34px;
+    box-shadow: var(--shadow-sm);
+}
+
+/* ── CONTENT AREA ───────────────────────────────────────── */
+.content-area { padding: 1.5rem; flex: 1; }
+
+/* ============================================================
+   CARTES STATISTIQUES
+   ============================================================ */
+.stat-card {
+    background: white;
+    border-radius: var(--radius);
+    padding: 1.25rem 1.5rem;
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    box-shadow: var(--shadow-sm);
+    transition: var(--transition);
+    border-left: 4px solid transparent;
+}
+.stat-card:hover { transform: translateY(-2px); box-shadow: var(--shadow-md); }
+
+.stat-icon {
+    width: 52px;
+    height: 52px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.4rem;
+    flex-shrink: 0;
+}
+.stat-info .stat-value { font-size: 1.75rem; font-weight: 700; line-height: 1; }
+.stat-info .stat-label { font-size: .8rem; color: var(--text-muted); margin-top: .25rem; }
+
+.stat-card-primary { border-left-color: var(--primary); }
+.stat-card-primary .stat-icon { background: rgba(31,73,125,.12); color: var(--primary); }
+.stat-card-primary .stat-value { color: var(--primary); }
+
+.stat-card-success { border-left-color: var(--secondary); }
+.stat-card-success .stat-icon { background: rgba(112,173,71,.12); color: var(--secondary); }
+.stat-card-success .stat-value { color: var(--secondary); }
+
+.stat-card-warning { border-left-color: var(--warning); }
+.stat-card-warning .stat-icon { background: rgba(237,125,49,.12); color: var(--warning); }
+.stat-card-warning .stat-value { color: var(--warning); }
+
+.stat-card-info { border-left-color: var(--info); }
+.stat-card-info .stat-icon { background: rgba(0,176,240,.12); color: var(--info); }
+.stat-card-info .stat-value { color: var(--info); }
+
+.stat-card-danger { border-left-color: var(--danger); }
+.stat-card-danger .stat-icon { background: rgba(192,0,0,.12); color: var(--danger); }
+.stat-card-danger .stat-value { color: var(--danger); }
+
+/* ============================================================
+   CARTES GÉNÉRIQUES
+   ============================================================ */
+.card {
+    border: 1px solid var(--border-color);
+    border-radius: var(--radius);
+    box-shadow: var(--shadow-sm);
+    background: var(--bg-card);
+}
+.card-header {
+    background: var(--bg-card);
+    border-bottom: 1px solid var(--border-color);
+    padding: 1rem 1.25rem;
+    border-radius: var(--radius) var(--radius) 0 0 !important;
+}
+.card-title { font-weight: 600; color: var(--text-main); font-size: .95rem; }
+.card-body { padding: 1.25rem; }
+.content-area .card {
+    transition: transform .2s ease, box-shadow .2s ease;
+}
+.content-area .card:hover {
+    transform: translateY(-2px);
+    box-shadow: var(--shadow-md);
+}
+
+/* ============================================================
+   BUTTON SYSTEM (PFE CONSISTENT)
+   ============================================================ */
+.btn {
+    border-radius: 10px;
+    transition: all .2s ease;
+}
+.btn:hover {
+    transform: translateY(-1px);
+}
+.btn-primary {
+    background-color: var(--primary);
+    border-color: var(--primary);
+}
+.btn-primary:hover {
+    background-color: #173a65;
+    border-color: #173a65;
+}
+.btn-success {
+    background-color: var(--secondary);
+    border-color: var(--secondary);
+}
+.btn-success:hover {
+    background-color: #256728;
+    border-color: #256728;
+}
+.btn-warning {
+    background-color: var(--warning);
+    border-color: var(--warning);
+    color: #2f2f2f;
+}
+.btn-warning:hover {
+    background-color: #e4bc42;
+    border-color: #e4bc42;
+    color: #2f2f2f;
+}
+.btn-danger {
+    background-color: var(--danger);
+    border-color: var(--danger);
+}
+.btn-danger:hover {
+    background-color: #ab2323;
+    border-color: #ab2323;
+}
+.btn-secondary {
+    background-color: var(--neutral);
+    border-color: var(--neutral);
+}
+.btn-secondary:hover {
+    background-color: #5a6168;
+    border-color: #5a6168;
+}
+.btn-outline-warning {
+    color: #b58400;
+    border-color: #d7a80c;
+}
+.btn-outline-warning:hover {
+    background-color: #f2c94c;
+    border-color: #f2c94c;
+    color: #2f2f2f;
+}
+
+.dashboard-brand-logo {
+    width: 90px;
+    height: 90px;
+    object-fit: contain;
+    border-radius: 14px;
+    background: rgba(255,255,255,.9);
+    padding: 8px;
+    box-shadow: 0 8px 20px rgba(0,0,0,.14);
+}
+
+.admin-welcome-banner {
+    background: linear-gradient(135deg, #1f497d, #355f96);
+}
+
+/* ============================================================
+   TABLEAUX
+   ============================================================ */
+.table { font-size: .875rem; }
+.table th {
+    font-size: .75rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: .5px;
+    color: var(--text-muted);
+    background: #FAFBFC;
+    padding: .85rem 1rem;
+    border-bottom: 2px solid var(--border-color);
+}
+.table td { padding: .85rem 1rem; vertical-align: middle; }
+.table-hover tbody tr:hover { background: rgba(31,73,125,.04); }
+
+/* ============================================================
+   RÔLES & BADGES
+   ============================================================ */
+.role-badge {
+    display: inline-block;
+    font-size: .7rem;
+    font-weight: 700;
+    letter-spacing: .5px;
+    padding: .3rem .7rem;
+    border-radius: 20px;
+}
+.role-admin        { background: #ffebee; color: #c62828; }
+.role-chef_filiere { background: #e8f5e9; color: #2e7d32; }
+.role-teacher      { background: #e3f2fd; color: #1565c0; }
+.role-student      { background: #f3e5f5; color: #6a1b9a; }
+
+/* ============================================================
+   AVATARS
+   ============================================================ */
+.user-avatar-sm {
+    width: 32px;
+    height: 32px;
+    border-radius: 50%;
+    background: linear-gradient(135deg, var(--primary), var(--primary-light));
+    color: white;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: .7rem;
+    font-weight: 700;
+    flex-shrink: 0;
+}
+
+/* ============================================================
+   PROFILE ÉTUDIANT
+   ============================================================ */
+.student-profile-card {
+    background: linear-gradient(135deg, #4a235a, #2e1437);
+    color: white;
+}
+.profile-avatar {
+    width: 70px;
+    height: 70px;
+    border-radius: 50%;
+    background: rgba(255,255,255,.2);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.5rem;
+    font-weight: 700;
+    color: white;
+    flex-shrink: 0;
+}
+.student-profile-card .text-muted { color: rgba(255,255,255,.7) !important; }
+
+/* ============================================================
+   BIENVENUE ENSEIGNANT
+   ============================================================ */
+.welcome-banner {
+    background: linear-gradient(135deg, #145a32, #1e8449);
+    color: white;
+}
+.welcome-banner .text-muted { color: rgba(255,255,255,.7) !important; }
+
+/* ============================================================
+   FILIÈRE HEADER (Chef)
+   ============================================================ */
+.filiere-header {
+    background: linear-gradient(135deg, #1a5276, #2980b9);
+    color: white;
+}
+.filiere-header .text-muted { color: rgba(255,255,255,.7) !important; }
+.filiere-header strong { color: white; }
+
+/* ============================================================
+   MODULE CARD (Enseignant)
+   ============================================================ */
+.module-card {
+    transition: var(--transition);
+    background: white;
+}
+.module-card:hover { box-shadow: var(--shadow-md); transform: translateY(-2px); }
+.btn-xs { padding: .2rem .5rem; font-size: .75rem; }
+
+/* ============================================================
+   ASSIGNMENTS
+   ============================================================ */
+.assignment-card {
+    transition: var(--transition);
+    border-left: 4px solid #4b6cb7;
+}
+.assignment-card:hover {
+    transform: translateY(-2px);
+    box-shadow: var(--shadow-md);
+}
+
+/* ============================================================
+   BULLETIN / PDF
+   ============================================================ */
+.bulletin-card {
+    transition: var(--transition);
+}
+.bulletin-card:hover { background: var(--bg-body); }
+.moyenne-summary { border: 2px solid; }
+
+/* ============================================================
+   FORMULAIRES
+   ============================================================ */
+.form-control, .form-select {
+    border-radius: var(--radius-sm);
+    border-color: var(--border-color);
+    font-size: .875rem;
+}
+.form-control:focus, .form-select:focus {
+    border-color: var(--primary);
+    box-shadow: 0 0 0 3px rgba(31,73,125,.12);
+}
+.form-label { font-size: .85rem; color: var(--text-main); }
+
+/* ============================================================
+   RESPONSIVE
+   ============================================================ */
+@media (max-width: 992px) {
+    .sidebar {
+        transform: translateX(-100%);
+    }
+    .sidebar.show {
+        transform: translateX(0);
+    }
+    .main-content {
+        margin-left: 0;
+    }
+    .login-left { display: none !important; }
+    .login-right { width: 100%; }
+}
+
+@media (max-width: 768px) {
+    .content-area { padding: 1rem; }
+    .stat-card { padding: 1rem; }
+    .stat-value { font-size: 1.4rem !important; }
+}

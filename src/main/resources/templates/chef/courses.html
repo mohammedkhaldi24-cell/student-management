@@ -1,0 +1,56 @@
+<!DOCTYPE html>
+<html lang="fr" xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{fragments/layout :: head('Cours Filiere')}"></head>
+<body class="dashboard-body">
+<div class="layout-wrapper">
+    <div th:replace="~{fragments/layout :: sidebar-chef}"></div>
+    <div class="main-content">
+        <div th:replace="~{fragments/layout :: topbar('Cours Publies de la Filiere')}"></div>
+        <div class="content-area">
+            <div class="card">
+                <div class="card-header">
+                    <h6 class="mb-0">
+                        <i class="bi bi-journals me-2"></i>
+                        Cours disponibles - <span th:text="${filiere.nom}">Filiere</span>
+                    </h6>
+                </div>
+                <div class="card-body p-0">
+                    <div class="table-responsive">
+                        <table class="table table-hover mb-0">
+                            <thead>
+                            <tr>
+                                <th>Titre</th>
+                                <th>Module</th>
+                                <th>Cible</th>
+                                <th>Enseignant</th>
+                                <th>Date</th>
+                            </tr>
+                            </thead>
+                            <tbody>
+                            <tr th:each="c : ${courses}">
+                                <td class="fw-semibold" th:text="${c.title}">Titre</td>
+                                <td th:text="${c.module != null ? c.module.nom : '-'}">Module</td>
+                                <td>
+                                    <span th:if="${c.classe != null}" class="badge bg-primary"
+                                          th:text="${'Classe: ' + c.classe.nom}">Classe</span>
+                                    <span th:if="${c.classe == null and c.filiere != null}" class="badge bg-info"
+                                          th:text="${'Filiere: ' + c.filiere.nom}">Filiere</span>
+                                </td>
+                                <td th:text="${c.teacher != null ? c.teacher.fullName : '-'}">Teacher</td>
+                                <td th:text="${#temporals.format(c.createdAt,'dd/MM/yyyy HH:mm')}">Date</td>
+                            </tr>
+                            <tr th:if="${#lists.isEmpty(courses)}">
+                                <td colspan="5" class="text-center py-4 text-muted">Aucun contenu publie.</td>
+                            </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<div th:replace="~{fragments/layout :: scripts}"></div>
+</body>
+</html>
+

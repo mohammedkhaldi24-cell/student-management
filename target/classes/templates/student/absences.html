@@ -1,0 +1,87 @@
+<!DOCTYPE html>
+<html lang="fr" xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{fragments/layout :: head('Mes Absences')}"></head>
+<body class="dashboard-body">
+<div class="layout-wrapper">
+    <div th:replace="~{fragments/layout :: sidebar-student}"></div>
+    <div class="main-content">
+        <div th:replace="~{fragments/layout :: topbar('Mes Absences')}"></div>
+        <div class="content-area">
+            <div class="d-flex flex-wrap gap-2 mb-3">
+                <a th:href="@{/student/dashboard}" class="btn btn-outline-secondary btn-sm">
+                    <i class="bi bi-arrow-left me-1"></i>Retour Dashboard
+                </a>
+                <a th:href="@{/student/notes}" class="btn btn-outline-primary btn-sm">
+                    <i class="bi bi-journal-check me-1"></i>Voir mes notes
+                </a>
+                <a th:href="@{/student/emploi-du-temps}" class="btn btn-outline-primary btn-sm">
+                    <i class="bi bi-calendar3-week me-1"></i>Voir l'emploi du temps
+                </a>
+            </div>
+
+            <div class="row g-3 mb-4">
+                <div class="col-md-6">
+                    <div class="card h-100">
+                        <div class="card-body">
+                            <div class="text-muted small">Total des absences</div>
+                            <div class="fs-4 fw-bold" th:text="${totalHeuresAbsence + 'h'}">0h</div>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-6">
+                    <div class="card h-100">
+                        <div class="card-body">
+                            <div class="text-muted small">Heures non justifiees</div>
+                            <div class="fs-4 fw-bold text-danger" th:text="${totalHeuresNJ + 'h'}">0h</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="card">
+                <div class="card-header d-flex justify-content-between align-items-center">
+                    <h6 class="mb-0">
+                        <i class="bi bi-calendar-x me-2 text-danger"></i>Historique des absences
+                    </h6>
+                    <a th:href="@{/student/dashboard}" class="btn btn-sm btn-outline-secondary">Retour Dashboard</a>
+                </div>
+                <div class="card-body p-0">
+                    <div class="table-responsive">
+                        <table class="table mb-0">
+                            <thead>
+                            <tr>
+                                <th>Date</th>
+                                <th>Module</th>
+                                <th class="text-center">Heures</th>
+                                <th class="text-center">Justifiee</th>
+                                <th>Motif</th>
+                            </tr>
+                            </thead>
+                            <tbody>
+                            <tr th:each="abs : ${absences}">
+                                <td th:text="${#temporals.format(abs.dateAbsence,'dd/MM/yyyy')}">-</td>
+                                <td th:text="${abs.module.nom}">-</td>
+                                <td class="text-center"><span class="badge bg-secondary" th:text="${abs.nombreHeures + 'h'}">0h</span></td>
+                                <td class="text-center">
+                                    <span th:if="${abs.justifiee}" class="badge bg-success">Oui</span>
+                                    <span th:unless="${abs.justifiee}" class="badge bg-danger">Non</span>
+                                </td>
+                                <td class="text-muted small" th:text="${abs.motif ?: '-'}">-</td>
+                            </tr>
+                            <tr th:if="${#lists.isEmpty(absences)}">
+                                <td colspan="5" class="text-center py-4 text-success">
+                                    <i class="bi bi-check-circle-fill fs-3 d-block mb-2"></i>
+                                    Aucune absence enregistree.
+                                </td>
+                            </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<div th:replace="~{fragments/layout :: scripts}"></div>
+</body>
+</html>

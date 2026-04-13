@@ -1,0 +1,158 @@
+<!DOCTYPE html>
+<html lang="fr" xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{fragments/layout :: head('Marquer Absences')}"></head>
+<body class="dashboard-body">
+<div class="layout-wrapper">
+    <div th:replace="~{fragments/layout :: sidebar-teacher}"></div>
+    <div class="main-content">
+        <div th:replace="~{fragments/layout :: topbar('Marquer les Absences')}"></div>
+        <div class="content-area">
+            <div th:replace="~{fragments/layout :: alerts}"></div>
+
+            <div class="card mb-3">
+                <div class="card-body py-2">
+                    <div class="row align-items-center">
+                        <div class="col">
+                            <strong th:text="${module.nom}">Module</strong>
+                            &bull; <span th:text="${classe.nom}">Classe</span>
+                        </div>
+                        <div class="col-auto">
+                            <a th:href="@{/teacher/absences}" class="btn btn-sm btn-outline-secondary">
+                                <i class="bi bi-arrow-left"></i> Retour
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="row g-4">
+                <div class="col-lg-6">
+                    <div class="card">
+                        <div class="card-header">
+                            <h6 class="mb-0">
+                                <i class="bi bi-calendar-x-fill text-danger me-2"></i>
+                                Nouvelle seance d'absence
+                            </h6>
+                        </div>
+                        <div class="card-body">
+                            <form th:action="@{/teacher/absences/marquer}" method="post">
+                                <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}"/>
+                                <input type="hidden" name="moduleId" th:value="${module.id}"/>
+                                <input type="hidden" name="classeId" th:value="${classe.id}"/>
+
+                                <div class="row g-3 mb-3">
+                                    <div class="col-md-6">
+                                        <label class="form-label fw-semibold">Date *</label>
+                                        <input type="date" class="form-control" name="dateAbsence"
+                                               th:value="${today}" required/>
+                                    </div>
+                                    <div class="col-md-6">
+                                        <label class="form-label fw-semibold">Nombre d'heures</label>
+                                        <select class="form-select" name="nombreHeures">
+                                            <option value="1">1 heure</option>
+                                            <option value="2">2 heures</option>
+                                            <option value="3" selected>3 heures (seance)</option>
+                                            <option value="4">4 heures</option>
+                                        </select>
+                                    </div>
+                                </div>
+
+                                <div class="mb-3">
+                                    <label class="form-label fw-semibold">
+                                        Etudiants absents
+                                        <small class="text-muted">(cochez les absents)</small>
+                                    </label>
+                                    <div class="border rounded p-2" style="max-height: 300px; overflow-y: auto;">
+                                        <div class="mb-2 d-flex gap-2">
+                                            <button type="button" class="btn btn-xs btn-outline-secondary"
+                                                    onclick="selectAll(true)">Tout selectionner</button>
+                                            <button type="button" class="btn btn-xs btn-outline-secondary"
+                                                    onclick="selectAll(false)">Tout deselectionner</button>
+                                        </div>
+                                        <div th:each="etudiant : ${etudiants}" class="form-check py-1 border-bottom">
+                                            <input class="form-check-input etudiant-check" type="checkbox"
+                                                   name="etudiantsAbsents"
+                                                   th:value="${etudiant.id}"
+                                                   th:id="'chk_' + ${etudiant.id}"/>
+                                            <label class="form-check-label" th:for="'chk_' + ${etudiant.id}">
+                                                <code th:text="${etudiant.matricule}" class="me-2">-</code>
+                                                <span th:text="${etudiant.fullName}">-</span>
+                                            </label>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <div class="d-flex gap-2">
+                                    <a th:href="@{/teacher/absences}" class="btn btn-outline-secondary w-50">
+                                        <i class="bi bi-x-circle me-1"></i>Annuler
+                                    </a>
+                                    <button type="submit" class="btn btn-danger w-50">
+                                        <i class="bi bi-calendar-x me-1"></i>Enregistrer les absences
+                                    </button>
+                                </div>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="col-lg-6">
+                    <div class="card">
+                        <div class="card-header">
+                            <h6 class="mb-0">
+                                <i class="bi bi-clock-history me-2"></i>
+                                Historique des absences
+                            </h6>
+                        </div>
+                        <div class="card-body p-0" style="max-height: 450px; overflow-y: auto;">
+                            <table class="table table-sm mb-0">
+                                <thead>
+                                    <tr><th>Date</th><th>Etudiant</th><th>Heures</th><th>Justifiee</th><th>Actions</th></tr>
+                                </thead>
+                                <tbody>
+                                    <tr th:each="a : ${absences}">
+                                        <td th:text="${#temporals.format(a.dateAbsence,'dd/MM/yyyy')}">-</td>
+                                        <td class="small" th:text="${a.student.fullName}">-</td>
+                                        <td class="text-center"><span class="badge bg-secondary" th:text="${a.nombreHeures + 'h'}">-</span></td>
+                                        <td class="text-center">
+                                            <span th:if="${a.justifiee}" class="badge bg-success">Oui</span>
+                                            <span th:unless="${a.justifiee}" class="badge bg-danger">Non</span>
+                                        </td>
+                                        <td>
+                                            <div class="d-flex flex-column gap-2">
+                                                <form th:if="${!a.justifiee}" th:action="@{/teacher/absences/{id}/justifier(id=${a.id})}" method="post" class="d-flex gap-1 align-items-center">
+                                                    <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}"/>
+                                                    <input type="hidden" name="moduleId" th:value="${module.id}"/>
+                                                    <input type="hidden" name="classeId" th:value="${classe.id}"/>
+                                                    <input type="text" name="motif" class="form-control form-control-sm" placeholder="Motif" required/>
+                                                    <button class="btn btn-xs btn-outline-success" title="Justifier">
+                                                        <i class="bi bi-check2-circle"></i>
+                                                    </button>
+                                                </form>
+                                                <form th:action="@{/teacher/absences/{id}/delete(id=${a.id})}" method="post" class="d-inline"
+                                                      onsubmit="return confirm('Supprimer ?')">
+                                                    <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}"/>
+                                                    <button class="btn btn-xs btn-outline-danger"><i class="bi bi-trash"></i></button>
+                                                </form>
+                                            </div>
+                                        </td>
+                                    </tr>
+                                    <tr th:if="${#lists.isEmpty(absences)}">
+                                        <td colspan="5" class="text-center py-3 text-muted">Aucune absence</td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<div th:replace="~{fragments/layout :: scripts}"></div>
+<script>
+function selectAll(checked) {
+    document.querySelectorAll('.etudiant-check').forEach(c => c.checked = checked);
+}
+</script>
+</body>
+</html>

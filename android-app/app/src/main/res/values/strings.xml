@@ -1,0 +1,14 @@
+<resources>
+    <string name="app_name">GestionEtu Mobile</string>
+    <string name="login_title">Connexion</string>
+    <string name="username">Nom utilisateur</string>
+    <string name="password">Mot de passe</string>
+    <string name="sign_in">Se connecter</string>
+    <string name="logout">Deconnexion</string>
+    <string name="student_dashboard">Dashboard Etudiant</string>
+    <string name="teacher_dashboard">Dashboard Enseignant</string>
+    <string name="admin_dashboard">Dashboard Admin</string>
+    <string name="chef_dashboard">Dashboard Chef Filiere</string>
+    <string name="refresh">Rafraichir</string>
+    <string name="back">Retour</string>
+</resources>

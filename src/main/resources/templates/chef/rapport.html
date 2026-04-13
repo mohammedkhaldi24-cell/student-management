@@ -1,0 +1,124 @@
+<!DOCTYPE html>
+<html lang="fr" xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{fragments/layout :: head('Rapports PDF')}"></head>
+<body class="dashboard-body">
+<div class="layout-wrapper">
+    <div th:replace="~{fragments/layout :: sidebar-chef}"></div>
+    <div class="main-content">
+        <div th:replace="~{fragments/layout :: topbar('Generation de rapports PDF')}"></div>
+        <div class="content-area">
+            <div th:replace="~{fragments/layout :: alerts}"></div>
+
+            <div class="row g-4">
+                <div class="col-lg-8">
+                    <div class="card">
+                        <div class="card-header">
+                            <h6 class="mb-0">
+                                <i class="bi bi-file-earmark-pdf text-danger me-2"></i>
+                                Bulletins par classe
+                            </h6>
+                        </div>
+                        <div class="card-body">
+                            <p class="text-muted mb-4">
+                                Selectionnez une classe et un semestre pour afficher les etudiants,
+                                puis generez le bulletin PDF individuel.
+                            </p>
+
+                            <div th:if="${filiere == null}" class="alert alert-warning">
+                                Aucune filiere assignee.
+                            </div>
+
+                            <div th:if="${filiere != null}">
+                                <form method="get" th:action="@{/chef/rapport}" class="row g-3 mb-4 align-items-end">
+                                    <div class="col-md-6">
+                                        <label class="form-label fw-semibold">Classe</label>
+                                        <select name="classeId" class="form-select" required>
+                                            <option value="">-- Selectionner une classe --</option>
+                                            <option th:each="c : ${classes}"
+                                                    th:value="${c.id}"
+                                                    th:text="${c.nom}"
+                                                    th:selected="${classeSelectionnee != null and c.id == classeSelectionnee}">
+                                                Classe
+                                            </option>
+                                        </select>
+                                    </div>
+                                    <div class="col-md-4">
+                                        <label class="form-label fw-semibold">Semestre</label>
+                                        <select name="semestre" class="form-select">
+                                            <option value="S1" th:selected="${semestre == 'S1'}">Semestre 1</option>
+                                            <option value="S2" th:selected="${semestre == 'S2'}">Semestre 2</option>
+                                        </select>
+                                    </div>
+                                    <div class="col-md-2">
+                                        <button type="submit" class="btn btn-primary w-100">
+                                            <i class="bi bi-search me-1"></i>Afficher
+                                        </button>
+                                    </div>
+                                </form>
+
+                                <div class="table-responsive">
+                                    <table class="table table-hover mb-0">
+                                        <thead>
+                                        <tr>
+                                            <th>Matricule</th>
+                                            <th>Nom prenom</th>
+                                            <th>Classe</th>
+                                            <th>Action</th>
+                                        </tr>
+                                        </thead>
+                                        <tbody>
+                                        <tr th:each="etudiant : ${etudiants}">
+                                            <td><code th:text="${etudiant.matricule}">-</code></td>
+                                            <td class="fw-semibold" th:text="${etudiant.fullName}">-</td>
+                                            <td th:text="${etudiant.classe != null ? etudiant.classe.nom : '-'}">-</td>
+                                            <td>
+                                                <a th:href="@{/chef/rapport/etudiant/{id}/{sem}(id=${etudiant.id}, sem=${semestre})}"
+                                                   class="btn btn-sm btn-outline-danger" target="_blank">
+                                                    <i class="bi bi-filetype-pdf me-1"></i>Generer PDF
+                                                </a>
+                                            </td>
+                                        </tr>
+                                        <tr th:if="${#lists.isEmpty(etudiants)}">
+                                            <td colspan="4" class="text-center py-4 text-muted">
+                                                Aucun etudiant affiche. Choisissez une classe pour commencer.
+                                            </td>
+                                        </tr>
+                                        </tbody>
+                                    </table>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="col-lg-4">
+                    <div class="card">
+                        <div class="card-header">
+                            <h6 class="mb-0"><i class="bi bi-info-circle me-2"></i>Informations</h6>
+                        </div>
+                        <div class="card-body">
+                            <div class="info-item mb-3">
+                                <i class="bi bi-filetype-pdf text-danger fs-4 me-2"></i>
+                                <strong>Format PDF</strong><br>
+                                <small class="text-muted">Bulletin avec notes, moyenne, absences et decision.</small>
+                            </div>
+                            <div class="info-item mb-3">
+                                <i class="bi bi-calculator text-primary fs-4 me-2"></i>
+                                <strong>Calcul automatique</strong><br>
+                                <small class="text-muted">Moyenne = Somme(note x coefficient) / Somme(coefficients).</small>
+                            </div>
+                            <div class="info-item">
+                                <i class="bi bi-award text-warning fs-4 me-2"></i>
+                                <strong>Mention et decision</strong><br>
+                                <small class="text-muted">Calculees automatiquement selon la moyenne.</small>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<div th:replace="~{fragments/layout :: scripts}"></div>
+</body>
+</html>

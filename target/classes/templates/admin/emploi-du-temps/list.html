@@ -1,0 +1,82 @@
+<!DOCTYPE html>
+<html lang="fr" xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{fragments/layout :: head('Emploi du Temps')}"></head>
+<body class="dashboard-body">
+<div class="layout-wrapper">
+    <div th:replace="~{fragments/layout :: sidebar-admin}"></div>
+    <div class="main-content">
+        <div th:replace="~{fragments/layout :: topbar('Validation Emploi du Temps')}"></div>
+        <div class="content-area">
+            <div th:replace="~{fragments/layout :: alerts}"></div>
+
+            <div class="card">
+                <div class="card-header d-flex justify-content-between align-items-center">
+                    <h6 class="mb-0"><i class="bi bi-calendar3 me-2"></i>Seances hebdomadaires</h6>
+                    <a th:href="@{/admin/emploi-du-temps/new}" class="btn btn-primary btn-sm">
+                        <i class="bi bi-plus-circle me-1"></i>Nouvelle seance
+                    </a>
+                </div>
+                <div class="card-body p-0">
+                    <div class="table-responsive">
+                        <table class="table table-hover mb-0">
+                            <thead>
+                            <tr>
+                                <th>Jour</th>
+                                <th>Horaire</th>
+                                <th>Module</th>
+                                <th>Enseignant</th>
+                                <th>Classe</th>
+                                <th>Filiere</th>
+                                <th>Salle</th>
+                                <th>Validation</th>
+                                <th class="text-center">Actions</th>
+                            </tr>
+                            </thead>
+                            <tbody>
+                            <tr th:each="e : ${emplois}">
+                                <td class="fw-semibold" th:text="${e.jour}">LUNDI</td>
+                                <td th:text="${#temporals.format(e.heureDebut,'HH:mm') + ' - ' + #temporals.format(e.heureFin,'HH:mm')}">08:30-10:30</td>
+                                <td th:text="${e.module != null ? e.module.nom : '-'}">Module</td>
+                                <td th:text="${e.teacher != null ? e.teacher.fullName : 'Non assigne'}">Teacher</td>
+                                <td th:text="${e.classe != null ? e.classe.nom : '-'}">Classe</td>
+                                <td th:text="${e.filiere != null ? e.filiere.nom : '-'}">Filiere</td>
+                                <td th:text="${e.salle}">S12</td>
+                                <td>
+                                    <span th:if="${e.valide}" class="badge bg-success">Valide</span>
+                                    <span th:unless="${e.valide}" class="badge bg-warning text-dark">En attente</span>
+                                </td>
+                                <td class="text-center">
+                                    <div class="btn-group btn-group-sm">
+                                        <a th:href="@{/admin/emploi-du-temps/{id}/edit(id=${e.id})}" class="btn btn-outline-warning">
+                                            <i class="bi bi-pencil"></i>
+                                        </a>
+                                        <form th:action="@{/admin/emploi-du-temps/{id}/valider(id=${e.id})}" method="post" class="d-inline">
+                                            <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}"/>
+                                            <button class="btn btn-outline-success" th:title="${e.valide} ? 'Retirer validation' : 'Valider seance'">
+                                                <i class="bi bi-check2-circle"></i>
+                                            </button>
+                                        </form>
+                                        <form th:action="@{/admin/emploi-du-temps/{id}/delete(id=${e.id})}" method="post" class="d-inline"
+                                              onsubmit="return confirm('Supprimer cette seance ?')">
+                                            <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}"/>
+                                            <button class="btn btn-outline-danger">
+                                                <i class="bi bi-trash"></i>
+                                            </button>
+                                        </form>
+                                    </div>
+                                </td>
+                            </tr>
+                            <tr th:if="${#lists.isEmpty(emplois)}">
+                                <td colspan="9" class="text-center py-4 text-muted">Aucune seance enregistree.</td>
+                            </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<div th:replace="~{fragments/layout :: scripts}"></div>
+</body>
+</html>

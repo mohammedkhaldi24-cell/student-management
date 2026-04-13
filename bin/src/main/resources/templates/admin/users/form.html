@@ -1,0 +1,165 @@
+<!DOCTYPE html>
+<html lang="fr" xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{fragments/layout :: head('Utilisateur')}"></head>
+<body class="dashboard-body">
+<div class="layout-wrapper">
+    <div th:replace="~{fragments/layout :: sidebar-admin}"></div>
+    <div class="main-content">
+        <div th:replace="~{fragments/layout :: topbar('Gestion Utilisateur')}"></div>
+        <div class="content-area">
+            <div th:replace="~{fragments/layout :: alerts}"></div>
+
+            <div class="row justify-content-center">
+                <div class="col-lg-8">
+                    <div class="card">
+                        <div class="card-header">
+                            <h6 class="card-title mb-0">
+                                <i class="bi bi-person-fill me-2"></i>
+                                <span th:text="${userDto.id != null} ? 'Modifier l\'utilisateur' : 'Créer un utilisateur'">Utilisateur</span>
+                            </h6>
+                        </div>
+                        <div class="card-body">
+                            <form th:action="${userDto.id != null} ? @{/admin/users/{id}/edit(id=${userDto.id})} : @{/admin/users/new}"
+                                  th:object="${userDto}" method="post">
+                                <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}"/>
+
+                                <div class="row g-3">
+                                    <div class="col-md-6">
+                                        <label class="form-label fw-semibold">Prénom *</label>
+                                        <input type="text" class="form-control" th:field="*{firstName}"
+                                               th:classappend="${#fields.hasErrors('firstName')} ? 'is-invalid'"
+                                               placeholder="Prénom"/>
+                                        <div class="invalid-feedback" th:errors="*{firstName}"></div>
+                                    </div>
+                                    <div class="col-md-6">
+                                        <label class="form-label fw-semibold">Nom *</label>
+                                        <input type="text" class="form-control" th:field="*{lastName}"
+                                               th:classappend="${#fields.hasErrors('lastName')} ? 'is-invalid'"
+                                               placeholder="Nom"/>
+                                        <div class="invalid-feedback" th:errors="*{lastName}"></div>
+                                    </div>
+                                    <div class="col-md-6">
+                                        <label class="form-label fw-semibold">Nom d'utilisateur *</label>
+                                        <input type="text" class="form-control" th:field="*{username}"
+                                               th:classappend="${#fields.hasErrors('username')} ? 'is-invalid'"
+                                               placeholder="ex: prof.ali"/>
+                                        <div class="invalid-feedback" th:errors="*{username}"></div>
+                                    </div>
+                                    <div class="col-md-6">
+                                        <label class="form-label fw-semibold">Email</label>
+                                        <input type="email" class="form-control" th:field="*{email}"
+                                               th:classappend="${#fields.hasErrors('email')} ? 'is-invalid'"
+                                               placeholder="email@exemple.dz"/>
+                                        <div class="invalid-feedback" th:errors="*{email}"></div>
+                                    </div>
+                                    <div class="col-md-6">
+                                        <label class="form-label fw-semibold">
+                                            Mot de passe
+                                            <span th:if="${userDto.id == null}" class="text-danger">*</span>
+                                            <small th:if="${userDto.id != null}" class="text-muted">(laisser vide = inchangé)</small>
+                                        </label>
+                                        <input type="password" class="form-control" th:field="*{password}"
+                                               placeholder="••••••••"/>
+                                    </div>
+                                    <div class="col-md-6">
+                                        <label class="form-label fw-semibold">Confirmer le mot de passe</label>
+                                        <input type="password" class="form-control" th:field="*{confirmPassword}"
+                                               placeholder="••••••••"/>
+                                    </div>
+                                    <div class="col-md-6">
+                                        <label class="form-label fw-semibold">Rôle *</label>
+                                        <select class="form-select" th:field="*{role}"
+                                                onchange="toggleRoleFields(this.value)">
+                                            <option value="">-- Sélectionner un rôle --</option>
+                                            <option th:each="role : ${roles}"
+                                                    th:value="${role}"
+                                                    th:text="${role}">ROLE</option>
+                                        </select>
+                                    </div>
+                                    <div class="col-md-6">
+                                        <label class="form-label fw-semibold">Statut</label>
+                                        <div class="form-check form-switch mt-2">
+                                            <input class="form-check-input" type="checkbox"
+                                                   th:field="*{enabled}" role="switch"/>
+                                            <label class="form-check-label">Compte actif</label>
+                                        </div>
+                                    </div>
+
+                                    <!-- Champs STUDENT -->
+                                    <div class="col-12 role-field role-student d-none">
+                                        <div class="row g-3">
+                                            <div class="col-md-6">
+                                                <label class="form-label fw-semibold">Matricule</label>
+                                                <input type="text" class="form-control" th:field="*{matricule}"
+                                                       placeholder="ex: 2024INFO001"/>
+                                            </div>
+                                            <div class="col-md-6">
+                                                <label class="form-label fw-semibold">Classe</label>
+                                                <select class="form-select" th:field="*{classeId}">
+                                                    <option value="">-- Sélectionner une classe --</option>
+                                                    <option th:each="c : ${classes}"
+                                                            th:value="${c.id}"
+                                                            th:text="${c.nom + ' (' + c.filiere.nom + ')'}">Classe</option>
+                                                </select>
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    <!-- Champs TEACHER -->
+                                    <div class="col-12 role-field role-teacher d-none">
+                                        <div class="row g-3">
+                                            <div class="col-md-6">
+                                                <label class="form-label fw-semibold">Spécialité</label>
+                                                <input type="text" class="form-control" th:field="*{specialite}"
+                                                       placeholder="ex: Algorithmique"/>
+                                            </div>
+                                            <div class="col-md-6">
+                                                <label class="form-label fw-semibold">Grade</label>
+                                                <input type="text" class="form-control" th:field="*{grade}"
+                                                       placeholder="ex: Maître de Conférences A"/>
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    <!-- Champs CHEF_FILIERE -->
+                                    <div class="col-md-6 role-field role-chef_filiere d-none">
+                                        <label class="form-label fw-semibold">Filière à gérer</label>
+                                        <select class="form-select" th:field="*{filiereId}">
+                                            <option value="">-- Sélectionner une filière --</option>
+                                            <option th:each="f : ${filieres}"
+                                                    th:value="${f.id}"
+                                                    th:text="${f.nom}">Filière</option>
+                                        </select>
+                                    </div>
+                                </div>
+
+                                <hr class="mt-4"/>
+                                <div class="d-flex justify-content-end gap-2">
+                                    <a th:href="@{/admin/users}" class="btn btn-secondary">
+                                        <i class="bi bi-x-circle me-1"></i>Annuler
+                                    </a>
+                                    <button type="submit" class="btn btn-primary">
+                                        <i class="bi bi-save me-1"></i>Enregistrer
+                                    </button>
+                                </div>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<div th:replace="~{fragments/layout :: scripts}"></div>
+<script>
+function toggleRoleFields(role) {
+    document.querySelectorAll('.role-field').forEach(el => el.classList.add('d-none'));
+    const target = document.querySelector('.role-' + role.toLowerCase());
+    if (target) target.classList.remove('d-none');
+}
+// Init au chargement
+const roleSelect = document.querySelector('[name="role"]');
+if (roleSelect && roleSelect.value) toggleRoleFields(roleSelect.value);
+</script>
+</body>
+</html>

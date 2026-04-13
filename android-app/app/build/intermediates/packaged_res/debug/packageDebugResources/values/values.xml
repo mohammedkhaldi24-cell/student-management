@@ -1,0 +1,47 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources xmlns:ns1="http://schemas.android.com/tools">
+    <color name="adminDark">#1A3C68</color>
+    <color name="adminPrimary">#224F87</color>
+    <color name="background">#F1F4F9</color>
+    <color name="chefDark">#155261</color>
+    <color name="chefPrimary">#1E6B7D</color>
+    <color name="error">#B3261E</color>
+    <color name="onPrimary">#FFFFFF</color>
+    <color name="onPrimaryContainer">#001A41</color>
+    <color name="onSecondary">#FFFFFF</color>
+    <color name="primary">#224F87</color>
+    <color name="primaryContainer">#D6E3FF</color>
+    <color name="secondary">#2E7D32</color>
+    <color name="statAmber">#E2B93B</color>
+    <color name="statBlue">#2F80ED</color>
+    <color name="statGreen">#27AE60</color>
+    <color name="statRed">#D64545</color>
+    <color name="studentDark">#341A49</color>
+    <color name="studentPrimary">#4B2367</color>
+    <color name="surface">#FFFFFF</color>
+    <color name="teacherDark">#055637</color>
+    <color name="teacherPrimary">#0B6B46</color>
+    <color name="textPrimary">#1A1C1E</color>
+    <color name="textSecondary">#5E6167</color>
+    <string name="admin_dashboard">Dashboard Admin</string>
+    <string name="app_name">GestionEtu Mobile</string>
+    <string name="back">Retour</string>
+    <string name="chef_dashboard">Dashboard Chef Filiere</string>
+    <string name="login_title">Connexion</string>
+    <string name="logout">Deconnexion</string>
+    <string name="password">Mot de passe</string>
+    <string name="refresh">Rafraichir</string>
+    <string name="sign_in">Se connecter</string>
+    <string name="student_dashboard">Dashboard Etudiant</string>
+    <string name="teacher_dashboard">Dashboard Enseignant</string>
+    <string name="username">Nom utilisateur</string>
+    <style name="Theme.StudentManagementMobile" parent="Theme.Material3.DayNight.NoActionBar">
+        <item name="colorPrimary">@color/primary</item>
+        <item name="colorOnPrimary">@color/onPrimary</item>
+        <item name="colorPrimaryContainer">@color/primaryContainer</item>
+        <item name="colorOnPrimaryContainer">@color/onPrimaryContainer</item>
+        <item name="colorSecondary">@color/secondary</item>
+        <item name="colorOnSecondary">@color/onSecondary</item>
+        <item name="android:statusBarColor" ns1:targetApi="l">@color/primary</item>
+    </style>
+</resources>

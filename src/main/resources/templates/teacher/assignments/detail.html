@@ -1,0 +1,140 @@
+<!DOCTYPE html>
+<html lang="fr" xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{fragments/layout :: head('Detail Devoir')}"></head>
+<body class="dashboard-body">
+<div class="layout-wrapper">
+    <div th:replace="~{fragments/layout :: sidebar-teacher}"></div>
+    <div class="main-content">
+        <div th:replace="~{fragments/layout :: topbar('Detail du Devoir')}"></div>
+        <div class="content-area">
+            <div th:replace="~{fragments/layout :: alerts}"></div>
+
+            <div class="d-flex justify-content-between align-items-start mb-3">
+                <div>
+                    <h4 class="fw-bold mb-1" th:text="${assignment.title}">Titre</h4>
+                    <div class="d-flex flex-wrap gap-2">
+                        <span class="badge bg-primary" th:if="${assignment.targetClasse != null}"
+                              th:text="${'Classe: ' + assignment.targetClasse.nom}">Classe</span>
+                        <span class="badge bg-info" th:if="${assignment.targetFiliere != null}"
+                              th:text="${'Filiere: ' + assignment.targetFiliere.nom}">Filiere</span>
+                        <span class="badge bg-secondary" th:if="${assignment.module != null}"
+                              th:text="${assignment.module.nom}">Module</span>
+                        <span class="badge bg-success" th:if="${assignment.published}">Publie</span>
+                        <span class="badge bg-secondary" th:unless="${assignment.published}">Brouillon</span>
+                    </div>
+                </div>
+                <div class="d-flex gap-2">
+                    <a th:href="@{/teacher/assignments}" class="btn btn-outline-secondary btn-sm">
+                        <i class="bi bi-arrow-left me-1"></i>Retour
+                    </a>
+                    <a th:href="@{/teacher/assignments/{id}/edit(id=${assignment.id})}" class="btn btn-outline-warning btn-sm">
+                        <i class="bi bi-pencil me-1"></i>Modifier
+                    </a>
+                    <a th:href="@{/teacher/assignments/{id}/submissions(id=${assignment.id})}" class="btn btn-primary btn-sm">
+                        <i class="bi bi-inbox me-1"></i>Soumissions
+                    </a>
+                </div>
+            </div>
+
+            <div class="row g-3 mb-4">
+                <div class="col-md-4">
+                    <div class="stat-card stat-card-primary h-100">
+                        <div class="stat-icon"><i class="bi bi-people-fill"></i></div>
+                        <div class="stat-info">
+                            <div class="stat-value" th:text="${targetCount}">0</div>
+                            <div class="stat-label">Etudiants cibles</div>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-4">
+                    <div class="stat-card stat-card-success h-100">
+                        <div class="stat-icon"><i class="bi bi-check2-square"></i></div>
+                        <div class="stat-info">
+                            <div class="stat-value" th:text="${submittedCount}">0</div>
+                            <div class="stat-label">Soumissions recues</div>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-4">
+                    <div class="stat-card stat-card-warning h-100">
+                        <div class="stat-icon"><i class="bi bi-hourglass-split"></i></div>
+                        <div class="stat-info">
+                            <div class="stat-value" th:text="${pendingCount}">0</div>
+                            <div class="stat-label">En attente</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="card mb-4">
+                <div class="card-header">
+                    <h6 class="mb-0"><i class="bi bi-info-circle me-2"></i>Informations du devoir</h6>
+                </div>
+                <div class="card-body">
+                    <div class="row g-3">
+                        <div class="col-md-4">
+                            <small class="text-muted d-block">Date de creation</small>
+                            <strong th:text="${#temporals.format(assignment.createdAt,'dd/MM/yyyy HH:mm')}">Date</strong>
+                        </div>
+                        <div class="col-md-4">
+                            <small class="text-muted d-block">Date limite</small>
+                            <strong th:text="${#temporals.format(assignment.dueDate,'dd/MM/yyyy HH:mm')}">Date</strong>
+                            <span class="badge bg-danger ms-1" th:if="${assignment.dueDate.isBefore(now)}">Depassee</span>
+                        </div>
+                        <div class="col-md-4">
+                            <small class="text-muted d-block">Piece jointe</small>
+                            <span th:if="${assignment.attachmentPath == null}" class="text-muted">Aucune</span>
+                            <a th:if="${assignment.attachmentPath != null}" th:href="@{/teacher/assignments/{id}/attachment(id=${assignment.id})}">
+                                Telecharger le fichier
+                            </a>
+                        </div>
+                        <div class="col-12">
+                            <small class="text-muted d-block mb-1">Instructions</small>
+                            <p class="mb-0" style="white-space: pre-wrap;" th:text="${assignment.description}">Description</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="card">
+                <div class="card-header d-flex justify-content-between align-items-center">
+                    <h6 class="mb-0"><i class="bi bi-inbox me-2"></i>Dernieres soumissions</h6>
+                    <a th:href="@{/teacher/assignments/{id}/submissions(id=${assignment.id})}" class="btn btn-sm btn-outline-primary">
+                        Voir toutes les soumissions
+                    </a>
+                </div>
+                <div class="card-body p-0">
+                    <div class="table-responsive">
+                        <table class="table table-hover mb-0">
+                            <thead>
+                            <tr>
+                                <th>Etudiant</th>
+                                <th>Date</th>
+                                <th>Etat</th>
+                                <th>Note</th>
+                            </tr>
+                            </thead>
+                            <tbody>
+                            <tr th:each="s : ${submissions}">
+                                <td th:text="${s.student.fullName}">Etudiant</td>
+                                <td th:text="${#temporals.format(s.submittedAt,'dd/MM/yyyy HH:mm')}">Date</td>
+                                <td>
+                                    <span class="badge bg-danger" th:if="${s.lateSubmission}">En retard</span>
+                                    <span class="badge bg-success" th:unless="${s.lateSubmission}">A temps</span>
+                                </td>
+                                <td th:text="${s.score != null ? s.score : '-'}">-</td>
+                            </tr>
+                            <tr th:if="${#lists.isEmpty(submissions)}">
+                                <td colspan="4" class="text-center py-4 text-muted">Aucune soumission pour le moment.</td>
+                            </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<div th:replace="~{fragments/layout :: scripts}"></div>
+</body>
+</html>

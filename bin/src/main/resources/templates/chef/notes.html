@@ -1,0 +1,98 @@
+<!DOCTYPE html>
+<html lang="fr" xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{fragments/layout :: head('Notes Globales')}"></head>
+<body class="dashboard-body">
+<div class="layout-wrapper">
+    <div th:replace="~{fragments/layout :: sidebar-chef}"></div>
+    <div class="main-content">
+        <div th:replace="~{fragments/layout :: topbar('Notes Globales')}"></div>
+        <div class="content-area">
+            <!-- Filtre -->
+            <div class="card mb-4">
+                <div class="card-body">
+                    <form method="get" th:action="@{/chef/notes}" class="row g-2 align-items-end">
+                        <div class="col-md-4">
+                            <label class="form-label fw-semibold">Classe</label>
+                            <select name="classeId" class="form-select" onchange="this.form.submit()">
+                                <option value="">-- Toutes les classes --</option>
+                                <option th:each="c : ${classes}"
+                                        th:value="${c.id}"
+                                        th:text="${c.nom}"
+                                        th:selected="${classeId != null and c.id == classeId}">Classe</option>
+                            </select>
+                        </div>
+                    </form>
+                </div>
+            </div>
+
+            <!-- Tableau notes -->
+            <div class="card" th:if="${moyennesEtudiants != null}">
+                <div class="card-header d-flex justify-content-between align-items-center">
+                    <h6 class="mb-0">
+                        <i class="bi bi-journal-text me-2"></i>
+                        Moyennes — <span th:text="${classe?.nom}">Classe</span>
+                    </h6>
+                    <span class="text-muted small" th:text="${#maps.size(moyennesEtudiants)} + ' étudiant(s)'">0</span>
+                </div>
+                <div class="card-body p-0">
+                    <div class="table-responsive">
+                        <table class="table table-hover mb-0">
+                            <thead>
+                                <tr>
+                                    <th>Rang</th>
+                                    <th>Matricule</th>
+                                    <th>Nom Prénom</th>
+                                    <th>Classe</th>
+                                    <th>Moyenne Générale</th>
+                                    <th>Mention</th>
+                                    <th>Bulletin S1</th>
+                                    <th>Bulletin S2</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr th:each="entry, stat : ${moyennesEtudiants}">
+                                    <td class="text-center">
+                                        <span class="badge bg-secondary" th:text="${stat.count}">1</span>
+                                    </td>
+                                    <td><code th:text="${entry.key.matricule}">-</code></td>
+                                    <td class="fw-semibold" th:text="${entry.key.fullName}">-</td>
+                                    <td th:text="${entry.key.classe?.nom ?: '-'}">-</td>
+                                    <td>
+                                        <span th:text="${#numbers.formatDecimal(entry.value,1,2) + '/20'}"
+                                              class="fw-bold"
+                                              th:classappend="${entry.value >= 10} ? 'text-success' : 'text-danger'">-</span>
+                                    </td>
+                                    <td>
+                                        <span th:if="${entry.value >= 16}" class="badge bg-success">Très Bien</span>
+                                        <span th:if="${entry.value >= 14 and entry.value < 16}" class="badge bg-info">Bien</span>
+                                        <span th:if="${entry.value >= 12 and entry.value < 14}" class="badge bg-warning text-dark">Assez Bien</span>
+                                        <span th:if="${entry.value >= 10 and entry.value < 12}" class="badge bg-secondary">Passable</span>
+                                        <span th:if="${entry.value < 10}" class="badge bg-danger">Insuffisant</span>
+                                    </td>
+                                    <td>
+                                        <a th:href="@{/chef/rapport/etudiant/{id}/S1(id=${entry.key.id})}"
+                                           class="btn btn-sm btn-outline-danger" target="_blank">
+                                            <i class="bi bi-filetype-pdf"></i> S1
+                                        </a>
+                                    </td>
+                                    <td>
+                                        <a th:href="@{/chef/rapport/etudiant/{id}/S2(id=${entry.key.id})}"
+                                           class="btn btn-sm btn-outline-danger" target="_blank">
+                                            <i class="bi bi-filetype-pdf"></i> S2
+                                        </a>
+                                    </td>
+                                </tr>
+                                <tr th:if="${#maps.size(moyennesEtudiants) == 0}">
+                                    <td colspan="8" class="text-center py-4 text-muted">Aucun étudiant trouvé</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<div th:replace="~{fragments/layout :: scripts}"></div>
+</body>
+</html>

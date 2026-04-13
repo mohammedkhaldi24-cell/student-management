@@ -1,0 +1,86 @@
+<!DOCTYPE html>
+<html lang="fr" xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{fragments/layout :: head('Absences Filiere')}"></head>
+<body class="dashboard-body">
+<div class="layout-wrapper">
+    <div th:replace="~{fragments/layout :: sidebar-chef}"></div>
+    <div class="main-content">
+        <div th:replace="~{fragments/layout :: topbar('Absences de la Filiere')}"></div>
+        <div class="content-area">
+            <div th:replace="~{fragments/layout :: alerts}"></div>
+
+            <div class="card mb-4">
+                <div class="card-header">
+                    <h6 class="mb-0"><i class="bi bi-funnel me-2"></i>Filtrer par classe</h6>
+                </div>
+                <div class="card-body">
+                    <form method="get" th:action="@{/chef/absences}" class="row g-2 align-items-end">
+                        <div class="col-md-4">
+                            <label class="form-label fw-semibold">Classe</label>
+                            <select name="classeId" class="form-select" onchange="this.form.submit()">
+                                <option value="">-- Toutes les classes --</option>
+                                <option th:each="c : ${classes}"
+                                        th:value="${c.id}"
+                                        th:text="${c.nom}"
+                                        th:selected="${classeSelectionnee != null and c.id == classeSelectionnee}">
+                                    Classe
+                                </option>
+                            </select>
+                        </div>
+                    </form>
+                </div>
+            </div>
+
+            <div class="card">
+                <div class="card-header d-flex justify-content-between align-items-center">
+                    <h6 class="mb-0">
+                        <i class="bi bi-calendar-x me-2"></i>
+                        Absences
+                    </h6>
+                    <span class="badge bg-danger" th:text="${#lists.size(absences)} + ' absence(s)'">0 absence(s)</span>
+                </div>
+                <div class="card-body p-0">
+                    <div class="table-responsive">
+                        <table class="table table-hover mb-0">
+                            <thead>
+                            <tr>
+                                <th>Date</th>
+                                <th>Etudiant</th>
+                                <th>Classe</th>
+                                <th>Module</th>
+                                <th>Heures</th>
+                                <th>Justifiee</th>
+                                <th>Motif</th>
+                            </tr>
+                            </thead>
+                            <tbody>
+                            <tr th:each="a : ${absences}">
+                                <td th:text="${#temporals.format(a.dateAbsence,'dd/MM/yyyy')}">-</td>
+                                <td class="fw-semibold" th:text="${a.student.fullName}">-</td>
+                                <td th:text="${a.student.classe != null ? a.student.classe.nom : '-'}">-</td>
+                                <td th:text="${a.module.nom}">-</td>
+                                <td class="text-center">
+                                    <span class="badge bg-secondary" th:text="${a.nombreHeures + 'h'}">0h</span>
+                                </td>
+                                <td class="text-center">
+                                    <span th:if="${a.justifiee}" class="badge bg-success">Oui</span>
+                                    <span th:unless="${a.justifiee}" class="badge bg-danger">Non</span>
+                                </td>
+                                <td class="small text-muted" th:text="${a.motif != null ? a.motif : '-'}">-</td>
+                            </tr>
+                            <tr th:if="${#lists.isEmpty(absences)}">
+                                <td colspan="7" class="text-center py-4 text-muted">
+                                    Aucune absence trouvee.
+                                </td>
+                            </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<div th:replace="~{fragments/layout :: scripts}"></div>
+</body>
+</html>

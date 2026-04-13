@@ -1,0 +1,27 @@
+<resources>
+    <color name="primary">#224F87</color>
+    <color name="onPrimary">#FFFFFF</color>
+    <color name="primaryContainer">#D6E3FF</color>
+    <color name="onPrimaryContainer">#001A41</color>
+    <color name="secondary">#2E7D32</color>
+    <color name="onSecondary">#FFFFFF</color>
+    <color name="background">#F1F4F9</color>
+    <color name="surface">#FFFFFF</color>
+    <color name="error">#B3261E</color>
+    <color name="textPrimary">#1A1C1E</color>
+    <color name="textSecondary">#5E6167</color>
+
+    <color name="adminPrimary">#224F87</color>
+    <color name="adminDark">#1A3C68</color>
+    <color name="teacherPrimary">#0B6B46</color>
+    <color name="teacherDark">#055637</color>
+    <color name="studentPrimary">#4B2367</color>
+    <color name="studentDark">#341A49</color>
+    <color name="chefPrimary">#1E6B7D</color>
+    <color name="chefDark">#155261</color>
+
+    <color name="statBlue">#2F80ED</color>
+    <color name="statGreen">#27AE60</color>
+    <color name="statAmber">#E2B93B</color>
+    <color name="statRed">#D64545</color>
+</resources>

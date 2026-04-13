@@ -1,0 +1,118 @@
+<!DOCTYPE html>
+<html lang="fr" xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{fragments/layout :: head('Mes Devoirs')}"></head>
+<body class="dashboard-body">
+<div class="layout-wrapper">
+    <div th:replace="~{fragments/layout :: sidebar-student}"></div>
+    <div class="main-content">
+        <div th:replace="~{fragments/layout :: topbar('Mes Devoirs')}"></div>
+        <div class="content-area">
+            <div th:replace="~{fragments/layout :: alerts}"></div>
+
+            <div class="d-flex flex-wrap gap-2 mb-3">
+                <a th:href="@{/student/dashboard}" class="btn btn-outline-secondary btn-sm">
+                    <i class="bi bi-arrow-left me-1"></i>Retour Dashboard
+                </a>
+                <a th:href="@{/student/courses}" class="btn btn-outline-primary btn-sm">
+                    <i class="bi bi-journals me-1"></i>Cours
+                </a>
+                <a th:href="@{/student/announcements}" class="btn btn-outline-primary btn-sm">
+                    <i class="bi bi-megaphone me-1"></i>Annonces
+                </a>
+            </div>
+
+            <div class="card mb-4">
+                <div class="card-body d-flex flex-wrap gap-2 align-items-center">
+                    <a th:href="@{/student/assignments(filter='all')}"
+                       class="btn btn-sm"
+                       th:classappend="${filter == 'all'} ? ' btn-primary' : ' btn-outline-primary'">
+                        Tous (<span th:text="${totalCount}">0</span>)
+                    </a>
+                    <a th:href="@{/student/assignments(filter='upcoming')}"
+                       class="btn btn-sm"
+                       th:classappend="${filter == 'upcoming'} ? ' btn-primary' : ' btn-outline-primary'">
+                        A venir (<span th:text="${upcomingCount}">0</span>)
+                    </a>
+                    <a th:href="@{/student/assignments(filter='overdue')}"
+                       class="btn btn-sm"
+                       th:classappend="${filter == 'overdue'} ? ' btn-danger' : ' btn-outline-danger'">
+                        En retard (<span th:text="${overdueCount}">0</span>)
+                    </a>
+                    <a th:href="@{/student/assignments(filter='submitted')}"
+                       class="btn btn-sm"
+                       th:classappend="${filter == 'submitted'} ? ' btn-success' : ' btn-outline-success'">
+                        Soumis (<span th:text="${submittedCount}">0</span>)
+                    </a>
+                    <a th:href="@{/student/assignments(filter='not_submitted')}"
+                       class="btn btn-sm"
+                       th:classappend="${filter == 'not_submitted'} ? ' btn-warning text-dark' : ' btn-outline-warning'">
+                        Non soumis
+                    </a>
+                </div>
+            </div>
+
+            <div class="row g-3">
+                <div class="col-12" th:if="${#lists.isEmpty(assignmentViews)}">
+                    <div class="card">
+                        <div class="card-body text-center py-5 text-muted">
+                            <i class="bi bi-journal-check fs-1 d-block mb-3"></i>
+                            Aucun devoir pour ce filtre.
+                        </div>
+                    </div>
+                </div>
+
+                <div class="col-lg-6" th:each="v : ${assignmentViews}">
+                    <div class="card h-100 assignment-card">
+                        <div class="card-header d-flex justify-content-between align-items-center">
+                            <span class="fw-semibold" th:text="${v.assignment.title}">Titre</span>
+                            <div class="d-flex gap-1">
+                                <span class="badge bg-secondary" th:if="${v.assignment.module != null}" th:text="${v.assignment.module.code}">MOD</span>
+                                <span class="badge bg-success" th:if="${v.status.name() == 'GRADED'}">Note</span>
+                                <span class="badge bg-info" th:if="${v.status.name() == 'REVIEWED'}">Revise</span>
+                                <span class="badge bg-primary" th:if="${v.status.name() == 'SUBMITTED'}">Soumis</span>
+                                <span class="badge bg-warning text-dark" th:if="${v.status.name() == 'NOT_SUBMITTED' and v.upcoming}">A venir</span>
+                                <span class="badge bg-danger" th:if="${v.status.name() == 'NOT_SUBMITTED' and v.overdue}">En retard</span>
+                                <span class="badge bg-danger" th:if="${v.late}">Soumis en retard</span>
+                            </div>
+                        </div>
+                        <div class="card-body">
+                            <p class="mb-2">
+                                <strong>Module:</strong>
+                                <span th:text="${v.assignment.module != null ? v.assignment.module.nom : 'General'}">Module</span>
+                            </p>
+                            <p class="mb-2">
+                                <strong>Enseignant:</strong>
+                                <span th:text="${v.assignment.teacher != null ? v.assignment.teacher.fullName : '-'}">Teacher</span>
+                            </p>
+                            <p class="small text-muted mb-2"
+                               th:text="${v.assignment.description != null and #strings.length(v.assignment.description) > 140 ? #strings.substring(v.assignment.description,0,140) + '...' : v.assignment.description}">
+                                Description
+                            </p>
+                            <p class="mb-0">
+                                <strong>Date limite:</strong>
+                                <span th:text="${#temporals.format(v.assignment.dueDate,'dd/MM/yyyy HH:mm')}">Date</span>
+                            </p>
+                        </div>
+                        <div class="card-footer bg-transparent d-flex justify-content-between align-items-center">
+                            <small class="text-muted">
+                                <span th:if="${v.submission != null}">
+                                    Soumis le
+                                    <span th:text="${#temporals.format(v.submission.submittedAt,'dd/MM HH:mm')}">Date</span>
+                                </span>
+                                <span th:if="${v.submission == null}">
+                                    Non soumis
+                                </span>
+                            </small>
+                            <a th:href="@{/student/assignments/{id}(id=${v.assignment.id})}" class="btn btn-sm btn-outline-primary">
+                                Ouvrir
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<div th:replace="~{fragments/layout :: scripts}"></div>
+</body>
+</html>

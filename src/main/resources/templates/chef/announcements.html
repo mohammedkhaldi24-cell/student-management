@@ -1,0 +1,56 @@
+<!DOCTYPE html>
+<html lang="fr" xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{fragments/layout :: head('Annonces Filiere')}"></head>
+<body class="dashboard-body">
+<div class="layout-wrapper">
+    <div th:replace="~{fragments/layout :: sidebar-chef}"></div>
+    <div class="main-content">
+        <div th:replace="~{fragments/layout :: topbar('Annonces de la Filiere')}"></div>
+        <div class="content-area">
+            <div class="card">
+                <div class="card-header">
+                    <h6 class="mb-0">
+                        <i class="bi bi-megaphone me-2"></i>
+                        Annonces - <span th:text="${filiere.nom}">Filiere</span>
+                    </h6>
+                </div>
+                <div class="card-body p-0">
+                    <div class="table-responsive">
+                        <table class="table table-hover mb-0">
+                            <thead>
+                            <tr>
+                                <th>Titre</th>
+                                <th>Message</th>
+                                <th>Cible</th>
+                                <th>Auteur</th>
+                                <th>Date</th>
+                            </tr>
+                            </thead>
+                            <tbody>
+                            <tr th:each="a : ${announcements}">
+                                <td class="fw-semibold" th:text="${a.title}">Titre</td>
+                                <td class="small" th:text="${a.message}">Message</td>
+                                <td>
+                                    <span th:if="${a.targetClasse != null}" class="badge bg-primary"
+                                          th:text="${'Classe: ' + a.targetClasse.nom}">Classe</span>
+                                    <span th:if="${a.targetClasse == null and a.targetFiliere != null}" class="badge bg-info"
+                                          th:text="${'Filiere: ' + a.targetFiliere.nom}">Filiere</span>
+                                </td>
+                                <td th:text="${a.author != null ? a.author.fullName : '-'}">Auteur</td>
+                                <td th:text="${#temporals.format(a.createdAt,'dd/MM/yyyy HH:mm')}">Date</td>
+                            </tr>
+                            <tr th:if="${#lists.isEmpty(announcements)}">
+                                <td colspan="5" class="text-center py-4 text-muted">Aucune annonce.</td>
+                            </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<div th:replace="~{fragments/layout :: scripts}"></div>
+</body>
+</html>
+
