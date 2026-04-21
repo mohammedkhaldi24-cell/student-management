@@ -20,6 +20,21 @@ public interface AnnouncementService {
                                     Long authorId,
                                     Long classeId,
                                     Long filiereId,
+                                    Long moduleId);
+
+    Announcement createAnnouncement(String title,
+                                    String message,
+                                    Long authorId,
+                                    Long classeId,
+                                    Long filiereId,
+                                    MultipartFile attachment);
+
+    Announcement createAnnouncement(String title,
+                                    String message,
+                                    Long authorId,
+                                    Long classeId,
+                                    Long filiereId,
+                                    Long moduleId,
                                     MultipartFile attachment);
 
     void deleteAnnouncement(Long id, Long authorId);

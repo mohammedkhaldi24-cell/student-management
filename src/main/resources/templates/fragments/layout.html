@@ -9,6 +9,9 @@
     <meta charset="UTF-8"/>
     <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
     <title th:text="${title} + ' | GestionEtu'">GestionEtu</title>
+    <link rel="icon" type="image/x-icon" th:href="@{/favicon.ico(v=2)}"/>
+    <link rel="shortcut icon" type="image/x-icon" th:href="@{/favicon.ico(v=2)}"/>
+    <link rel="icon" type="image/png" th:href="@{/favicon.png(v=2)}"/>
 
     <!-- Bootstrap 5 -->
     <link rel="stylesheet"
@@ -26,7 +29,7 @@
 <nav th:fragment="sidebar-admin" class="sidebar d-flex flex-column">
     <div class="sidebar-header">
         <a th:href="@{/admin/dashboard}" class="sidebar-logo text-decoration-none">
-            <img th:src="@{/images/esto-logo.jpg}" alt="Logo ESTO" class="brand-logo"/>
+            <img th:src="@{/images/esto-logo.jpg(v=2)}" alt="Logo ESTO" class="brand-logo"/>
             <div class="d-flex flex-column lh-sm">
                 <span>GestionEtu</span>
                 <small class="brand-subtitle">ESTO Oujda</small>
@@ -62,7 +65,7 @@
 <nav th:fragment="sidebar-chef" class="sidebar d-flex flex-column sidebar-chef">
     <div class="sidebar-header">
         <a th:href="@{/chef/dashboard}" class="sidebar-logo text-decoration-none">
-            <img th:src="@{/images/esto-logo.jpg}" alt="Logo ESTO" class="brand-logo"/>
+            <img th:src="@{/images/esto-logo.jpg(v=2)}" alt="Logo ESTO" class="brand-logo"/>
             <div class="d-flex flex-column lh-sm">
                 <span>GestionEtu</span>
                 <small class="brand-subtitle">ESTO Oujda</small>
@@ -102,7 +105,7 @@
 <nav th:fragment="sidebar-teacher" class="sidebar d-flex flex-column sidebar-teacher">
     <div class="sidebar-header">
         <a th:href="@{/teacher/dashboard}" class="sidebar-logo text-decoration-none">
-            <img th:src="@{/images/esto-logo.jpg}" alt="Logo ESTO" class="brand-logo"/>
+            <img th:src="@{/images/esto-logo.jpg(v=2)}" alt="Logo ESTO" class="brand-logo"/>
             <div class="d-flex flex-column lh-sm">
                 <span>GestionEtu</span>
                 <small class="brand-subtitle">ESTO Oujda</small>
@@ -140,7 +143,7 @@
 <nav th:fragment="sidebar-student" class="sidebar d-flex flex-column sidebar-student">
     <div class="sidebar-header">
         <a th:href="@{/student/dashboard}" class="sidebar-logo text-decoration-none">
-            <img th:src="@{/images/esto-logo.jpg}" alt="Logo ESTO" class="brand-logo"/>
+            <img th:src="@{/images/esto-logo.jpg(v=2)}" alt="Logo ESTO" class="brand-logo"/>
             <div class="d-flex flex-column lh-sm">
                 <span>GestionEtu</span>
                 <small class="brand-subtitle">ESTO Oujda</small>
@@ -152,6 +155,8 @@
         <li><a th:href="@{/student/dashboard}">
             <i class="bi bi-house-door-fill"></i><span>Mon Espace</span></a></li>
         <li class="menu-header">Mon dossier</li>
+        <li><a th:href="@{/student/modules}">
+            <i class="bi bi-journal-bookmark-fill"></i><span>Mes Modules</span></a></li>
         <li><a th:href="@{/student/emploi-du-temps}">
             <i class="bi bi-calendar-week-fill"></i><span>Emploi du temps</span></a></li>
         <li><a th:href="@{/student/courses}">
@@ -181,7 +186,7 @@
             <i class="bi bi-list fs-4"></i>
         </button>
         <div class="topbar-brand">
-            <img th:src="@{/images/esto-logo.jpg}" alt="Logo ESTO" class="brand-logo brand-logo-sm"/>
+            <img th:src="@{/images/esto-logo.jpg(v=2)}" alt="Logo ESTO" class="brand-logo brand-logo-sm"/>
             <span class="topbar-brand-text">GestionEtu</span>
         </div>
         <div class="page-breadcrumb">
@@ -244,4 +249,5 @@
 </div>
 
 </html>
+
 

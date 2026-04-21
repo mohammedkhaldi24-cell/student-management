@@ -11,6 +11,9 @@
                 <a th:href="@{/student/dashboard}" class="btn btn-outline-secondary btn-sm">
                     <i class="bi bi-arrow-left me-1"></i>Retour Dashboard
                 </a>
+                <a th:if="${selectedModuleId != null}" th:href="@{/student/courses}" class="btn btn-outline-secondary btn-sm">
+                    <i class="bi bi-grid me-1"></i>Changer de module
+                </a>
                 <a th:href="@{/student/announcements}" class="btn btn-outline-primary btn-sm">
                     <i class="bi bi-megaphone me-1"></i>Annonces
                 </a>
@@ -19,8 +22,18 @@
                 </a>
             </div>
 
+            <div class="card mb-4" th:if="${selectedModuleId != null}">
+                <div class="card-body d-flex flex-wrap justify-content-between align-items-center gap-2">
+                    <div>
+                        <div class="small text-muted">Module selectionne</div>
+                        <div class="fw-semibold" th:text="${selectedModuleLabel}">Module</div>
+                    </div>
+                    <span class="badge bg-primary">Cours filtres par module</span>
+                </div>
+            </div>
+
             <div class="row g-3">
-                <div class="col-12" th:if="${#lists.isEmpty(courses)}">
+                <div class="col-12" th:if="${showModuleSelection and #lists.isEmpty(moduleGroups)}">
                     <div class="card">
                         <div class="card-body text-center py-5 text-muted">
                             <i class="bi bi-journals fs-1 d-block mb-3"></i>
@@ -29,7 +42,40 @@
                     </div>
                 </div>
 
-                <div class="col-lg-6" th:each="c : ${courses}">
+                <div class="col-md-6 col-xl-4" th:if="${showModuleSelection}" th:each="group : ${moduleGroups}">
+                    <a th:href="@{/student/courses(moduleId=${group.moduleId})}" class="text-decoration-none text-body">
+                        <div class="card h-100">
+                            <div class="card-body">
+                                <div class="d-flex justify-content-between align-items-start gap-2">
+                                    <div>
+                                        <div class="small text-muted">Module</div>
+                                        <h6 class="fw-bold mb-0" th:text="${group.label}">Module</h6>
+                                    </div>
+                                    <span class="badge bg-primary" th:text="${group.courseCount + ' cours'}">0 cours</span>
+                                </div>
+                                <div class="small text-muted mt-3">
+                                    <i class="bi bi-paperclip me-1"></i>
+                                    <span th:text="${group.documentCount + ' fichier(s)'}">0 fichier(s)</span>
+                                </div>
+                                <div class="small text-muted mt-2">
+                                    Ouvrir les cours de ce module
+                                    <i class="bi bi-arrow-right ms-1"></i>
+                                </div>
+                            </div>
+                        </div>
+                    </a>
+                </div>
+
+                <div class="col-12" th:if="${not showModuleSelection and #lists.isEmpty(courses)}">
+                    <div class="card">
+                        <div class="card-body text-center py-5 text-muted">
+                            <i class="bi bi-journals fs-1 d-block mb-3"></i>
+                            Aucun cours disponible pour ce module.
+                        </div>
+                    </div>
+                </div>
+
+                <div class="col-lg-6" th:if="${not showModuleSelection}" th:each="c : ${courses}">
                     <div class="card h-100">
                         <div class="card-header d-flex justify-content-between align-items-center">
                             <span class="fw-semibold" th:text="${c.title}">Titre</span>
@@ -41,12 +87,30 @@
                             <p class="small text-muted mb-3" th:text="${c.description != null ? c.description : 'Aucune description.'}">
                                 Description
                             </p>
-                            <div class="d-flex justify-content-between align-items-center">
-                                <small class="text-muted" th:text="${#temporals.format(c.createdAt,'dd/MM/yyyy HH:mm')}">Date</small>
-                                <a th:if="${c.filePath != null}" th:href="@{/student/courses/{id}/download(id=${c.id})}"
-                                   class="btn btn-sm btn-outline-primary">
-                                    <i class="bi bi-download me-1"></i>Fichier
+                            <small class="text-muted d-block mb-2" th:text="${#temporals.format(c.createdAt,'dd/MM/yyyy HH:mm')}">Date</small>
+
+                            <div th:if="${c.files != null and not #lists.isEmpty(c.files)}" class="list-group list-group-flush border rounded">
+                                <a th:each="file : ${c.files}"
+                                   th:href="@{/student/courses/{id}/files/{fileId}(id=${c.id},fileId=${file.id})}"
+                                   class="list-group-item list-group-item-action d-flex justify-content-between align-items-center gap-2">
+                                    <span class="d-flex align-items-center gap-2">
+                                        <i th:class="${T(com.pfe.gestionetudiant.util.FileUiUtils).iconClass(file.filePath)}"></i>
+                                        <span th:text="${T(com.pfe.gestionetudiant.util.FileUiUtils).fileName(file.filePath)}">fichier</span>
+                                    </span>
+                                    <small class="text-muted" th:text="${T(com.pfe.gestionetudiant.util.FileUiUtils).readableSize(file.filePath)}">-</small>
                                 </a>
+                            </div>
+
+                            <div th:if="${(c.files == null or #lists.isEmpty(c.files)) and c.filePath != null}">
+                                <a th:href="@{/student/courses/{id}/download(id=${c.id})}"
+                                   class="btn btn-sm btn-outline-primary">
+                                    <i th:class="${T(com.pfe.gestionetudiant.util.FileUiUtils).iconClass(c.filePath)}"></i>
+                                    <span class="ms-1" th:text="${T(com.pfe.gestionetudiant.util.FileUiUtils).fileName(c.filePath)}">Fichier</span>
+                                </a>
+                            </div>
+
+                            <div th:if="${(c.files == null or #lists.isEmpty(c.files)) and c.filePath == null}" class="text-muted small">
+                                Aucun fichier joint.
                             </div>
                         </div>
                     </div>

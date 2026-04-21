@@ -20,17 +20,22 @@
                 </div>
                 <div class="card-body p-0">
                     <!-- Filtres -->
-                    <div class="p-3 border-bottom">
-                        <input type="text" id="searchInput" class="form-control form-control-sm w-auto d-inline-block"
-                               placeholder="Rechercher..." oninput="filterTable()"/>
-                        <select id="roleFilter" class="form-select form-select-sm w-auto d-inline-block ms-2"
-                                onchange="filterTable()">
+                    <div class="data-toolbar">
+                        <div class="d-flex flex-wrap gap-2">
+                            <input type="text" id="searchInput" class="form-control form-control-sm"
+                                   placeholder="Rechercher par nom, email, identifiant..." oninput="filterTable()"/>
+                            <select id="roleFilter" class="form-select form-select-sm"
+                                    onchange="filterTable()">
                             <option value="">Tous les rôles</option>
                             <option value="ADMIN">ADMIN</option>
                             <option value="CHEF_FILIERE">CHEF_FILIERE</option>
                             <option value="TEACHER">TEACHER</option>
                             <option value="STUDENT">STUDENT</option>
-                        </select>
+                            </select>
+                        </div>
+                        <span class="badge badge-soft-primary">
+                            <i class="bi bi-funnel me-1"></i>Filtres instantanés
+                        </span>
                     </div>
                     <div class="table-responsive">
                         <table class="table table-hover mb-0" id="usersTable">
@@ -70,7 +75,7 @@
                                     </td>
                                     <td th:text="${#temporals.format(user.createdAt, 'dd/MM/yyyy')}">-</td>
                                     <td class="text-center">
-                                        <div class="btn-group btn-group-sm">
+                                        <div class="btn-group btn-group-sm action-buttons">
                                             <a th:href="@{/admin/users/{id}/edit(id=${user.id})}"
                                                class="btn btn-outline-warning" title="Modifier">
                                                 <i class="bi bi-pencil"></i>

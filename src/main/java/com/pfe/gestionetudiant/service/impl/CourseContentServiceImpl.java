@@ -2,6 +2,7 @@ package com.pfe.gestionetudiant.service.impl;
 
 import com.pfe.gestionetudiant.model.Classe;
 import com.pfe.gestionetudiant.model.CourseContent;
+import com.pfe.gestionetudiant.model.CourseDocument;
 import com.pfe.gestionetudiant.model.Filiere;
 import com.pfe.gestionetudiant.model.Module;
 import com.pfe.gestionetudiant.model.Role;
@@ -9,6 +10,7 @@ import com.pfe.gestionetudiant.model.Student;
 import com.pfe.gestionetudiant.model.User;
 import com.pfe.gestionetudiant.repository.ClasseRepository;
 import com.pfe.gestionetudiant.repository.CourseContentRepository;
+import com.pfe.gestionetudiant.repository.CourseDocumentRepository;
 import com.pfe.gestionetudiant.repository.FiliereRepository;
 import com.pfe.gestionetudiant.repository.ModuleRepository;
 import com.pfe.gestionetudiant.repository.StudentRepository;
@@ -39,6 +41,7 @@ import java.util.Set;
 public class CourseContentServiceImpl implements CourseContentService {
 
     private final CourseContentRepository courseContentRepository;
+    private final CourseDocumentRepository courseDocumentRepository;
     private final ModuleRepository moduleRepository;
     private final UserRepository userRepository;
     private final ClasseRepository classeRepository;
@@ -53,6 +56,18 @@ public class CourseContentServiceImpl implements CourseContentService {
     public CourseContent createCourse(String title,
                                       String description,
                                       MultipartFile file,
+                                      Long moduleId,
+                                      Long teacherId,
+                                      Long classeId,
+                                      Long filiereId) {
+        MultipartFile[] files = file == null ? null : new MultipartFile[]{file};
+        return createCourse(title, description, files, moduleId, teacherId, classeId, filiereId);
+    }
+
+    @Override
+    public CourseContent createCourse(String title,
+                                      String description,
+                                      MultipartFile[] files,
                                       Long moduleId,
                                       Long teacherId,
                                       Long classeId,
@@ -78,9 +93,12 @@ public class CourseContentServiceImpl implements CourseContentService {
         content.setTeacher(teacher);
         content.setClasse(target.classe());
         content.setFiliere(target.filiere());
-        content.setFilePath(storeFile(file));
 
         CourseContent saved = courseContentRepository.save(content);
+        storeCourseDocuments(normalizedFiles(files), saved);
+        updatePrimaryFilePath(saved);
+        saved = courseContentRepository.save(saved);
+
         emailService.sendCourseContentNotification(saved, collectRecipients(target.classe(), target.filiere()));
         return saved;
     }
@@ -89,6 +107,10 @@ public class CourseContentServiceImpl implements CourseContentService {
     public void deleteCourse(Long courseId, Long teacherId) {
         CourseContent content = courseContentRepository.findByIdAndTeacherId(courseId, teacherId)
                 .orElseThrow(() -> new IllegalArgumentException("Cours introuvable ou non autorise."));
+        for (CourseDocument document : courseDocumentRepository.findByCourseContentIdOrderByUploadedAtAsc(content.getId())) {
+            deleteFileQuietly(document.getFilePath());
+        }
+        courseDocumentRepository.deleteByCourseContentId(content.getId());
         deleteFileQuietly(content.getFilePath());
         courseContentRepository.delete(content);
     }
@@ -102,8 +124,9 @@ public class CourseContentServiceImpl implements CourseContentService {
         CourseContent content = courseContentRepository.findByIdAndTeacherId(courseId, teacherId)
                 .orElseThrow(() -> new IllegalArgumentException("Cours introuvable ou non autorise."));
 
-        deleteFileQuietly(content.getFilePath());
-        content.setFilePath(storeFile(file));
+        removeAllCourseDocuments(content);
+        storeCourseDocuments(List.of(file), content);
+        updatePrimaryFilePath(content);
         return courseContentRepository.save(content);
     }
 
@@ -112,8 +135,35 @@ public class CourseContentServiceImpl implements CourseContentService {
         CourseContent content = courseContentRepository.findByIdAndTeacherId(courseId, teacherId)
                 .orElseThrow(() -> new IllegalArgumentException("Cours introuvable ou non autorise."));
 
-        deleteFileQuietly(content.getFilePath());
-        content.setFilePath(null);
+        removeAllCourseDocuments(content);
+        return courseContentRepository.save(content);
+    }
+
+    @Override
+    public CourseContent addCourseFiles(Long courseId, Long teacherId, MultipartFile[] files) {
+        CourseContent content = courseContentRepository.findByIdAndTeacherId(courseId, teacherId)
+                .orElseThrow(() -> new IllegalArgumentException("Cours introuvable ou non autorise."));
+
+        List<MultipartFile> incomingFiles = normalizedFiles(files);
+        if (incomingFiles.isEmpty()) {
+            throw new IllegalArgumentException("Veuillez selectionner au moins un fichier valide.");
+        }
+
+        storeCourseDocuments(incomingFiles, content);
+        updatePrimaryFilePath(content);
+        return courseContentRepository.save(content);
+    }
+
+    @Override
+    public CourseContent removeCourseFile(Long courseId, Long teacherId, Long fileId) {
+        CourseContent content = courseContentRepository.findByIdAndTeacherId(courseId, teacherId)
+                .orElseThrow(() -> new IllegalArgumentException("Cours introuvable ou non autorise."));
+        CourseDocument document = courseDocumentRepository.findByIdAndCourseContentId(fileId, content.getId())
+                .orElseThrow(() -> new IllegalArgumentException("Document introuvable."));
+
+        deleteFileQuietly(document.getFilePath());
+        courseDocumentRepository.delete(document);
+        updatePrimaryFilePath(content);
         return courseContentRepository.save(content);
     }
 
@@ -144,12 +194,42 @@ public class CourseContentServiceImpl implements CourseContentService {
     @Override
     @Transactional(readOnly = true)
     public Resource loadFileAsResource(CourseContent courseContent) {
+        List<CourseDocument> documents = findFilesForCourse(courseContent.getId());
+        if (!documents.isEmpty()) {
+            return loadFileAsResource(documents.get(0));
+        }
         if (!StringUtils.hasText(courseContent.getFilePath())) {
             throw new IllegalArgumentException("Aucun fichier joint pour ce cours.");
         }
 
+        return loadPathAsResource(courseContent.getFilePath());
+    }
+
+    @Override
+    @Transactional(readOnly = true)
+    public Resource loadFileAsResource(CourseDocument courseDocument) {
+        if (courseDocument == null || !StringUtils.hasText(courseDocument.getFilePath())) {
+            throw new IllegalArgumentException("Document introuvable.");
+        }
+        return loadPathAsResource(courseDocument.getFilePath());
+    }
+
+    @Override
+    @Transactional(readOnly = true)
+    public List<CourseDocument> findFilesForCourse(Long courseId) {
+        return courseDocumentRepository.findByCourseContentIdOrderByUploadedAtAsc(courseId);
+    }
+
+    @Override
+    @Transactional(readOnly = true)
+    public CourseDocument findFileForCourse(Long courseId, Long fileId) {
+        return courseDocumentRepository.findByIdAndCourseContentId(fileId, courseId)
+                .orElseThrow(() -> new IllegalArgumentException("Document introuvable."));
+    }
+
+    private Resource loadPathAsResource(String filePath) {
         try {
-            Path path = Paths.get(courseContent.getFilePath()).normalize();
+            Path path = Paths.get(filePath).normalize();
             if (!Files.exists(path)) {
                 throw new IllegalArgumentException("Fichier introuvable sur le serveur.");
             }
@@ -161,6 +241,59 @@ public class CourseContentServiceImpl implements CourseContentService {
         } catch (IOException e) {
             throw new IllegalArgumentException("Impossible de charger le fichier.");
         }
+    }
+
+    private List<MultipartFile> normalizedFiles(MultipartFile[] files) {
+        if (files == null) {
+            return List.of();
+        }
+        return java.util.Arrays.stream(files)
+                .filter(file -> file != null && !file.isEmpty())
+                .toList();
+    }
+
+    private List<CourseDocument> storeCourseDocuments(List<MultipartFile> files, CourseContent content) {
+        if (files.isEmpty()) {
+            return List.of();
+        }
+        List<CourseDocument> stored = new java.util.ArrayList<>();
+        for (MultipartFile file : files) {
+            CourseDocument document = new CourseDocument();
+            document.setCourseContent(content);
+            document.setOriginalFileName(file.getOriginalFilename());
+            document.setContentType(file.getContentType());
+            document.setFileSize(file.getSize());
+            document.setFilePath(storeFile(file));
+            stored.add(courseDocumentRepository.save(document));
+        }
+        if (content.getFiles() != null) {
+            content.getFiles().addAll(stored);
+        }
+        return stored;
+    }
+
+    private void removeAllCourseDocuments(CourseContent content) {
+        List<CourseDocument> documents = courseDocumentRepository.findByCourseContentIdOrderByUploadedAtAsc(content.getId());
+        for (CourseDocument document : documents) {
+            deleteFileQuietly(document.getFilePath());
+        }
+        courseDocumentRepository.deleteByCourseContentId(content.getId());
+        if (content.getFiles() != null) {
+            content.getFiles().clear();
+        }
+        if (StringUtils.hasText(content.getFilePath())) {
+            deleteFileQuietly(content.getFilePath());
+        }
+        content.setFilePath(null);
+    }
+
+    private void updatePrimaryFilePath(CourseContent content) {
+        List<CourseDocument> remaining = courseDocumentRepository.findByCourseContentIdOrderByUploadedAtAsc(content.getId());
+        if (content.getFiles() != null) {
+            content.getFiles().clear();
+            content.getFiles().addAll(remaining);
+        }
+        content.setFilePath(remaining.isEmpty() ? null : remaining.get(0).getFilePath());
     }
 
     private Target resolveTarget(Long classeId, Long filiereId, Module module) {

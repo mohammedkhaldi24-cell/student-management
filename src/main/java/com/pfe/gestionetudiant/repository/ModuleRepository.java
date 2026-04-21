@@ -13,6 +13,16 @@ public interface ModuleRepository extends JpaRepository<Module, Long> {
 
     List<Module> findByFiliereId(Long filiereId);
 
+    @Query("""
+            SELECT DISTINCT m
+            FROM Module m
+            LEFT JOIN FETCH m.filiere f
+            LEFT JOIN FETCH m.teacher t
+            WHERE f.id = :filiereId
+            ORDER BY m.semestre, m.nom
+            """)
+    List<Module> findByFiliereIdOrdered(@Param("filiereId") Long filiereId);
+
     List<Module> findBySemestre(String semestre);
 
     List<Module> findByTeacherId(Long teacherId);

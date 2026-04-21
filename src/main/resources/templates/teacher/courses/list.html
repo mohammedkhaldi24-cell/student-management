@@ -16,6 +16,20 @@
                         <i class="bi bi-plus-circle me-1"></i>Nouveau contenu
                     </a>
                 </div>
+                <div class="card-body border-bottom">
+                    <div class="d-flex flex-wrap gap-2 align-items-center">
+                        <a th:href="@{/teacher/courses}"
+                           class="btn btn-sm"
+                           th:classappend="${selectedModuleId == null} ? ' btn-primary' : ' btn-outline-primary'">
+                            Tous les modules
+                        </a>
+                        <a th:each="m : ${modules}"
+                           th:href="@{/teacher/courses(moduleId=${m.id})}"
+                           class="btn btn-sm"
+                           th:classappend="${selectedModuleId != null and selectedModuleId == m.id} ? ' btn-primary' : ' btn-outline-primary'"
+                           th:text="${m.nom + ' (' + m.code + ')'}">Module</a>
+                    </div>
+                </div>
                 <div class="card-body p-0">
                     <div class="table-responsive">
                         <table class="table table-hover mb-0">
@@ -41,11 +55,22 @@
                                 </td>
                                 <td th:text="${#temporals.format(c.createdAt,'dd/MM/yyyy HH:mm')}">01/04/2026</td>
                                 <td>
-                                    <span th:if="${c.filePath == null}" class="text-muted">Aucun</span>
-                                    <a th:if="${c.filePath != null}" th:href="@{/teacher/courses/{id}/download(id=${c.id})}"
+                                    <div th:if="${c.files != null and not #lists.isEmpty(c.files)}" class="d-grid gap-1">
+                                        <a th:each="file : ${c.files}"
+                                           th:href="@{/teacher/courses/{id}/files/{fileId}/download(id=${c.id},fileId=${file.id})}"
+                                           class="btn btn-sm btn-outline-secondary text-start">
+                                            <i th:class="${T(com.pfe.gestionetudiant.util.FileUiUtils).iconClass(file.filePath)}"></i>
+                                            <span class="ms-1" th:text="${T(com.pfe.gestionetudiant.util.FileUiUtils).fileName(file.filePath)}">fichier</span>
+                                            <small class="text-muted ms-1" th:text="${T(com.pfe.gestionetudiant.util.FileUiUtils).readableSize(file.filePath)}">-</small>
+                                        </a>
+                                    </div>
+                                    <a th:if="${(c.files == null or #lists.isEmpty(c.files)) and c.filePath != null}"
+                                       th:href="@{/teacher/courses/{id}/download(id=${c.id})}"
                                        class="btn btn-sm btn-outline-secondary">
-                                        <i class="bi bi-download me-1"></i>Telecharger
+                                        <i th:class="${T(com.pfe.gestionetudiant.util.FileUiUtils).iconClass(c.filePath)}"></i>
+                                        <span class="ms-1" th:text="${T(com.pfe.gestionetudiant.util.FileUiUtils).fileName(c.filePath)}">Telecharger</span>
                                     </a>
+                                    <span th:if="${(c.files == null or #lists.isEmpty(c.files)) and c.filePath == null}" class="text-muted">Aucun</span>
                                 </td>
                                 <td class="text-center">
                                     <form th:action="@{/teacher/courses/{id}/delete(id=${c.id})}" method="post"
@@ -71,4 +96,3 @@
 <div th:replace="~{fragments/layout :: scripts}"></div>
 </body>
 </html>
-

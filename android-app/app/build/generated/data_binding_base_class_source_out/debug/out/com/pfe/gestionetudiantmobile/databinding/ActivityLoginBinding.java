@@ -5,11 +5,12 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
+import android.widget.LinearLayout;
 import android.widget.ProgressBar;
+import android.widget.ScrollView;
 import android.widget.TextView;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
-import androidx.constraintlayout.widget.ConstraintLayout;
 import androidx.viewbinding.ViewBinding;
 import androidx.viewbinding.ViewBindings;
 import com.google.android.material.button.MaterialButton;
@@ -23,7 +24,7 @@ import java.lang.String;
 
 public final class ActivityLoginBinding implements ViewBinding {
   @NonNull
-  private final ConstraintLayout rootView;
+  private final ScrollView rootView;
 
   @NonNull
   public final MaterialButton btnLogin;
@@ -44,6 +45,9 @@ public final class ActivityLoginBinding implements ViewBinding {
   public final ImageView imgLogo;
 
   @NonNull
+  public final LinearLayout layoutLoginStatus;
+
+  @NonNull
   public final ProgressBar progressLogin;
 
   @NonNull
@@ -53,16 +57,34 @@ public final class ActivityLoginBinding implements ViewBinding {
   public final TextInputLayout tilUsername;
 
   @NonNull
+  public final TextView tvAppName;
+
+  @NonNull
+  public final TextView tvLoadingMessage;
+
+  @NonNull
+  public final TextView tvLoginError;
+
+  @NonNull
+  public final TextView tvLoginHelp;
+
+  @NonNull
+  public final TextView tvLoginSubtitle;
+
+  @NonNull
   public final TextView tvServerInfo;
 
   @NonNull
   public final TextView tvTitle;
 
-  private ActivityLoginBinding(@NonNull ConstraintLayout rootView, @NonNull MaterialButton btnLogin,
+  private ActivityLoginBinding(@NonNull ScrollView rootView, @NonNull MaterialButton btnLogin,
       @NonNull MaterialButton btnServerConfig, @NonNull MaterialCardView cardLogin,
       @NonNull TextInputEditText etPassword, @NonNull TextInputEditText etUsername,
-      @NonNull ImageView imgLogo, @NonNull ProgressBar progressLogin,
-      @NonNull TextInputLayout tilPassword, @NonNull TextInputLayout tilUsername,
+      @NonNull ImageView imgLogo, @NonNull LinearLayout layoutLoginStatus,
+      @NonNull ProgressBar progressLogin, @NonNull TextInputLayout tilPassword,
+      @NonNull TextInputLayout tilUsername, @NonNull TextView tvAppName,
+      @NonNull TextView tvLoadingMessage, @NonNull TextView tvLoginError,
+      @NonNull TextView tvLoginHelp, @NonNull TextView tvLoginSubtitle,
       @NonNull TextView tvServerInfo, @NonNull TextView tvTitle) {
     this.rootView = rootView;
     this.btnLogin = btnLogin;
@@ -71,16 +93,22 @@ public final class ActivityLoginBinding implements ViewBinding {
     this.etPassword = etPassword;
     this.etUsername = etUsername;
     this.imgLogo = imgLogo;
+    this.layoutLoginStatus = layoutLoginStatus;
     this.progressLogin = progressLogin;
     this.tilPassword = tilPassword;
     this.tilUsername = tilUsername;
+    this.tvAppName = tvAppName;
+    this.tvLoadingMessage = tvLoadingMessage;
+    this.tvLoginError = tvLoginError;
+    this.tvLoginHelp = tvLoginHelp;
+    this.tvLoginSubtitle = tvLoginSubtitle;
     this.tvServerInfo = tvServerInfo;
     this.tvTitle = tvTitle;
   }
 
   @Override
   @NonNull
-  public ConstraintLayout getRoot() {
+  public ScrollView getRoot() {
     return rootView;
   }
 
@@ -141,6 +169,12 @@ public final class ActivityLoginBinding implements ViewBinding {
         break missingId;
       }
 
+      id = R.id.layoutLoginStatus;
+      LinearLayout layoutLoginStatus = ViewBindings.findChildViewById(rootView, id);
+      if (layoutLoginStatus == null) {
+        break missingId;
+      }
+
       id = R.id.progressLogin;
       ProgressBar progressLogin = ViewBindings.findChildViewById(rootView, id);
       if (progressLogin == null) {
@@ -159,6 +193,36 @@ public final class ActivityLoginBinding implements ViewBinding {
         break missingId;
       }
 
+      id = R.id.tvAppName;
+      TextView tvAppName = ViewBindings.findChildViewById(rootView, id);
+      if (tvAppName == null) {
+        break missingId;
+      }
+
+      id = R.id.tvLoadingMessage;
+      TextView tvLoadingMessage = ViewBindings.findChildViewById(rootView, id);
+      if (tvLoadingMessage == null) {
+        break missingId;
+      }
+
+      id = R.id.tvLoginError;
+      TextView tvLoginError = ViewBindings.findChildViewById(rootView, id);
+      if (tvLoginError == null) {
+        break missingId;
+      }
+
+      id = R.id.tvLoginHelp;
+      TextView tvLoginHelp = ViewBindings.findChildViewById(rootView, id);
+      if (tvLoginHelp == null) {
+        break missingId;
+      }
+
+      id = R.id.tvLoginSubtitle;
+      TextView tvLoginSubtitle = ViewBindings.findChildViewById(rootView, id);
+      if (tvLoginSubtitle == null) {
+        break missingId;
+      }
+
       id = R.id.tvServerInfo;
       TextView tvServerInfo = ViewBindings.findChildViewById(rootView, id);
       if (tvServerInfo == null) {
@@ -171,8 +235,9 @@ public final class ActivityLoginBinding implements ViewBinding {
         break missingId;
       }
 
-      return new ActivityLoginBinding((ConstraintLayout) rootView, btnLogin, btnServerConfig,
-          cardLogin, etPassword, etUsername, imgLogo, progressLogin, tilPassword, tilUsername,
+      return new ActivityLoginBinding((ScrollView) rootView, btnLogin, btnServerConfig, cardLogin,
+          etPassword, etUsername, imgLogo, layoutLoginStatus, progressLogin, tilPassword,
+          tilUsername, tvAppName, tvLoadingMessage, tvLoginError, tvLoginHelp, tvLoginSubtitle,
           tvServerInfo, tvTitle);
     }
     String missingId = rootView.getResources().getResourceName(id);

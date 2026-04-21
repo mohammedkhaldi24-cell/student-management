@@ -4,6 +4,7 @@ import com.pfe.gestionetudiant.model.Absence;
 import com.pfe.gestionetudiant.model.Assignment;
 import com.pfe.gestionetudiant.model.AssignmentSubmission;
 import com.pfe.gestionetudiant.model.Classe;
+import com.pfe.gestionetudiant.model.EmploiDuTemps;
 import com.pfe.gestionetudiant.model.Module;
 import com.pfe.gestionetudiant.model.Note;
 import com.pfe.gestionetudiant.model.Student;
@@ -15,6 +16,7 @@ import com.pfe.gestionetudiant.service.AssignmentService;
 import com.pfe.gestionetudiant.service.AssignmentSubmissionService;
 import com.pfe.gestionetudiant.service.ClasseService;
 import com.pfe.gestionetudiant.service.CourseContentService;
+import com.pfe.gestionetudiant.service.EmploiDuTempsService;
 import com.pfe.gestionetudiant.service.ModuleService;
 import com.pfe.gestionetudiant.service.NoteService;
 import com.pfe.gestionetudiant.service.UserService;
@@ -31,9 +33,15 @@ import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.time.Duration;
+import java.util.Comparator;
+import java.util.HashMap;
+import java.util.HashSet;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
+import java.util.Set;
 
 /**
  * Controller ENSEIGNANT - Notes et absences.
@@ -54,6 +62,7 @@ public class TeacherController {
     private final AnnouncementService announcementService;
     private final AssignmentService assignmentService;
     private final AssignmentSubmissionService assignmentSubmissionService;
+    private final EmploiDuTempsService emploiDuTempsService;
 
     @GetMapping("/dashboard")
     public String dashboard(Model model) {
@@ -136,20 +145,32 @@ public class TeacherController {
                                        @RequestParam(defaultValue = "S1") String semestre,
                                        @RequestParam(defaultValue = "2024-2025") String annee,
                                        Model model) {
+        return notesParModule(moduleId, classeId, semestre, annee, model);
+    }
+
+    @GetMapping("/notes/module/{moduleId}")
+    public String notesParModule(@PathVariable Long moduleId,
+                                 @RequestParam(required = false) Long classeId,
+                                 @RequestParam(defaultValue = "S1") String semestre,
+                                 @RequestParam(defaultValue = "2024-2025") String annee,
+                                 Model model) {
         User currentUser = userService.getCurrentUser();
         Module module = getTeacherModuleOrThrow(moduleId, currentUser.getId());
-        Classe classe = classeService.findById(classeId)
-                .orElseThrow(() -> new IllegalArgumentException("Classe introuvable"));
-        validateClasseBelongsToModuleFiliere(module, classe);
+        Classe classe = resolveClasseForModule(module, classeId).orElse(null);
 
-        List<Student> etudiants = studentRepository.findByClasseId(classeId);
-        List<Note> notes = noteService.findByModuleAndClasse(moduleId, classeId);
+        List<Student> etudiants = targetStudents(module, classe);
+        Set<Long> targetStudentIds = etudiants.stream().map(Student::getId).collect(java.util.stream.Collectors.toSet());
+        List<Note> notes = noteService.findByModuleId(moduleId).stream()
+                .filter(note -> note.getStudent() != null && targetStudentIds.contains(note.getStudent().getId()))
+                .toList();
 
-        var notesMap = new java.util.HashMap<Long, Note>();
+        var notesMap = new HashMap<Long, Note>();
         notes.forEach(n -> notesMap.put(n.getStudent().getId(), n));
 
         model.addAttribute("module", module);
         model.addAttribute("classe", classe);
+        model.addAttribute("classes", classesForModule(module));
+        model.addAttribute("scopeLabel", scopeLabel(module, classe));
         model.addAttribute("etudiants", etudiants);
         model.addAttribute("notesMap", notesMap);
         model.addAttribute("semestre", semestre);
@@ -160,18 +181,16 @@ public class TeacherController {
 
     @PostMapping("/notes/sauvegarder")
     public String sauvegarderNotes(@RequestParam Long moduleId,
-                                   @RequestParam Long classeId,
+                                   @RequestParam(required = false) Long classeId,
                                    @RequestParam String semestre,
                                    @RequestParam String anneeAcademique,
                                    @RequestParam Map<String, String> allParams,
                                    RedirectAttributes flash) {
         User currentUser = userService.getCurrentUser();
         Module module = getTeacherModuleOrThrow(moduleId, currentUser.getId());
-        Classe classe = classeService.findById(classeId)
-                .orElseThrow(() -> new IllegalArgumentException("Classe introuvable"));
-        validateClasseBelongsToModuleFiliere(module, classe);
+        Classe classe = resolveClasseForModule(module, classeId).orElse(null);
 
-        List<Student> etudiants = studentRepository.findByClasseId(classeId);
+        List<Student> etudiants = targetStudents(module, classe);
 
         for (Student etudiant : etudiants) {
             String ccKey = "noteCC_" + etudiant.getId();
@@ -200,8 +219,9 @@ public class TeacherController {
         }
 
         flash.addFlashAttribute("successMessage", "Notes enregistrees avec succes !");
-        return "redirect:/teacher/notes/module/" + moduleId + "/classe/" + classeId
-                + "?semestre=" + semestre + "&annee=" + anneeAcademique;
+        return "redirect:/teacher/notes/module/" + moduleId
+                + (classe != null ? "?classeId=" + classe.getId() + "&" : "?")
+                + "semestre=" + semestre + "&annee=" + anneeAcademique;
     }
 
     @PostMapping("/notes/{id}/delete")
@@ -231,60 +251,100 @@ public class TeacherController {
     public String absencesParModuleClasse(@PathVariable Long moduleId,
                                           @PathVariable Long classeId,
                                           Model model) {
+        return absencesParModule(moduleId, classeId, model);
+    }
+
+    @GetMapping("/absences/module/{moduleId}")
+    public String absencesParModule(@PathVariable Long moduleId,
+                                    @RequestParam(required = false) Long classeId,
+                                    Model model) {
         User currentUser = userService.getCurrentUser();
         Module module = getTeacherModuleOrThrow(moduleId, currentUser.getId());
-        Classe classe = classeService.findById(classeId)
-                .orElseThrow(() -> new IllegalArgumentException("Classe introuvable"));
-        validateClasseBelongsToModuleFiliere(module, classe);
+        Classe classe = resolveClasseForModule(module, classeId).orElse(null);
+        EmploiDuTemps session = currentSessionForModule(module, classe).orElse(null);
+        int suggestedHours = sessionHours(session);
 
-        List<Student> etudiants = studentRepository.findByClasseId(classeId);
-        List<Absence> absences = absenceService.findByClasseAndModuleId(classeId, moduleId);
+        List<Student> etudiants = targetStudents(module, classe);
+        Set<Long> targetStudentIds = etudiants.stream().map(Student::getId).collect(java.util.stream.Collectors.toSet());
+        List<Absence> absences = absenceService.findByModuleId(moduleId).stream()
+                .filter(absence -> absence.getStudent() != null && targetStudentIds.contains(absence.getStudent().getId()))
+                .toList();
 
         model.addAttribute("module", module);
         model.addAttribute("classe", classe);
+        model.addAttribute("classes", classesForModule(module));
+        model.addAttribute("scopeLabel", scopeLabel(module, classe));
         model.addAttribute("etudiants", etudiants);
         model.addAttribute("absences", absences);
         model.addAttribute("today", LocalDate.now().toString());
+        model.addAttribute("suggestedHours", suggestedHours);
+        model.addAttribute("sessionLabel", sessionLabel(session));
 
         return "teacher/marquer-absences";
     }
 
     @PostMapping("/absences/marquer")
     public String marquerAbsences(@RequestParam Long moduleId,
-                                  @RequestParam Long classeId,
+                                  @RequestParam(required = false) Long classeId,
                                   @RequestParam String dateAbsence,
                                   @RequestParam(required = false) List<Long> etudiantsAbsents,
                                   @RequestParam(defaultValue = "3") int nombreHeures,
                                   RedirectAttributes flash) {
         User currentUser = userService.getCurrentUser();
         Module module = getTeacherModuleOrThrow(moduleId, currentUser.getId());
-        Classe classe = classeService.findById(classeId)
-                .orElseThrow(() -> new IllegalArgumentException("Classe introuvable"));
-        validateClasseBelongsToModuleFiliere(module, classe);
+        Classe classe = resolveClasseForModule(module, classeId).orElse(null);
+        LocalDate date = LocalDate.parse(dateAbsence);
+        List<Student> targetStudents = targetStudents(module, classe);
+        Set<Long> targetStudentIds = targetStudents.stream().map(Student::getId).collect(java.util.stream.Collectors.toSet());
+        Set<Long> absentIds = etudiantsAbsents == null
+                ? Set.of()
+                : new HashSet<>(etudiantsAbsents);
 
-        if (etudiantsAbsents != null && !etudiantsAbsents.isEmpty()) {
-            for (Long studentId : etudiantsAbsents) {
-                studentRepository.findById(studentId).ifPresent(student -> {
-                    if (student.getClasse() == null || !classeId.equals(student.getClasse().getId())) {
-                        return;
-                    }
-                    Absence absence = new Absence();
-                    absence.setStudent(student);
-                    absence.setModule(module);
-                    absence.setDateAbsence(LocalDate.parse(dateAbsence));
+        List<Absence> existingForDate = absenceService.findByModuleId(moduleId).stream()
+                .filter(absence -> absence.getStudent() != null
+                        && targetStudentIds.contains(absence.getStudent().getId())
+                        && date.equals(absence.getDateAbsence()))
+                .toList();
+
+        int changes = 0;
+        Set<Long> alreadyAbsent = new HashSet<>();
+        for (Absence absence : existingForDate) {
+            Long studentId = absence.getStudent().getId();
+            alreadyAbsent.add(studentId);
+            if (absentIds.contains(studentId)) {
+                if (absence.getNombreHeures() == null || !absence.getNombreHeures().equals(nombreHeures)) {
                     absence.setNombreHeures(nombreHeures);
-                    absence.setJustifiee(false);
                     absenceService.saveAbsence(absence);
-                });
+                    changes++;
+                }
+            } else {
+                absenceService.deleteAbsence(absence.getId());
+                changes++;
             }
-
-            flash.addFlashAttribute("successMessage",
-                    etudiantsAbsents.size() + " absence(s) enregistree(s) !");
-        } else {
-            flash.addFlashAttribute("infoMessage", "Aucune absence marquee.");
         }
 
-        return "redirect:/teacher/absences/module/" + moduleId + "/classe/" + classeId;
+        for (Student student : targetStudents) {
+            if (!absentIds.contains(student.getId()) || alreadyAbsent.contains(student.getId())) {
+                continue;
+            }
+            Absence absence = new Absence();
+            absence.setStudent(student);
+            absence.setModule(module);
+            absence.setDateAbsence(date);
+            absence.setNombreHeures(nombreHeures);
+            absence.setJustifiee(false);
+            absenceService.saveAbsence(absence);
+            changes++;
+        }
+
+        if (changes > 0) {
+            flash.addFlashAttribute("successMessage", changes + " changement(s) d'absence enregistre(s) !");
+        } else {
+            flash.addFlashAttribute("infoMessage", "Aucun changement d'absence.");
+        }
+
+        return "redirect:/teacher/absences/module/" + moduleId
+                + (classe != null ? "?classeId=" + classe.getId() : "");
     }
 
     @PostMapping("/absences/{id}/justifier")
@@ -321,6 +381,87 @@ public class TeacherController {
                 || !module.getFiliere().getId().equals(classe.getFiliere().getId())) {
             throw new IllegalArgumentException("La classe selectionnee n'appartient pas a la filiere du module.");
         }
+    }
+
+    private Optional<Classe> resolveClasseForModule(Module module, Long requestedClasseId) {
+        if (requestedClasseId != null) {
+            Classe classe = classeService.findById(requestedClasseId)
+                    .orElseThrow(() -> new IllegalArgumentException("Classe introuvable"));
+            validateClasseBelongsToModuleFiliere(module, classe);
+            return Optional.of(classe);
+        }
+
+        Optional<Classe> sessionClasse = currentSessionForModule(module, null)
+                .map(EmploiDuTemps::getClasse);
+        if (sessionClasse.isPresent()) {
+            return sessionClasse;
+        }
+
+        List<Classe> classes = classesForModule(module);
+        return classes.size() == 1 ? Optional.of(classes.get(0)) : Optional.empty();
+    }
+
+    private List<Classe> classesForModule(Module module) {
+        Long filiereId = module.getFiliere() != null ? module.getFiliere().getId() : null;
+        return filiereId != null ? classeService.findByFiliereId(filiereId) : List.of();
+    }
+
+    private List<Student> targetStudents(Module module, Classe classe) {
+        if (classe != null) {
+            return studentRepository.findByClasseId(classe.getId());
+        }
+        Long filiereId = module.getFiliere() != null ? module.getFiliere().getId() : null;
+        return filiereId != null ? studentRepository.findByFiliereId(filiereId) : List.of();
+    }
+
+    private String scopeLabel(Module module, Classe classe) {
+        if (classe != null) {
+            return classe.getNom();
+        }
+        return module.getFiliere() != null ? module.getFiliere().getNom() : "Filiere du module";
+    }
+
+    private Optional<EmploiDuTemps> currentSessionForModule(Module module, Classe preferredClasse) {
+        Long filiereId = module.getFiliere() != null ? module.getFiliere().getId() : null;
+        if (filiereId == null) {
+            return Optional.empty();
+        }
+        int today = LocalDate.now().getDayOfWeek().getValue();
+        return emploiDuTempsService.findByFiliereId(filiereId).stream()
+                .filter(EmploiDuTemps::isValide)
+                .filter(session -> session.getModule() != null && module.getId().equals(session.getModule().getId()))
+                .filter(session -> preferredClasse == null
+                        || (session.getClasse() != null && preferredClasse.getId().equals(session.getClasse().getId())))
+                .filter(session -> dayOrder(session.getJour()) == today)
+                .min(Comparator.comparing(EmploiDuTemps::getHeureDebut, Comparator.nullsLast(Comparator.naturalOrder())));
+    }
+
+    private int sessionHours(EmploiDuTemps session) {
+        if (session == null || session.getHeureDebut() == null || session.getHeureFin() == null) {
+            return 2;
+        }
+        long hours = Math.max(1, Duration.between(session.getHeureDebut(), session.getHeureFin()).toHours());
+        return (int) Math.min(hours, 8);
+    }
+
+    private String sessionLabel(EmploiDuTemps session) {
+        if (session == null) {
+            return "Date pre-remplie aujourd'hui";
+        }
+        return "Session du jour: " + session.getHeureDebut() + " - " + session.getHeureFin()
+                + (session.getSalle() != null ? " | Salle " + session.getSalle() : "");
+    }
+
+    private int dayOrder(String day) {
+        String value = day != null ? day.trim().toLowerCase() : "";
+        if (value.startsWith("lun") || value.startsWith("mon")) return 1;
+        if (value.startsWith("mar") || value.startsWith("tue")) return 2;
+        if (value.startsWith("mer") || value.startsWith("wed")) return 3;
+        if (value.startsWith("jeu") || value.startsWith("thu")) return 4;
+        if (value.startsWith("ven") || value.startsWith("fri")) return 5;
+        if (value.startsWith("sam") || value.startsWith("sat")) return 6;
+        if (value.startsWith("dim") || value.startsWith("sun")) return 7;
+        return 8;
     }
 
     private Map<Long, List<Map<String, Object>>> buildClassesByFiliere(List<Module> modules) {

@@ -57,6 +57,12 @@ public class NoteServiceImpl implements NoteService {
 
     @Override
     @Transactional(readOnly = true)
+    public List<Note> findByStudentAndModule(Long studentId, Long moduleId) {
+        return noteRepository.findByStudentIdAndModuleIdOrderByCreatedAtDesc(studentId, moduleId);
+    }
+
+    @Override
+    @Transactional(readOnly = true)
     public List<Note> findByModuleId(Long moduleId) {
         return noteRepository.findByModuleId(moduleId);
     }

@@ -23,36 +23,51 @@
 
             <div class="card mb-4">
                 <div class="card-body d-flex flex-wrap gap-2 align-items-center">
-                    <a th:href="@{/student/assignments(filter='all')}"
+                    <a th:href="@{/student/assignments(filter='all',moduleId=${selectedModuleId})}"
                        class="btn btn-sm"
                        th:classappend="${filter == 'all'} ? ' btn-primary' : ' btn-outline-primary'">
                         Tous (<span th:text="${totalCount}">0</span>)
                     </a>
-                    <a th:href="@{/student/assignments(filter='upcoming')}"
+                    <a th:href="@{/student/assignments(filter='upcoming',moduleId=${selectedModuleId})}"
                        class="btn btn-sm"
                        th:classappend="${filter == 'upcoming'} ? ' btn-primary' : ' btn-outline-primary'">
                         A venir (<span th:text="${upcomingCount}">0</span>)
                     </a>
-                    <a th:href="@{/student/assignments(filter='overdue')}"
+                    <a th:href="@{/student/assignments(filter='overdue',moduleId=${selectedModuleId})}"
                        class="btn btn-sm"
                        th:classappend="${filter == 'overdue'} ? ' btn-danger' : ' btn-outline-danger'">
                         En retard (<span th:text="${overdueCount}">0</span>)
                     </a>
-                    <a th:href="@{/student/assignments(filter='submitted')}"
+                    <a th:href="@{/student/assignments(filter='submitted',moduleId=${selectedModuleId})}"
                        class="btn btn-sm"
                        th:classappend="${filter == 'submitted'} ? ' btn-success' : ' btn-outline-success'">
                         Soumis (<span th:text="${submittedCount}">0</span>)
                     </a>
-                    <a th:href="@{/student/assignments(filter='not_submitted')}"
+                    <a th:href="@{/student/assignments(filter='not_submitted',moduleId=${selectedModuleId})}"
                        class="btn btn-sm"
                        th:classappend="${filter == 'not_submitted'} ? ' btn-warning text-dark' : ' btn-outline-warning'">
                         Non soumis
                     </a>
+                    <a th:if="${selectedModuleId != null}"
+                       th:href="@{/student/assignments(filter=${filter})}"
+                       class="btn btn-sm btn-outline-secondary ms-auto">
+                        <i class="bi bi-grid me-1"></i>Changer de module
+                    </a>
+                </div>
+            </div>
+
+            <div class="card mb-4" th:if="${selectedModuleId != null}">
+                <div class="card-body d-flex flex-wrap justify-content-between align-items-center gap-2">
+                    <div>
+                        <div class="small text-muted">Module selectionne</div>
+                        <div class="fw-semibold" th:text="${selectedModuleLabel}">Module</div>
+                    </div>
+                    <span class="badge bg-primary">Devoirs filtres par module</span>
                 </div>
             </div>
 
             <div class="row g-3">
-                <div class="col-12" th:if="${#lists.isEmpty(assignmentViews)}">
+                <div class="col-12" th:if="${showModuleSelection and #lists.isEmpty(moduleGroups)}">
                     <div class="card">
                         <div class="card-body text-center py-5 text-muted">
                             <i class="bi bi-journal-check fs-1 d-block mb-3"></i>
@@ -61,18 +76,51 @@
                     </div>
                 </div>
 
-                <div class="col-lg-6" th:each="v : ${assignmentViews}">
+                <div class="col-md-6 col-xl-4" th:if="${showModuleSelection}" th:each="group : ${moduleGroups}">
+                    <a th:href="@{/student/assignments(filter=${filter},moduleId=${group.moduleId})}"
+                       class="text-decoration-none text-body">
+                        <div class="card h-100 assignment-card">
+                            <div class="card-body">
+                                <div class="d-flex justify-content-between align-items-start gap-2 mb-3">
+                                    <div>
+                                        <div class="small text-muted">Module</div>
+                                        <h6 class="fw-bold mb-0" th:text="${group.label}">Module</h6>
+                                    </div>
+                                    <span class="badge bg-primary" th:text="${group.count + ' devoir(s)'}">0 devoir</span>
+                                </div>
+                                <div class="d-flex flex-wrap gap-2">
+                                    <span class="badge bg-warning text-dark" th:if="${group.pending > 0}" th:text="${group.pending + ' pending'}">pending</span>
+                                    <span class="badge bg-danger" th:if="${group.late > 0}" th:text="${group.late + ' late'}">late</span>
+                                    <span class="badge bg-primary" th:if="${group.submitted > 0}" th:text="${group.submitted + ' submitted'}">submitted</span>
+                                    <span class="badge bg-success" th:if="${group.reviewed > 0}" th:text="${group.reviewed + ' reviewed'}">reviewed</span>
+                                </div>
+                                <div class="small text-muted mt-3">
+                                    Ouvrir les devoirs de ce module
+                                    <i class="bi bi-arrow-right ms-1"></i>
+                                </div>
+                            </div>
+                        </div>
+                    </a>
+                </div>
+
+                <div class="col-12" th:if="${not showModuleSelection and #lists.isEmpty(assignmentViews)}">
+                    <div class="card">
+                        <div class="card-body text-center py-5 text-muted">
+                            <i class="bi bi-journal-check fs-1 d-block mb-3"></i>
+                            Aucun devoir dans ce module pour ce filtre.
+                        </div>
+                    </div>
+                </div>
+
+                <div class="col-lg-6" th:if="${not showModuleSelection}" th:each="v : ${assignmentViews}">
                     <div class="card h-100 assignment-card">
                         <div class="card-header d-flex justify-content-between align-items-center">
                             <span class="fw-semibold" th:text="${v.assignment.title}">Titre</span>
                             <div class="d-flex gap-1">
                                 <span class="badge bg-secondary" th:if="${v.assignment.module != null}" th:text="${v.assignment.module.code}">MOD</span>
-                                <span class="badge bg-success" th:if="${v.status.name() == 'GRADED'}">Note</span>
-                                <span class="badge bg-info" th:if="${v.status.name() == 'REVIEWED'}">Revise</span>
-                                <span class="badge bg-primary" th:if="${v.status.name() == 'SUBMITTED'}">Soumis</span>
-                                <span class="badge bg-warning text-dark" th:if="${v.status.name() == 'NOT_SUBMITTED' and v.upcoming}">A venir</span>
-                                <span class="badge bg-danger" th:if="${v.status.name() == 'NOT_SUBMITTED' and v.overdue}">En retard</span>
-                                <span class="badge bg-danger" th:if="${v.late}">Soumis en retard</span>
+                                <span class="badge"
+                                      th:classappend="${' ' + v.displayStatusBadgeClass}"
+                                      th:text="${v.displayStatusLabel}">pending</span>
                             </div>
                         </div>
                         <div class="card-body">

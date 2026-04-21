@@ -2,6 +2,7 @@ package com.pfe.gestionetudiantmobile.data.api
 
 import com.google.gson.GsonBuilder
 import com.pfe.gestionetudiantmobile.BuildConfig
+import com.pfe.gestionetudiantmobile.util.MobileApiConfig
 import okhttp3.OkHttpClient
 import okhttp3.logging.HttpLoggingInterceptor
 import retrofit2.Retrofit
@@ -77,7 +78,6 @@ object RetrofitClient {
     }
 
     private fun normalizeBaseUrl(url: String): String {
-        val trimmed = url.trim()
-        return if (trimmed.endsWith("/")) trimmed else "$trimmed/"
+        return MobileApiConfig.normalizeBaseUrl(url, BuildConfig.BASE_URL)
     }
 }

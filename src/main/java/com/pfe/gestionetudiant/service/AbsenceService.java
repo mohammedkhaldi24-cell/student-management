@@ -17,6 +17,8 @@ public interface AbsenceService {
 
     List<Absence> findByStudentId(Long studentId);
 
+    List<Absence> findByStudentAndModule(Long studentId, Long moduleId);
+
     List<Absence> findByModuleId(Long moduleId);
 
     List<Absence> findByClasseId(Long classeId);

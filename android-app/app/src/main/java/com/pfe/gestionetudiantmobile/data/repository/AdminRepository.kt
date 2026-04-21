@@ -5,14 +5,17 @@ import com.pfe.gestionetudiantmobile.data.model.AdminClasseUpsertRequest
 import com.pfe.gestionetudiantmobile.data.model.AdminDashboard
 import com.pfe.gestionetudiantmobile.data.model.AdminFiliereUpsertRequest
 import com.pfe.gestionetudiantmobile.data.model.AdminModuleUpsertRequest
+import com.pfe.gestionetudiantmobile.data.model.AdminTimetableUpsertRequest
 import com.pfe.gestionetudiantmobile.data.model.AdminUserUpsertRequest
 import com.pfe.gestionetudiantmobile.data.model.ApiMessage
+import com.pfe.gestionetudiantmobile.data.model.TimetableItem
+import com.pfe.gestionetudiantmobile.data.model.TopStudentItem
 import com.pfe.gestionetudiantmobile.data.model.UserSummary
 import com.pfe.gestionetudiantmobile.util.ApiResult
 
 class AdminRepository {
 
-    private val api = RetrofitClient.api
+    private val api get() = RetrofitClient.api
 
     suspend fun dashboard(): ApiResult<AdminDashboard> {
         return runCatching {
@@ -23,9 +26,12 @@ class AdminRepository {
                 ApiResult.Error(RepositoryUtils.parseError(response))
             }
         }.getOrElse {
-            ApiResult.Error(it.message ?: "Erreur reseau")
+            ApiResult.Error(RepositoryUtils.networkError(it))
         }
     }
+
+    suspend fun topStudents(limit: Int = 5): ApiResult<List<TopStudentItem>> =
+        call { api.adminTopStudents(limit) }
 
     suspend fun users(
         role: String? = null,
@@ -88,6 +94,22 @@ class AdminRepository {
     suspend fun deleteModule(moduleId: Long): ApiResult<ApiMessage> =
         call { api.deleteAdminModule(moduleId) }
 
+    suspend fun timetable(
+        filiereId: Long? = null,
+        classeId: Long? = null,
+        query: String? = null
+    ): ApiResult<List<TimetableItem>> =
+        call { api.adminTimetable(filiereId, classeId, query) }
+
+    suspend fun createTimetable(request: AdminTimetableUpsertRequest): ApiResult<TimetableItem> =
+        call { api.createAdminTimetable(request) }
+
+    suspend fun updateTimetable(timetableId: Long, request: AdminTimetableUpsertRequest): ApiResult<TimetableItem> =
+        call { api.updateAdminTimetable(timetableId, request) }
+
+    suspend fun deleteTimetable(timetableId: Long): ApiResult<ApiMessage> =
+        call { api.deleteAdminTimetable(timetableId) }
+
     private suspend fun <T> call(block: suspend () -> retrofit2.Response<T>): ApiResult<T> {
         return runCatching {
             val response = block()
@@ -97,7 +119,7 @@ class AdminRepository {
                 ApiResult.Error(RepositoryUtils.parseError(response))
             }
         }.getOrElse {
-            ApiResult.Error(it.message ?: "Erreur reseau")
+            ApiResult.Error(RepositoryUtils.networkError(it))
         }
     }
 }

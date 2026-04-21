@@ -10,7 +10,19 @@ class SessionStore(context: Context) {
     private val gson = Gson()
 
     fun saveUser(user: UserSummary) {
-        prefs.edit().putString(KEY_USER, gson.toJson(user)).apply()
+        saveAuthenticatedSession(user, null)
+    }
+
+    fun saveAuthenticatedSession(user: UserSummary, baseUrl: String?) {
+        prefs.edit()
+            .putString(KEY_USER, gson.toJson(user))
+            .putLong(KEY_AUTHENTICATED_AT, System.currentTimeMillis())
+            .apply {
+                if (!baseUrl.isNullOrBlank()) {
+                    putString(KEY_BASE_URL, baseUrl)
+                }
+            }
+            .apply()
     }
 
     fun getUser(): UserSummary? {
@@ -24,5 +36,7 @@ class SessionStore(context: Context) {
 
     companion object {
         private const val KEY_USER = "key_user"
+        private const val KEY_AUTHENTICATED_AT = "key_authenticated_at"
+        private const val KEY_BASE_URL = "key_base_url"
     }
 }

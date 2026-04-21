@@ -4,6 +4,7 @@ package com.pfe.gestionetudiantmobile.databinding;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.LinearLayout;
 import android.widget.TextView;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
@@ -11,6 +12,7 @@ import androidx.swiperefreshlayout.widget.SwipeRefreshLayout;
 import androidx.viewbinding.ViewBinding;
 import androidx.viewbinding.ViewBindings;
 import com.google.android.material.button.MaterialButton;
+import com.google.android.material.card.MaterialCardView;
 import com.pfe.gestionetudiantmobile.R;
 import java.lang.NullPointerException;
 import java.lang.Override;
@@ -18,40 +20,70 @@ import java.lang.String;
 
 public final class ActivityStudentHomeBinding implements ViewBinding {
   @NonNull
-  private final SwipeRefreshLayout rootView;
-
-  @NonNull
-  public final MaterialButton btnAbsences;
-
-  @NonNull
-  public final MaterialButton btnAnnouncements;
-
-  @NonNull
-  public final MaterialButton btnAssignments;
-
-  @NonNull
-  public final MaterialButton btnCourses;
+  private final LinearLayout rootView;
 
   @NonNull
   public final MaterialButton btnLogout;
 
   @NonNull
-  public final MaterialButton btnNotes;
+  public final MaterialCardView cardAbsences;
 
   @NonNull
-  public final MaterialButton btnTimetable;
+  public final MaterialCardView cardAnnouncements;
+
+  @NonNull
+  public final MaterialCardView cardAssignments;
+
+  @NonNull
+  public final MaterialCardView cardCourses;
+
+  @NonNull
+  public final MaterialCardView cardNotes;
+
+  @NonNull
+  public final MaterialCardView cardNotifications;
+
+  @NonNull
+  public final MaterialCardView cardTimetable;
 
   @NonNull
   public final SwipeRefreshLayout swipeLayout;
 
   @NonNull
-  public final TextView tvAbsenceHours;
+  public final TextView tvAbsencesContext;
 
   @NonNull
-  public final TextView tvAverage;
+  public final TextView tvAbsencesValue;
 
   @NonNull
-  public final TextView tvOverdue;
+  public final TextView tvAnnouncementsContext;
+
+  @NonNull
+  public final TextView tvAnnouncementsValue;
+
+  @NonNull
+  public final TextView tvAssignmentsContext;
+
+  @NonNull
+  public final TextView tvAssignmentsValue;
+
+  @NonNull
+  public final TextView tvCoursesContext;
+
+  @NonNull
+  public final TextView tvCoursesValue;
+
+  @NonNull
+  public final TextView tvNotesContext;
+
+  @NonNull
+  public final TextView tvNotesValue;
+
+  @NonNull
+  public final TextView tvNotificationsContext;
+
+  @NonNull
+  public final TextView tvNotificationsValue;
 
   @NonNull
   public final TextView tvRole;
@@ -60,40 +92,60 @@ public final class ActivityStudentHomeBinding implements ViewBinding {
   public final TextView tvRoleChip;
 
   @NonNull
-  public final TextView tvUpcoming;
+  public final TextView tvTimetableContext;
+
+  @NonNull
+  public final TextView tvTimetableValue;
 
   @NonNull
   public final TextView tvWelcome;
 
-  private ActivityStudentHomeBinding(@NonNull SwipeRefreshLayout rootView,
-      @NonNull MaterialButton btnAbsences, @NonNull MaterialButton btnAnnouncements,
-      @NonNull MaterialButton btnAssignments, @NonNull MaterialButton btnCourses,
-      @NonNull MaterialButton btnLogout, @NonNull MaterialButton btnNotes,
-      @NonNull MaterialButton btnTimetable, @NonNull SwipeRefreshLayout swipeLayout,
-      @NonNull TextView tvAbsenceHours, @NonNull TextView tvAverage, @NonNull TextView tvOverdue,
-      @NonNull TextView tvRole, @NonNull TextView tvRoleChip, @NonNull TextView tvUpcoming,
-      @NonNull TextView tvWelcome) {
+  private ActivityStudentHomeBinding(@NonNull LinearLayout rootView,
+      @NonNull MaterialButton btnLogout, @NonNull MaterialCardView cardAbsences,
+      @NonNull MaterialCardView cardAnnouncements, @NonNull MaterialCardView cardAssignments,
+      @NonNull MaterialCardView cardCourses, @NonNull MaterialCardView cardNotes,
+      @NonNull MaterialCardView cardNotifications, @NonNull MaterialCardView cardTimetable,
+      @NonNull SwipeRefreshLayout swipeLayout, @NonNull TextView tvAbsencesContext,
+      @NonNull TextView tvAbsencesValue, @NonNull TextView tvAnnouncementsContext,
+      @NonNull TextView tvAnnouncementsValue, @NonNull TextView tvAssignmentsContext,
+      @NonNull TextView tvAssignmentsValue, @NonNull TextView tvCoursesContext,
+      @NonNull TextView tvCoursesValue, @NonNull TextView tvNotesContext,
+      @NonNull TextView tvNotesValue, @NonNull TextView tvNotificationsContext,
+      @NonNull TextView tvNotificationsValue, @NonNull TextView tvRole,
+      @NonNull TextView tvRoleChip, @NonNull TextView tvTimetableContext,
+      @NonNull TextView tvTimetableValue, @NonNull TextView tvWelcome) {
     this.rootView = rootView;
-    this.btnAbsences = btnAbsences;
-    this.btnAnnouncements = btnAnnouncements;
-    this.btnAssignments = btnAssignments;
-    this.btnCourses = btnCourses;
     this.btnLogout = btnLogout;
-    this.btnNotes = btnNotes;
-    this.btnTimetable = btnTimetable;
+    this.cardAbsences = cardAbsences;
+    this.cardAnnouncements = cardAnnouncements;
+    this.cardAssignments = cardAssignments;
+    this.cardCourses = cardCourses;
+    this.cardNotes = cardNotes;
+    this.cardNotifications = cardNotifications;
+    this.cardTimetable = cardTimetable;
     this.swipeLayout = swipeLayout;
-    this.tvAbsenceHours = tvAbsenceHours;
-    this.tvAverage = tvAverage;
-    this.tvOverdue = tvOverdue;
+    this.tvAbsencesContext = tvAbsencesContext;
+    this.tvAbsencesValue = tvAbsencesValue;
+    this.tvAnnouncementsContext = tvAnnouncementsContext;
+    this.tvAnnouncementsValue = tvAnnouncementsValue;
+    this.tvAssignmentsContext = tvAssignmentsContext;
+    this.tvAssignmentsValue = tvAssignmentsValue;
+    this.tvCoursesContext = tvCoursesContext;
+    this.tvCoursesValue = tvCoursesValue;
+    this.tvNotesContext = tvNotesContext;
+    this.tvNotesValue = tvNotesValue;
+    this.tvNotificationsContext = tvNotificationsContext;
+    this.tvNotificationsValue = tvNotificationsValue;
     this.tvRole = tvRole;
     this.tvRoleChip = tvRoleChip;
-    this.tvUpcoming = tvUpcoming;
+    this.tvTimetableContext = tvTimetableContext;
+    this.tvTimetableValue = tvTimetableValue;
     this.tvWelcome = tvWelcome;
   }
 
   @Override
   @NonNull
-  public SwipeRefreshLayout getRoot() {
+  public LinearLayout getRoot() {
     return rootView;
   }
 
@@ -118,65 +170,129 @@ public final class ActivityStudentHomeBinding implements ViewBinding {
     // This is done to optimize the compiled bytecode for size and performance.
     int id;
     missingId: {
-      id = R.id.btnAbsences;
-      MaterialButton btnAbsences = ViewBindings.findChildViewById(rootView, id);
-      if (btnAbsences == null) {
-        break missingId;
-      }
-
-      id = R.id.btnAnnouncements;
-      MaterialButton btnAnnouncements = ViewBindings.findChildViewById(rootView, id);
-      if (btnAnnouncements == null) {
-        break missingId;
-      }
-
-      id = R.id.btnAssignments;
-      MaterialButton btnAssignments = ViewBindings.findChildViewById(rootView, id);
-      if (btnAssignments == null) {
-        break missingId;
-      }
-
-      id = R.id.btnCourses;
-      MaterialButton btnCourses = ViewBindings.findChildViewById(rootView, id);
-      if (btnCourses == null) {
-        break missingId;
-      }
-
       id = R.id.btnLogout;
       MaterialButton btnLogout = ViewBindings.findChildViewById(rootView, id);
       if (btnLogout == null) {
         break missingId;
       }
 
-      id = R.id.btnNotes;
-      MaterialButton btnNotes = ViewBindings.findChildViewById(rootView, id);
-      if (btnNotes == null) {
+      id = R.id.cardAbsences;
+      MaterialCardView cardAbsences = ViewBindings.findChildViewById(rootView, id);
+      if (cardAbsences == null) {
         break missingId;
       }
 
-      id = R.id.btnTimetable;
-      MaterialButton btnTimetable = ViewBindings.findChildViewById(rootView, id);
-      if (btnTimetable == null) {
+      id = R.id.cardAnnouncements;
+      MaterialCardView cardAnnouncements = ViewBindings.findChildViewById(rootView, id);
+      if (cardAnnouncements == null) {
         break missingId;
       }
 
-      SwipeRefreshLayout swipeLayout = (SwipeRefreshLayout) rootView;
-
-      id = R.id.tvAbsenceHours;
-      TextView tvAbsenceHours = ViewBindings.findChildViewById(rootView, id);
-      if (tvAbsenceHours == null) {
+      id = R.id.cardAssignments;
+      MaterialCardView cardAssignments = ViewBindings.findChildViewById(rootView, id);
+      if (cardAssignments == null) {
         break missingId;
       }
 
-      id = R.id.tvAverage;
-      TextView tvAverage = ViewBindings.findChildViewById(rootView, id);
-      if (tvAverage == null) {
+      id = R.id.cardCourses;
+      MaterialCardView cardCourses = ViewBindings.findChildViewById(rootView, id);
+      if (cardCourses == null) {
         break missingId;
       }
 
-      id = R.id.tvOverdue;
-      TextView tvOverdue = ViewBindings.findChildViewById(rootView, id);
-      if (tvOverdue == null) {
+      id = R.id.cardNotes;
+      MaterialCardView cardNotes = ViewBindings.findChildViewById(rootView, id);
+      if (cardNotes == null) {
+        break missingId;
+      }
+
+      id = R.id.cardNotifications;
+      MaterialCardView cardNotifications = ViewBindings.findChildViewById(rootView, id);
+      if (cardNotifications == null) {
+        break missingId;
+      }
+
+      id = R.id.cardTimetable;
+      MaterialCardView cardTimetable = ViewBindings.findChildViewById(rootView, id);
+      if (cardTimetable == null) {
+        break missingId;
+      }
+
+      id = R.id.swipeLayout;
+      SwipeRefreshLayout swipeLayout = ViewBindings.findChildViewById(rootView, id);
+      if (swipeLayout == null) {
+        break missingId;
+      }
+
+      id = R.id.tvAbsencesContext;
+      TextView tvAbsencesContext = ViewBindings.findChildViewById(rootView, id);
+      if (tvAbsencesContext == null) {
+        break missingId;
+      }
+
+      id = R.id.tvAbsencesValue;
+      TextView tvAbsencesValue = ViewBindings.findChildViewById(rootView, id);
+      if (tvAbsencesValue == null) {
+        break missingId;
+      }
+
+      id = R.id.tvAnnouncementsContext;
+      TextView tvAnnouncementsContext = ViewBindings.findChildViewById(rootView, id);
+      if (tvAnnouncementsContext == null) {
+        break missingId;
+      }
+
+      id = R.id.tvAnnouncementsValue;
+      TextView tvAnnouncementsValue = ViewBindings.findChildViewById(rootView, id);
+      if (tvAnnouncementsValue == null) {
+        break missingId;
+      }
+
+      id = R.id.tvAssignmentsContext;
+      TextView tvAssignmentsContext = ViewBindings.findChildViewById(rootView, id);
+      if (tvAssignmentsContext == null) {
+        break missingId;
+      }
+
+      id = R.id.tvAssignmentsValue;
+      TextView tvAssignmentsValue = ViewBindings.findChildViewById(rootView, id);
+      if (tvAssignmentsValue == null) {
+        break missingId;
+      }
+
+      id = R.id.tvCoursesContext;
+      TextView tvCoursesContext = ViewBindings.findChildViewById(rootView, id);
+      if (tvCoursesContext == null) {
+        break missingId;
+      }
+
+      id = R.id.tvCoursesValue;
+      TextView tvCoursesValue = ViewBindings.findChildViewById(rootView, id);
+      if (tvCoursesValue == null) {
+        break missingId;
+      }
+
+      id = R.id.tvNotesContext;
+      TextView tvNotesContext = ViewBindings.findChildViewById(rootView, id);
+      if (tvNotesContext == null) {
+        break missingId;
+      }
+
+      id = R.id.tvNotesValue;
+      TextView tvNotesValue = ViewBindings.findChildViewById(rootView, id);
+      if (tvNotesValue == null) {
+        break missingId;
+      }
+
+      id = R.id.tvNotificationsContext;
+      TextView tvNotificationsContext = ViewBindings.findChildViewById(rootView, id);
+      if (tvNotificationsContext == null) {
+        break missingId;
+      }
+
+      id = R.id.tvNotificationsValue;
+      TextView tvNotificationsValue = ViewBindings.findChildViewById(rootView, id);
+      if (tvNotificationsValue == null) {
         break missingId;
       }
 
@@ -192,9 +308,15 @@ public final class ActivityStudentHomeBinding implements ViewBinding {
         break missingId;
       }
 
-      id = R.id.tvUpcoming;
-      TextView tvUpcoming = ViewBindings.findChildViewById(rootView, id);
-      if (tvUpcoming == null) {
+      id = R.id.tvTimetableContext;
+      TextView tvTimetableContext = ViewBindings.findChildViewById(rootView, id);
+      if (tvTimetableContext == null) {
+        break missingId;
+      }
+
+      id = R.id.tvTimetableValue;
+      TextView tvTimetableValue = ViewBindings.findChildViewById(rootView, id);
+      if (tvTimetableValue == null) {
         break missingId;
       }
 
@@ -204,9 +326,12 @@ public final class ActivityStudentHomeBinding implements ViewBinding {
         break missingId;
       }
 
-      return new ActivityStudentHomeBinding((SwipeRefreshLayout) rootView, btnAbsences,
-          btnAnnouncements, btnAssignments, btnCourses, btnLogout, btnNotes, btnTimetable,
-          swipeLayout, tvAbsenceHours, tvAverage, tvOverdue, tvRole, tvRoleChip, tvUpcoming,
+      return new ActivityStudentHomeBinding((LinearLayout) rootView, btnLogout, cardAbsences,
+          cardAnnouncements, cardAssignments, cardCourses, cardNotes, cardNotifications,
+          cardTimetable, swipeLayout, tvAbsencesContext, tvAbsencesValue, tvAnnouncementsContext,
+          tvAnnouncementsValue, tvAssignmentsContext, tvAssignmentsValue, tvCoursesContext,
+          tvCoursesValue, tvNotesContext, tvNotesValue, tvNotificationsContext,
+          tvNotificationsValue, tvRole, tvRoleChip, tvTimetableContext, tvTimetableValue,
           tvWelcome);
     }
     String missingId = rootView.getResources().getResourceName(id);

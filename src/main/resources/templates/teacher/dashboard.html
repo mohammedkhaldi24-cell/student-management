@@ -11,15 +11,30 @@
 
             <div class="welcome-banner mb-4 p-4 rounded d-flex justify-content-between align-items-center">
                 <div>
-                    <h4 class="fw-bold mb-1">
+                    <div class="dashboard-kicker">
+                        <i class="bi bi-person-video3"></i> Espace enseignant
+                    </div>
+                    <h4 class="dashboard-hero-title mb-1">
                         Bonjour, <span th:text="${teacher.firstName + ' ' + teacher.lastName}">Prof</span> !
                     </h4>
-                    <p class="text-muted mb-0">
+                    <p class="dashboard-hero-subtitle mb-0">
                         <i class="bi bi-calendar3 me-2"></i>
                         <span th:text="${#temporals.format(#temporals.createNow(), 'EEEE dd MMMM yyyy')}">Date</span>
                     </p>
+                    <div class="dashboard-hero-actions">
+                        <a th:href="@{/teacher/notes}" class="btn btn-light">
+                            <i class="bi bi-pencil-square me-1"></i>Saisir des notes
+                        </a>
+                        <a th:href="@{/teacher/assignments/new}" class="btn btn-outline-light">
+                            <i class="bi bi-journal-plus me-1"></i>Nouveau devoir
+                        </a>
+                    </div>
+                    <div class="metric-ribbon">
+                        <span class="metric-pill"><i class="bi bi-book"></i><span th:text="${totalModules + ' modules'}">0 modules</span></span>
+                        <span class="metric-pill"><i class="bi bi-hourglass"></i><span th:text="${pendingSubmissions + ' soumissions'}">0 soumissions</span></span>
+                    </div>
                 </div>
-                <img th:src="@{/images/esto-logo.jpg}" alt="Logo ESTO" class="dashboard-brand-logo d-none d-md-block"/>
+                <img th:src="@{/images/esto-logo.jpg(v=2)}" alt="Logo ESTO" class="dashboard-brand-logo d-none d-md-block"/>
             </div>
 
             <div class="row g-4 mb-4">
@@ -97,6 +112,35 @@
                     </div>
                 </div>
                 <div class="card-body">
+                    <div class="row g-3 mb-3">
+                        <div class="col-md-4">
+                            <a th:href="@{/teacher/courses/new}" class="action-card action-card-info">
+                                <span class="action-card-icon"><i class="bi bi-cloud-upload"></i></span>
+                                <span>
+                                    <span class="action-card-title">Publier un cours</span>
+                                    <span class="action-card-subtitle">Document ou support pédagogique</span>
+                                </span>
+                            </a>
+                        </div>
+                        <div class="col-md-4">
+                            <a th:href="@{/teacher/announcements/new}" class="action-card action-card-warning">
+                                <span class="action-card-icon"><i class="bi bi-megaphone"></i></span>
+                                <span>
+                                    <span class="action-card-title">Nouvelle annonce</span>
+                                    <span class="action-card-subtitle">Informer une classe ou filière</span>
+                                </span>
+                            </a>
+                        </div>
+                        <div class="col-md-4">
+                            <a th:href="@{/teacher/absences}" class="action-card action-card-danger">
+                                <span class="action-card-icon"><i class="bi bi-calendar-x"></i></span>
+                                <span>
+                                    <span class="action-card-title">Gérer les absences</span>
+                                    <span class="action-card-subtitle">Filtrer par module et classe</span>
+                                </span>
+                            </a>
+                        </div>
+                    </div>
                     <div class="row g-3">
                         <div th:each="m : ${modules}" class="col-md-4">
                             <div class="module-card p-3 rounded border">
@@ -199,4 +243,5 @@
 <div th:replace="~{fragments/layout :: scripts}"></div>
 </body>
 </html>
+
 

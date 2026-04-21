@@ -14,8 +14,11 @@
                     <span th:text="${#strings.substring(student.user.firstName,0,1) + #strings.substring(student.user.lastName,0,1)}">AB</span>
                 </div>
                 <div>
-                    <h4 class="fw-bold mb-1" th:text="${student.fullName}">Nom</h4>
-                    <p class="mb-0 text-muted">
+                    <div class="dashboard-kicker">
+                        <i class="bi bi-mortarboard"></i> Mon espace étudiant
+                    </div>
+                    <h4 class="dashboard-hero-title mb-1" th:text="${student.fullName}">Nom</h4>
+                    <p class="dashboard-hero-subtitle mb-0">
                         <i class="bi bi-credit-card me-1"></i>
                         Matricule : <strong th:text="${student.matricule}">-</strong>
                         &bull;
@@ -25,9 +28,21 @@
                         <i class="bi bi-diagram-3 me-1 ms-2"></i>
                         <span th:text="${student.classe?.filiere?.nom ?: '-'}">Filière</span>
                     </p>
+                    <div class="dashboard-hero-actions">
+                        <a th:href="@{/student/modules}" class="btn btn-light">
+                            <i class="bi bi-grid me-1"></i>Choisir un module
+                        </a>
+                        <a th:href="@{/student/assignments}" class="btn btn-outline-light">
+                            <i class="bi bi-journal-check me-1"></i>Voir mes devoirs
+                        </a>
+                    </div>
+                    <div class="metric-ribbon">
+                        <span class="metric-pill"><i class="bi bi-graph-up"></i><span th:text="${#numbers.formatDecimal(moyenneGenerale,1,2) + ' / 20'}">0 / 20</span></span>
+                        <span class="metric-pill"><i class="bi bi-calendar-x"></i><span th:text="${totalHeuresAbsence + 'h absences'}">0h absences</span></span>
+                    </div>
                 </div>
                 <div class="ms-auto d-none d-md-block">
-                    <img th:src="@{/images/esto-logo.jpg}" alt="Logo ESTO" class="dashboard-brand-logo"/>
+                    <img th:src="@{/images/esto-logo.jpg(v=2)}" alt="Logo ESTO" class="dashboard-brand-logo"/>
                 </div>
             </div>
 
@@ -207,38 +222,51 @@
                 <div class="card-body">
                     <div class="row g-2">
                         <div class="col-md-4 col-lg-3">
-                            <a th:href="@{/student/notes}" class="btn btn-outline-primary w-100">
-                                <i class="bi bi-journal-check me-1"></i>Mes notes
+                            <a th:href="@{/student/modules}" class="action-card">
+                                <span class="action-card-icon"><i class="bi bi-journal-bookmark"></i></span>
+                                <span><span class="action-card-title">Mes modules</span><span class="action-card-subtitle">Notes et absences par module</span></span>
                             </a>
                         </div>
                         <div class="col-md-4 col-lg-3">
-                            <a th:href="@{/student/absences}" class="btn btn-outline-primary w-100">
-                                <i class="bi bi-calendar-x me-1"></i>Mes absences
+                            <a th:href="@{/student/notes}" class="action-card action-card-success">
+                                <span class="action-card-icon"><i class="bi bi-journal-check"></i></span>
+                                <span><span class="action-card-title">Mes notes</span><span class="action-card-subtitle">Consulter les résultats</span></span>
                             </a>
                         </div>
                         <div class="col-md-4 col-lg-3">
-                            <a th:href="@{/student/emploi-du-temps}" class="btn btn-outline-primary w-100">
-                                <i class="bi bi-calendar3-week me-1"></i>Emploi du temps
+                            <a th:href="@{/student/absences}" class="action-card action-card-danger">
+                                <span class="action-card-icon"><i class="bi bi-calendar-x"></i></span>
+                                <span><span class="action-card-title">Mes absences</span><span class="action-card-subtitle">Suivi des heures</span></span>
                             </a>
                         </div>
                         <div class="col-md-4 col-lg-3">
-                            <a th:href="@{/student/courses}" class="btn btn-outline-primary w-100">
-                                <i class="bi bi-journals me-1"></i>Cours
+                            <a th:href="@{/student/emploi-du-temps}" class="action-card action-card-info">
+                                <span class="action-card-icon"><i class="bi bi-calendar3-week"></i></span>
+                                <span><span class="action-card-title">Emploi du temps</span><span class="action-card-subtitle">Planning hebdomadaire</span></span>
                             </a>
                         </div>
                         <div class="col-md-4 col-lg-3">
-                            <a th:href="@{/student/announcements}" class="btn btn-outline-primary w-100">
-                                <i class="bi bi-megaphone me-1"></i>Annonces
+                            <a th:href="@{/student/courses}" class="action-card action-card-info">
+                                <span class="action-card-icon"><i class="bi bi-journals"></i></span>
+                                <span><span class="action-card-title">Cours</span><span class="action-card-subtitle">Documents à télécharger</span></span>
                             </a>
                         </div>
                         <div class="col-md-4 col-lg-3">
-                            <a th:href="@{/student/assignments}" class="btn btn-outline-primary w-100">
-                                <i class="bi bi-journal-check me-1"></i>Devoirs
+                            <a th:href="@{/student/announcements}" class="action-card action-card-warning">
+                                <span class="action-card-icon"><i class="bi bi-megaphone"></i></span>
+                                <span><span class="action-card-title">Annonces</span><span class="action-card-subtitle">Actualités importantes</span></span>
                             </a>
                         </div>
                         <div class="col-md-4 col-lg-3">
-                            <a href="#bulletinSection" class="btn btn-outline-primary w-100">
-                                <i class="bi bi-file-earmark-pdf me-1"></i>Bulletins
+                            <a th:href="@{/student/assignments}" class="action-card">
+                                <span class="action-card-icon"><i class="bi bi-journal-check"></i></span>
+                                <span><span class="action-card-title">Devoirs</span><span class="action-card-subtitle">Soumettre mes travaux</span></span>
+                            </a>
+                        </div>
+                        <div class="col-md-4 col-lg-3">
+                            <a href="#bulletinSection" class="action-card action-card-danger">
+                                <span class="action-card-icon"><i class="bi bi-file-earmark-pdf"></i></span>
+                                <span><span class="action-card-title">Bulletins</span><span class="action-card-subtitle">Télécharger PDF</span></span>
                             </a>
                         </div>
                     </div>
@@ -522,5 +550,6 @@
 </script>
 </body>
 </html>
+
 
 

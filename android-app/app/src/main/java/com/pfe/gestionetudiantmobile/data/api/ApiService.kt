@@ -2,10 +2,13 @@ package com.pfe.gestionetudiantmobile.data.api
 
 import com.pfe.gestionetudiantmobile.data.model.AbsenceCreateRequest
 import com.pfe.gestionetudiantmobile.data.model.AbsenceItem
+import com.pfe.gestionetudiantmobile.data.model.AbsenceSessionRequest
+import com.pfe.gestionetudiantmobile.data.model.AbsenceSessionResponse
 import com.pfe.gestionetudiantmobile.data.model.AdminClasseUpsertRequest
 import com.pfe.gestionetudiantmobile.data.model.AdminDashboard
 import com.pfe.gestionetudiantmobile.data.model.AdminFiliereUpsertRequest
 import com.pfe.gestionetudiantmobile.data.model.AdminModuleUpsertRequest
+import com.pfe.gestionetudiantmobile.data.model.AdminTimetableUpsertRequest
 import com.pfe.gestionetudiantmobile.data.model.AdminUserUpsertRequest
 import com.pfe.gestionetudiantmobile.data.model.AnnouncementItem
 import com.pfe.gestionetudiantmobile.data.model.ApiMessage
@@ -17,17 +20,23 @@ import com.pfe.gestionetudiantmobile.data.model.ClasseItem
 import com.pfe.gestionetudiantmobile.data.model.CourseItem
 import com.pfe.gestionetudiantmobile.data.model.LoginRequest
 import com.pfe.gestionetudiantmobile.data.model.NoteItem
+import com.pfe.gestionetudiantmobile.data.model.NoteBulkRequest
+import com.pfe.gestionetudiantmobile.data.model.NotificationItem
 import com.pfe.gestionetudiantmobile.data.model.NoteUpsertRequest
 import com.pfe.gestionetudiantmobile.data.model.StudentDashboard
+import com.pfe.gestionetudiantmobile.data.model.StudentModuleItem
 import com.pfe.gestionetudiantmobile.data.model.StudentProfile
 import com.pfe.gestionetudiantmobile.data.model.SubmissionReviewRequest
 import com.pfe.gestionetudiantmobile.data.model.TeacherDashboard
 import com.pfe.gestionetudiantmobile.data.model.TeacherModuleItem
 import com.pfe.gestionetudiantmobile.data.model.TeacherProfile
 import com.pfe.gestionetudiantmobile.data.model.TimetableItem
+import com.pfe.gestionetudiantmobile.data.model.TopStudentItem
 import com.pfe.gestionetudiantmobile.data.model.UserSummary
+import com.pfe.gestionetudiantmobile.util.MobileApiConfig
 import okhttp3.MultipartBody
 import okhttp3.RequestBody
+import okhttp3.ResponseBody
 import retrofit2.Response
 import retrofit2.http.Body
 import retrofit2.http.DELETE
@@ -38,10 +47,16 @@ import retrofit2.http.PUT
 import retrofit2.http.Part
 import retrofit2.http.Path
 import retrofit2.http.Query
+import retrofit2.http.Streaming
+import retrofit2.http.Url
 
 interface ApiService {
 
-    @POST("api/mobile/auth/login")
+    @Streaming
+    @GET
+    suspend fun downloadFile(@Url url: String): Response<ResponseBody>
+
+    @POST(MobileApiConfig.LOGIN_PATH)
     suspend fun login(@Body request: LoginRequest): Response<AuthResponse>
 
     @GET("api/mobile/auth/me")
@@ -56,23 +71,32 @@ interface ApiService {
     @GET("api/mobile/student/dashboard")
     suspend fun studentDashboard(): Response<StudentDashboard>
 
+    @GET("api/mobile/student/modules")
+    suspend fun studentModules(): Response<List<StudentModuleItem>>
+
     @GET("api/mobile/student/notes")
-    suspend fun studentNotes(): Response<List<NoteItem>>
+    suspend fun studentNotes(@Query("moduleId") moduleId: Long? = null): Response<List<NoteItem>>
 
     @GET("api/mobile/student/absences")
-    suspend fun studentAbsences(): Response<List<AbsenceItem>>
+    suspend fun studentAbsences(@Query("moduleId") moduleId: Long? = null): Response<List<AbsenceItem>>
 
     @GET("api/mobile/student/timetable")
     suspend fun studentTimetable(): Response<List<TimetableItem>>
 
     @GET("api/mobile/student/courses")
-    suspend fun studentCourses(): Response<List<CourseItem>>
+    suspend fun studentCourses(@Query("moduleId") moduleId: Long? = null): Response<List<CourseItem>>
 
     @GET("api/mobile/student/announcements")
     suspend fun studentAnnouncements(): Response<List<AnnouncementItem>>
 
+    @GET("api/mobile/student/notifications")
+    suspend fun studentNotifications(): Response<List<NotificationItem>>
+
     @GET("api/mobile/student/assignments")
-    suspend fun studentAssignments(@Query("filter") filter: String = "all"): Response<List<AssignmentItem>>
+    suspend fun studentAssignments(
+        @Query("filter") filter: String = "all",
+        @Query("moduleId") moduleId: Long? = null
+    ): Response<List<AssignmentItem>>
 
     @GET("api/mobile/student/assignments/{id}")
     suspend fun studentAssignmentDetail(@Path("id") assignmentId: Long): Response<AssignmentItem>
@@ -103,6 +127,9 @@ interface ApiService {
     @GET("api/mobile/teacher/modules")
     suspend fun teacherModules(): Response<List<TeacherModuleItem>>
 
+    @GET("api/mobile/teacher/timetable")
+    suspend fun teacherTimetable(): Response<List<TimetableItem>>
+
     @GET("api/mobile/teacher/classes")
     suspend fun teacherClasses(
         @Query("moduleId") moduleId: Long? = null,
@@ -127,6 +154,9 @@ interface ApiService {
     @POST("api/mobile/teacher/notes/upsert")
     suspend fun upsertTeacherNote(@Body request: NoteUpsertRequest): Response<NoteItem>
 
+    @POST("api/mobile/teacher/notes/bulk")
+    suspend fun upsertTeacherNotesBulk(@Body request: NoteBulkRequest): Response<List<NoteItem>>
+
     @DELETE("api/mobile/teacher/notes/{id}")
     suspend fun deleteTeacherNote(@Path("id") noteId: Long): Response<ApiMessage>
 
@@ -139,6 +169,9 @@ interface ApiService {
 
     @POST("api/mobile/teacher/absences")
     suspend fun createTeacherAbsence(@Body request: AbsenceCreateRequest): Response<AbsenceItem>
+
+    @POST("api/mobile/teacher/absences/session")
+    suspend fun saveTeacherAbsenceSession(@Body request: AbsenceSessionRequest): Response<AbsenceSessionResponse>
 
     @POST("api/mobile/teacher/absences/{id}/justify")
     suspend fun justifyTeacherAbsence(
@@ -160,7 +193,15 @@ interface ApiService {
         @Part("moduleId") moduleId: RequestBody,
         @Part("classeId") classeId: RequestBody?,
         @Part("filiereId") filiereId: RequestBody?,
+        @Part files: List<MultipartBody.Part>?,
         @Part file: MultipartBody.Part?
+    ): Response<CourseItem>
+
+    @Multipart
+    @POST("api/mobile/teacher/courses/{id}/files")
+    suspend fun addTeacherCourseFiles(
+        @Path("id") courseId: Long,
+        @Part files: List<MultipartBody.Part>
     ): Response<CourseItem>
 
     @DELETE("api/mobile/teacher/courses/{id}")
@@ -184,6 +225,7 @@ interface ApiService {
     suspend fun createTeacherAnnouncement(
         @Part("title") title: RequestBody,
         @Part("message") message: RequestBody,
+        @Part("moduleId") moduleId: RequestBody?,
         @Part("classeId") classeId: RequestBody?,
         @Part("filiereId") filiereId: RequestBody?,
         @Part attachment: MultipartBody.Part?
@@ -258,6 +300,12 @@ interface ApiService {
     @GET("api/mobile/chef/dashboard")
     suspend fun chefDashboard(): Response<ChefDashboard>
 
+    @GET("api/mobile/chef/classes")
+    suspend fun chefClasses(): Response<List<ClasseItem>>
+
+    @GET("api/mobile/chef/modules")
+    suspend fun chefModules(): Response<List<TeacherModuleItem>>
+
     @GET("api/mobile/chef/students")
     suspend fun chefStudents(@Query("classeId") classeId: Long? = null): Response<List<StudentProfile>>
 
@@ -276,8 +324,23 @@ interface ApiService {
     @GET("api/mobile/chef/timetable")
     suspend fun chefTimetable(): Response<List<TimetableItem>>
 
+    @POST("api/mobile/chef/timetable")
+    suspend fun createChefTimetable(@Body request: AdminTimetableUpsertRequest): Response<TimetableItem>
+
+    @PUT("api/mobile/chef/timetable/{id}")
+    suspend fun updateChefTimetable(
+        @Path("id") timetableId: Long,
+        @Body request: AdminTimetableUpsertRequest
+    ): Response<TimetableItem>
+
+    @DELETE("api/mobile/chef/timetable/{id}")
+    suspend fun deleteChefTimetable(@Path("id") timetableId: Long): Response<ApiMessage>
+
     @GET("api/mobile/admin/dashboard")
     suspend fun adminDashboard(): Response<AdminDashboard>
+
+    @GET("api/mobile/admin/top-students")
+    suspend fun adminTopStudents(@Query("limit") limit: Int = 5): Response<List<TopStudentItem>>
 
     @GET("api/mobile/admin/users")
     suspend fun adminUsers(
@@ -352,4 +415,23 @@ interface ApiService {
 
     @DELETE("api/mobile/admin/modules/{id}")
     suspend fun deleteAdminModule(@Path("id") moduleId: Long): Response<ApiMessage>
+
+    @GET("api/mobile/admin/timetable")
+    suspend fun adminTimetable(
+        @Query("filiereId") filiereId: Long? = null,
+        @Query("classeId") classeId: Long? = null,
+        @Query("q") query: String? = null
+    ): Response<List<TimetableItem>>
+
+    @POST("api/mobile/admin/timetable")
+    suspend fun createAdminTimetable(@Body request: AdminTimetableUpsertRequest): Response<TimetableItem>
+
+    @PUT("api/mobile/admin/timetable/{id}")
+    suspend fun updateAdminTimetable(
+        @Path("id") timetableId: Long,
+        @Body request: AdminTimetableUpsertRequest
+    ): Response<TimetableItem>
+
+    @DELETE("api/mobile/admin/timetable/{id}")
+    suspend fun deleteAdminTimetable(@Path("id") timetableId: Long): Response<ApiMessage>
 }

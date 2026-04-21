@@ -4,7 +4,7 @@ package com.pfe.gestionetudiantmobile.databinding;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.ScrollView;
+import android.widget.LinearLayout;
 import android.widget.TextView;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
@@ -18,7 +18,7 @@ import java.lang.String;
 
 public final class ActivityChefHomeBinding implements ViewBinding {
   @NonNull
-  private final ScrollView rootView;
+  private final LinearLayout rootView;
 
   @NonNull
   public final MaterialButton btnAbsences;
@@ -36,6 +36,9 @@ public final class ActivityChefHomeBinding implements ViewBinding {
   public final MaterialButton btnNotes;
 
   @NonNull
+  public final MaterialButton btnProfile;
+
+  @NonNull
   public final MaterialButton btnStudents;
 
   @NonNull
@@ -48,29 +51,49 @@ public final class ActivityChefHomeBinding implements ViewBinding {
   public final TextView tvStats;
 
   @NonNull
+  public final TextView tvTotalAbsences;
+
+  @NonNull
+  public final TextView tvTotalClasses;
+
+  @NonNull
+  public final TextView tvTotalCourses;
+
+  @NonNull
+  public final TextView tvTotalStudents;
+
+  @NonNull
   public final TextView tvWelcome;
 
-  private ActivityChefHomeBinding(@NonNull ScrollView rootView, @NonNull MaterialButton btnAbsences,
-      @NonNull MaterialButton btnAnnouncements, @NonNull MaterialButton btnCourses,
-      @NonNull MaterialButton btnLogout, @NonNull MaterialButton btnNotes,
+  private ActivityChefHomeBinding(@NonNull LinearLayout rootView,
+      @NonNull MaterialButton btnAbsences, @NonNull MaterialButton btnAnnouncements,
+      @NonNull MaterialButton btnCourses, @NonNull MaterialButton btnLogout,
+      @NonNull MaterialButton btnNotes, @NonNull MaterialButton btnProfile,
       @NonNull MaterialButton btnStudents, @NonNull MaterialButton btnTimetable,
-      @NonNull TextView tvRoleChip, @NonNull TextView tvStats, @NonNull TextView tvWelcome) {
+      @NonNull TextView tvRoleChip, @NonNull TextView tvStats, @NonNull TextView tvTotalAbsences,
+      @NonNull TextView tvTotalClasses, @NonNull TextView tvTotalCourses,
+      @NonNull TextView tvTotalStudents, @NonNull TextView tvWelcome) {
     this.rootView = rootView;
     this.btnAbsences = btnAbsences;
     this.btnAnnouncements = btnAnnouncements;
     this.btnCourses = btnCourses;
     this.btnLogout = btnLogout;
     this.btnNotes = btnNotes;
+    this.btnProfile = btnProfile;
     this.btnStudents = btnStudents;
     this.btnTimetable = btnTimetable;
     this.tvRoleChip = tvRoleChip;
     this.tvStats = tvStats;
+    this.tvTotalAbsences = tvTotalAbsences;
+    this.tvTotalClasses = tvTotalClasses;
+    this.tvTotalCourses = tvTotalCourses;
+    this.tvTotalStudents = tvTotalStudents;
     this.tvWelcome = tvWelcome;
   }
 
   @Override
   @NonNull
-  public ScrollView getRoot() {
+  public LinearLayout getRoot() {
     return rootView;
   }
 
@@ -125,6 +148,12 @@ public final class ActivityChefHomeBinding implements ViewBinding {
         break missingId;
       }
 
+      id = R.id.btnProfile;
+      MaterialButton btnProfile = ViewBindings.findChildViewById(rootView, id);
+      if (btnProfile == null) {
+        break missingId;
+      }
+
       id = R.id.btnStudents;
       MaterialButton btnStudents = ViewBindings.findChildViewById(rootView, id);
       if (btnStudents == null) {
@@ -149,15 +178,39 @@ public final class ActivityChefHomeBinding implements ViewBinding {
         break missingId;
       }
 
+      id = R.id.tvTotalAbsences;
+      TextView tvTotalAbsences = ViewBindings.findChildViewById(rootView, id);
+      if (tvTotalAbsences == null) {
+        break missingId;
+      }
+
+      id = R.id.tvTotalClasses;
+      TextView tvTotalClasses = ViewBindings.findChildViewById(rootView, id);
+      if (tvTotalClasses == null) {
+        break missingId;
+      }
+
+      id = R.id.tvTotalCourses;
+      TextView tvTotalCourses = ViewBindings.findChildViewById(rootView, id);
+      if (tvTotalCourses == null) {
+        break missingId;
+      }
+
+      id = R.id.tvTotalStudents;
+      TextView tvTotalStudents = ViewBindings.findChildViewById(rootView, id);
+      if (tvTotalStudents == null) {
+        break missingId;
+      }
+
       id = R.id.tvWelcome;
       TextView tvWelcome = ViewBindings.findChildViewById(rootView, id);
       if (tvWelcome == null) {
         break missingId;
       }
 
-      return new ActivityChefHomeBinding((ScrollView) rootView, btnAbsences, btnAnnouncements,
-          btnCourses, btnLogout, btnNotes, btnStudents, btnTimetable, tvRoleChip, tvStats,
-          tvWelcome);
+      return new ActivityChefHomeBinding((LinearLayout) rootView, btnAbsences, btnAnnouncements,
+          btnCourses, btnLogout, btnNotes, btnProfile, btnStudents, btnTimetable, tvRoleChip,
+          tvStats, tvTotalAbsences, tvTotalClasses, tvTotalCourses, tvTotalStudents, tvWelcome);
     }
     String missingId = rootView.getResources().getResourceName(id);
     throw new NullPointerException("Missing required view with ID: ".concat(missingId));

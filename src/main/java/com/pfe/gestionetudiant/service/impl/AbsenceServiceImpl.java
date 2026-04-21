@@ -50,6 +50,12 @@ public class AbsenceServiceImpl implements AbsenceService {
 
     @Override
     @Transactional(readOnly = true)
+    public List<Absence> findByStudentAndModule(Long studentId, Long moduleId) {
+        return absenceRepository.findByStudentIdAndModuleIdOrderByDateAbsenceDesc(studentId, moduleId);
+    }
+
+    @Override
+    @Transactional(readOnly = true)
     public List<Absence> findByModuleId(Long moduleId) {
         return absenceRepository.findByModuleId(moduleId);
     }

@@ -5,6 +5,11 @@ import com.pfe.gestionetudiant.model.Assignment;
 import com.pfe.gestionetudiant.model.AssignmentSubmission;
 import com.pfe.gestionetudiant.model.AssignmentSubmissionFile;
 import com.pfe.gestionetudiant.model.CourseContent;
+import com.pfe.gestionetudiant.model.CourseDocument;
+import com.pfe.gestionetudiant.model.EmploiDuTemps;
+import com.pfe.gestionetudiant.model.Module;
+import com.pfe.gestionetudiant.model.Note;
+import com.pfe.gestionetudiant.model.Absence;
 import com.pfe.gestionetudiant.model.Student;
 import com.pfe.gestionetudiant.model.SubmissionStatus;
 import com.pfe.gestionetudiant.service.AbsenceService;
@@ -13,6 +18,7 @@ import com.pfe.gestionetudiant.service.AssignmentService;
 import com.pfe.gestionetudiant.service.AssignmentSubmissionService;
 import com.pfe.gestionetudiant.service.CourseContentService;
 import com.pfe.gestionetudiant.service.EmploiDuTempsService;
+import com.pfe.gestionetudiant.service.ModuleService;
 import com.pfe.gestionetudiant.service.NoteService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.core.io.Resource;
@@ -31,9 +37,14 @@ import org.springframework.web.multipart.MultipartFile;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.Comparator;
+import java.util.Collection;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Locale;
+import java.util.Map;
+import java.util.Set;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 @RestController
 @RequestMapping("/api/mobile/student")
@@ -48,6 +59,7 @@ public class MobileStudentController {
     private final NoteService noteService;
     private final AbsenceService absenceService;
     private final EmploiDuTempsService emploiDuTempsService;
+    private final ModuleService moduleService;
     private final CourseContentService courseContentService;
     private final AnnouncementService announcementService;
     private final AssignmentService assignmentService;
@@ -69,7 +81,8 @@ public class MobileStudentController {
         double moyenneS2 = noteService.calculerMoyenneEtudiant(student.getId(), "S2", DEFAULT_ACADEMIC_YEAR);
         double moyenneGenerale = Math.round(((moyenneS1 + moyenneS2) / 2.0) * 100.0) / 100.0;
 
-        List<MobileDtos.CourseItem> recentCourses = courseContentService.findForStudent(classeId, filiereId).stream()
+        List<CourseContent> visibleCourses = courseContentService.findForStudent(classeId, filiereId);
+        List<MobileDtos.CourseItem> recentCourses = visibleCourses.stream()
                 .limit(5)
                 .map(c -> mapper.toCourseItem(c, "/api/mobile/student/courses/" + c.getId() + "/download"))
                 .toList();
@@ -102,47 +115,23 @@ public class MobileStudentController {
                 .filter(MobileDtos.AssignmentItem::overdue)
                 .count();
 
-        List<MobileDtos.NotificationItem> notifications = new ArrayList<>();
-
-        for (MobileDtos.AssignmentItem item : upcomingAssignments) {
-            notifications.add(new MobileDtos.NotificationItem(
-                    "ASSIGNMENT",
-                    item.title(),
-                    "Date limite: " + (item.dueDate() != null ? item.dueDate() : "-") ,
-                    item.createdAt() != null ? item.createdAt() : now,
-                    "/student/assignments/" + item.id()
-            ));
-        }
-
-        for (MobileDtos.AnnouncementItem item : recentAnnouncements) {
-            notifications.add(new MobileDtos.NotificationItem(
-                    "ANNOUNCEMENT",
-                    item.title(),
-                    item.message(),
-                    item.createdAt() != null ? item.createdAt() : now,
-                    "/student/announcements"
-            ));
-        }
-
-        for (AssignmentSubmission feedback : assignmentSubmissionService.findRecentFeedbackForStudent(student.getId(), 5)) {
-            if (feedback.getAssignment() == null) {
-                continue;
-            }
-            String title = feedback.getAssignment().getTitle();
-            String message = feedback.getFeedback() != null ? feedback.getFeedback() : "Votre devoir a ete evalue.";
-            notifications.add(new MobileDtos.NotificationItem(
-                    "FEEDBACK",
-                    title,
-                    message,
-                    feedback.getSubmittedAt() != null ? feedback.getSubmittedAt() : now,
-                    "/student/assignments/" + feedback.getAssignment().getId()
-            ));
-        }
-
-        notifications = notifications.stream()
-                .sorted(Comparator.comparing(MobileDtos.NotificationItem::createdAt).reversed())
-                .limit(10)
+        List<Note> recentNotes = noteService.findByStudentId(student.getId()).stream()
+                .limit(5)
                 .toList();
+
+        List<Absence> recentAbsences = absenceService.findByStudentId(student.getId()).stream()
+                .limit(5)
+                .toList();
+
+        List<MobileDtos.NotificationItem> notifications = buildStudentNotifications(
+                student,
+                now,
+                recentNotes,
+                recentAbsences,
+                recentCourses,
+                assignmentViews,
+                recentAnnouncements
+        );
 
         return new MobileDtos.StudentDashboard(
                 moyenneS1,
@@ -160,19 +149,71 @@ public class MobileStudentController {
     }
 
     @GetMapping("/notes")
-    public List<MobileDtos.NoteItem> notes() {
+    public List<MobileDtos.NoteItem> notes(@RequestParam(required = false) Long moduleId) {
         Student student = accessService.currentStudent();
-        return noteService.findByStudentId(student.getId()).stream()
+        if (moduleId != null) {
+            ensureStudentModule(student, moduleId);
+        }
+        return (moduleId != null
+                ? noteService.findByStudentAndModule(student.getId(), moduleId)
+                : noteService.findByStudentId(student.getId())).stream()
                 .map(mapper::toNoteItem)
                 .toList();
     }
 
     @GetMapping("/absences")
-    public List<MobileDtos.AbsenceItem> absences() {
+    public List<MobileDtos.AbsenceItem> absences(@RequestParam(required = false) Long moduleId) {
         Student student = accessService.currentStudent();
-        return absenceService.findByStudentId(student.getId()).stream()
+        if (moduleId != null) {
+            ensureStudentModule(student, moduleId);
+        }
+        return (moduleId != null
+                ? absenceService.findByStudentAndModule(student.getId(), moduleId)
+                : absenceService.findByStudentId(student.getId())).stream()
                 .map(mapper::toAbsenceItem)
                 .toList();
+    }
+
+    @GetMapping("/modules")
+    public List<MobileDtos.StudentModuleItem> modules() {
+        Student student = accessService.currentStudent();
+        return studentModules(student).stream()
+                .map(module -> mapper.toStudentModuleItem(module, student))
+                .toList();
+    }
+
+    @GetMapping("/notifications")
+    public List<MobileDtos.NotificationItem> notifications() {
+        Student student = accessService.currentStudent();
+        LocalDateTime now = LocalDateTime.now();
+        Long classeId = classeId(student);
+        Long filiereId = filiereId(student);
+
+        List<MobileDtos.AssignmentItem> assignments = assignmentService.findVisibleForStudent(classeId, filiereId).stream()
+                .map(a -> toStudentAssignmentItem(a, student.getId(), now))
+                .toList();
+
+        List<MobileDtos.CourseItem> courses = courseContentService.findForStudent(classeId, filiereId).stream()
+                .limit(5)
+                .map(c -> mapper.toCourseItem(c, "/api/mobile/student/courses/" + c.getId() + "/download"))
+                .toList();
+
+        List<MobileDtos.AnnouncementItem> announcements = announcementService.findForStudent(classeId, filiereId).stream()
+                .map(a -> mapper.toAnnouncementItem(
+                        a,
+                        "/api/mobile/student/announcements/" + a.getId() + "/attachment"
+                ))
+                .toList();
+
+        List<Note> notes = noteService.findByStudentId(student.getId()).stream()
+                .limit(5)
+                .toList();
+
+        List<Absence> absences = absenceService.findByStudentId(student.getId()).stream()
+                .limit(5)
+                .toList();
+
+        return buildStudentNotifications(student, now, notes, absences, courses, assignments, announcements);
     }
 
     @GetMapping("/timetable")
@@ -188,11 +229,16 @@ public class MobileStudentController {
     }
 
     @GetMapping("/courses")
-    public List<MobileDtos.CourseItem> courses() {
+    public List<MobileDtos.CourseItem> courses(@RequestParam(required = false) Long moduleId) {
         Student student = accessService.currentStudent();
+        if (moduleId != null) {
+            ensureStudentModule(student, moduleId);
+        }
         Long classeId = classeId(student);
         Long filiereId = filiereId(student);
         return courseContentService.findForStudent(classeId, filiereId).stream()
+                .filter(c -> moduleId == null
+                        || (c.getModule() != null && moduleId.equals(c.getModule().getId())))
                 .map(c -> mapper.toCourseItem(c, "/api/mobile/student/courses/" + c.getId() + "/download"))
                 .toList();
     }
@@ -217,13 +263,18 @@ public class MobileStudentController {
     }
 
     @GetMapping("/assignments")
-    public List<MobileDtos.AssignmentItem> assignments(@RequestParam(defaultValue = "all") String filter) {
+    public List<MobileDtos.AssignmentItem> assignments(@RequestParam(defaultValue = "all") String filter,
+                                                       @RequestParam(required = false) Long moduleId) {
         Student student = accessService.currentStudent();
         LocalDateTime now = LocalDateTime.now();
         String normalizedFilter = filter == null ? "all" : filter.trim().toLowerCase(Locale.ROOT);
+        if (moduleId != null) {
+            ensureStudentModule(student, moduleId);
+        }
 
         List<MobileDtos.AssignmentItem> all = assignmentService.findVisibleForStudent(classeId(student), filiereId(student)).stream()
                 .map(a -> toStudentAssignmentItem(a, student.getId(), now))
+                .filter(item -> moduleId == null || moduleId.equals(item.moduleId()))
                 .toList();
 
         return all.stream().filter(item -> switch (normalizedFilter) {
@@ -319,6 +370,24 @@ public class MobileStudentController {
         return MobileFileResponseBuilder.asDownload(resource, course.getFilePath());
     }
 
+    @GetMapping("/courses/{id}/files/{fileId}")
+    public ResponseEntity<Resource> downloadCourseFileById(@PathVariable Long id,
+                                                           @PathVariable Long fileId) {
+        Student student = accessService.currentStudent();
+        Long classeId = classeId(student);
+        Long filiereId = filiereId(student);
+
+        boolean visible = courseContentService.findForStudent(classeId, filiereId).stream()
+                .anyMatch(c -> c.getId().equals(id));
+        if (!visible) {
+            throw new IllegalArgumentException("Acces non autorise.");
+        }
+
+        CourseDocument document = courseContentService.findFileForCourse(id, fileId);
+        Resource resource = courseContentService.loadFileAsResource(document);
+        return MobileFileResponseBuilder.asDownload(resource, document.getFilePath());
+    }
+
     @GetMapping("/assignments/{id}/attachment")
     public ResponseEntity<Resource> downloadAssignmentAttachment(@PathVariable Long id) {
         Student student = accessService.currentStudent();
@@ -402,5 +471,189 @@ public class MobileStudentController {
         return (student.getClasse() != null && student.getClasse().getFiliere() != null)
                 ? student.getClasse().getFiliere().getId()
                 : null;
+    }
+
+    private List<Module> studentModules(Student student) {
+        Map<Long, Module> modulesById = new LinkedHashMap<>();
+
+        Long filiereId = filiereId(student);
+        if (filiereId != null) {
+            moduleService.findByFiliereId(filiereId)
+                    .forEach(module -> addModule(modulesById, module));
+        }
+
+        Long classeId = classeId(student);
+        if (classeId != null) {
+            emploiDuTempsService.findByClasseId(classeId).stream()
+                    .map(EmploiDuTemps::getModule)
+                    .forEach(module -> addModule(modulesById, module));
+        }
+
+        noteService.findByStudentId(student.getId()).stream()
+                .map(Note::getModule)
+                .forEach(module -> addModule(modulesById, module));
+
+        absenceService.findByStudentId(student.getId()).stream()
+                .map(Absence::getModule)
+                .forEach(module -> addModule(modulesById, module));
+
+        return sortModules(modulesById.values());
+    }
+
+    private void addModule(Map<Long, Module> modulesById, Module module) {
+        if (module == null || module.getId() == null) {
+            return;
+        }
+        modulesById.putIfAbsent(module.getId(), module);
+    }
+
+    private List<Module> sortModules(Collection<Module> modules) {
+        return modules.stream()
+                .sorted(Comparator
+                        .comparing((Module m) -> m.getSemestre() != null ? m.getSemestre() : "")
+                        .thenComparing(m -> m.getNom() != null ? m.getNom() : "", String.CASE_INSENSITIVE_ORDER))
+                .toList();
+    }
+
+    private List<MobileDtos.NotificationItem> buildStudentNotifications(Student student,
+                                                                        LocalDateTime now,
+                                                                        List<Note> notes,
+                                                                        List<Absence> absences,
+                                                                        List<MobileDtos.CourseItem> courses,
+                                                                        List<MobileDtos.AssignmentItem> assignments,
+                                                                        List<MobileDtos.AnnouncementItem> announcements) {
+        List<MobileDtos.NotificationItem> notifications = new ArrayList<>();
+
+        notes.stream()
+                .sorted(Comparator.comparing(
+                        (Note note) -> note.getUpdatedAt() != null
+                                ? note.getUpdatedAt()
+                                : note.getCreatedAt(),
+                        Comparator.nullsLast(Comparator.naturalOrder())
+                ).reversed())
+                .limit(5)
+                .forEach(note -> {
+                    LocalDateTime eventTime = note.getUpdatedAt() != null
+                            ? note.getUpdatedAt()
+                            : (note.getCreatedAt() != null ? note.getCreatedAt() : now);
+                    boolean updated = isUpdatedNote(note);
+                    notifications.add(new MobileDtos.NotificationItem(
+                            notificationKey("note", note.getId(), eventTime),
+                            "NOTE",
+                            (updated ? "Note mise a jour" : "Note ajoutee")
+                                    + (note.getModule() != null ? " - " + note.getModule().getNom() : ""),
+                            "Note finale: " + (note.getNoteFinal() != null ? note.getNoteFinal() + " /20" : "-")
+                                    + " | Semestre: " + (note.getSemestre() != null ? note.getSemestre() : "-"),
+                            eventTime,
+                            "/student/notes",
+                            false
+                    ));
+                });
+
+        absences.stream()
+                .sorted(Comparator.comparing(
+                        Absence::getCreatedAt,
+                        Comparator.nullsLast(Comparator.naturalOrder())
+                ).reversed())
+                .limit(5)
+                .forEach(absence -> notifications.add(new MobileDtos.NotificationItem(
+                        notificationKey("absence", absence.getId(), absence.getCreatedAt() != null ? absence.getCreatedAt() : now),
+                        "ABSENCE",
+                        "Absence enregistree" + (absence.getModule() != null ? " - " + absence.getModule().getNom() : ""),
+                        "Date: " + (absence.getDateAbsence() != null ? absence.getDateAbsence() : "-")
+                                + " | Heures: " + (absence.getNombreHeures() != null ? absence.getNombreHeures() : "-")
+                                + " | " + (absence.isJustifiee() ? "Justifiee" : "Non justifiee"),
+                        absence.getCreatedAt() != null ? absence.getCreatedAt() : now,
+                        "/student/absences",
+                        false
+                )));
+
+        courses.stream()
+                .limit(5)
+                .forEach(item -> notifications.add(new MobileDtos.NotificationItem(
+                        notificationKey("course", item.id(), item.createdAt() != null ? item.createdAt() : now),
+                        "COURSE",
+                        item.title(),
+                        "Cours publie" + (item.moduleNom() != null ? " | Module: " + item.moduleNom() : ""),
+                        item.createdAt() != null ? item.createdAt() : now,
+                        "/student/courses",
+                        true
+                )));
+
+        assignments.stream()
+                .sorted(Comparator.comparing(
+                        MobileDtos.AssignmentItem::createdAt,
+                        Comparator.nullsLast(Comparator.naturalOrder())
+                ).reversed())
+                .limit(5)
+                .forEach(item -> notifications.add(new MobileDtos.NotificationItem(
+                        notificationKey("assignment", item.id(), item.createdAt() != null ? item.createdAt() : now),
+                        "ASSIGNMENT",
+                        item.title(),
+                        "Date limite: " + (item.dueDate() != null ? item.dueDate() : "-"),
+                        item.createdAt() != null ? item.createdAt() : now,
+                        "/student/assignments/" + item.id(),
+                        true
+                )));
+
+        announcements.stream()
+                .limit(5)
+                .forEach(item -> notifications.add(new MobileDtos.NotificationItem(
+                        notificationKey("announcement", item.id(), item.createdAt() != null ? item.createdAt() : now),
+                        "ANNOUNCEMENT",
+                        item.title(),
+                        item.message(),
+                        item.createdAt() != null ? item.createdAt() : now,
+                        "/student/announcements",
+                        true
+                )));
+
+        for (AssignmentSubmission feedback : assignmentSubmissionService.findRecentFeedbackForStudent(student.getId(), 5)) {
+            if (feedback.getAssignment() == null) {
+                continue;
+            }
+            String title = feedback.getAssignment().getTitle();
+            String message = feedback.getFeedback() != null ? feedback.getFeedback() : "Votre devoir a ete evalue.";
+            LocalDateTime eventTime = feedback.getSubmittedAt() != null ? feedback.getSubmittedAt() : now;
+            notifications.add(new MobileDtos.NotificationItem(
+                    notificationKey("feedback", feedback.getId(), eventTime),
+                    "FEEDBACK",
+                    title,
+                    message,
+                    eventTime,
+                    "/student/assignments/" + feedback.getAssignment().getId(),
+                    false
+            ));
+        }
+
+        return notifications.stream()
+                .sorted(Comparator.comparing(
+                        MobileDtos.NotificationItem::createdAt,
+                        Comparator.nullsLast(Comparator.naturalOrder())
+                ).reversed())
+                .limit(10)
+                .toList();
+    }
+
+    private boolean isUpdatedNote(Note note) {
+        return note.getCreatedAt() != null
+                && note.getUpdatedAt() != null
+                && note.getUpdatedAt().isAfter(note.getCreatedAt().plusSeconds(1));
+    }
+
+    private String notificationKey(String type, Long sourceId, LocalDateTime eventTime) {
+        String safeId = sourceId != null ? sourceId.toString() : "unknown";
+        String safeTime = eventTime != null ? eventTime.toString() : "unknown";
+        return type + ":" + safeId + ":" + safeTime;
+    }
+
+    private void ensureStudentModule(Student student, Long moduleId) {
+        Set<Long> allowed = studentModules(student).stream()
+                .map(Module::getId)
+                .collect(Collectors.toSet());
+
+        if (!allowed.contains(moduleId)) {
+            throw new IllegalArgumentException("Module non accessible pour cet etudiant.");
+        }
     }
 }

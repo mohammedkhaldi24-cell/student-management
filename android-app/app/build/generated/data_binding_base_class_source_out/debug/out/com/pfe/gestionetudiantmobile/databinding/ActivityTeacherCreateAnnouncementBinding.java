@@ -5,6 +5,7 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ScrollView;
+import android.widget.Spinner;
 import android.widget.TextView;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
@@ -31,34 +32,39 @@ public final class ActivityTeacherCreateAnnouncementBinding implements ViewBindi
   public final MaterialButton btnSave;
 
   @NonNull
-  public final TextInputEditText etClasseId;
-
-  @NonNull
-  public final TextInputEditText etFiliereId;
-
-  @NonNull
   public final TextInputEditText etMessage;
 
   @NonNull
   public final TextInputEditText etTitle;
 
   @NonNull
+  public final Spinner spinnerModule;
+
+  @NonNull
+  public final TextView tvAudienceSummary;
+
+  @NonNull
   public final TextView tvFileName;
+
+  @NonNull
+  public final TextView tvStudentSummary;
 
   private ActivityTeacherCreateAnnouncementBinding(@NonNull ScrollView rootView,
       @NonNull MaterialButton btnBack, @NonNull MaterialButton btnChooseFile,
-      @NonNull MaterialButton btnSave, @NonNull TextInputEditText etClasseId,
-      @NonNull TextInputEditText etFiliereId, @NonNull TextInputEditText etMessage,
-      @NonNull TextInputEditText etTitle, @NonNull TextView tvFileName) {
+      @NonNull MaterialButton btnSave, @NonNull TextInputEditText etMessage,
+      @NonNull TextInputEditText etTitle, @NonNull Spinner spinnerModule,
+      @NonNull TextView tvAudienceSummary, @NonNull TextView tvFileName,
+      @NonNull TextView tvStudentSummary) {
     this.rootView = rootView;
     this.btnBack = btnBack;
     this.btnChooseFile = btnChooseFile;
     this.btnSave = btnSave;
-    this.etClasseId = etClasseId;
-    this.etFiliereId = etFiliereId;
     this.etMessage = etMessage;
     this.etTitle = etTitle;
+    this.spinnerModule = spinnerModule;
+    this.tvAudienceSummary = tvAudienceSummary;
     this.tvFileName = tvFileName;
+    this.tvStudentSummary = tvStudentSummary;
   }
 
   @Override
@@ -106,18 +112,6 @@ public final class ActivityTeacherCreateAnnouncementBinding implements ViewBindi
         break missingId;
       }
 
-      id = R.id.etClasseId;
-      TextInputEditText etClasseId = ViewBindings.findChildViewById(rootView, id);
-      if (etClasseId == null) {
-        break missingId;
-      }
-
-      id = R.id.etFiliereId;
-      TextInputEditText etFiliereId = ViewBindings.findChildViewById(rootView, id);
-      if (etFiliereId == null) {
-        break missingId;
-      }
-
       id = R.id.etMessage;
       TextInputEditText etMessage = ViewBindings.findChildViewById(rootView, id);
       if (etMessage == null) {
@@ -130,14 +124,33 @@ public final class ActivityTeacherCreateAnnouncementBinding implements ViewBindi
         break missingId;
       }
 
+      id = R.id.spinnerModule;
+      Spinner spinnerModule = ViewBindings.findChildViewById(rootView, id);
+      if (spinnerModule == null) {
+        break missingId;
+      }
+
+      id = R.id.tvAudienceSummary;
+      TextView tvAudienceSummary = ViewBindings.findChildViewById(rootView, id);
+      if (tvAudienceSummary == null) {
+        break missingId;
+      }
+
       id = R.id.tvFileName;
       TextView tvFileName = ViewBindings.findChildViewById(rootView, id);
       if (tvFileName == null) {
         break missingId;
       }
 
+      id = R.id.tvStudentSummary;
+      TextView tvStudentSummary = ViewBindings.findChildViewById(rootView, id);
+      if (tvStudentSummary == null) {
+        break missingId;
+      }
+
       return new ActivityTeacherCreateAnnouncementBinding((ScrollView) rootView, btnBack,
-          btnChooseFile, btnSave, etClasseId, etFiliereId, etMessage, etTitle, tvFileName);
+          btnChooseFile, btnSave, etMessage, etTitle, spinnerModule, tvAudienceSummary, tvFileName,
+          tvStudentSummary);
     }
     String missingId = rootView.getResources().getResourceName(id);
     throw new NullPointerException("Missing required view with ID: ".concat(missingId));

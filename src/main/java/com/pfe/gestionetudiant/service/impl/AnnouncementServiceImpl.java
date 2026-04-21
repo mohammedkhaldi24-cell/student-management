@@ -3,12 +3,14 @@ package com.pfe.gestionetudiant.service.impl;
 import com.pfe.gestionetudiant.model.Announcement;
 import com.pfe.gestionetudiant.model.Classe;
 import com.pfe.gestionetudiant.model.Filiere;
+import com.pfe.gestionetudiant.model.Module;
 import com.pfe.gestionetudiant.model.Role;
 import com.pfe.gestionetudiant.model.Student;
 import com.pfe.gestionetudiant.model.User;
 import com.pfe.gestionetudiant.repository.AnnouncementRepository;
 import com.pfe.gestionetudiant.repository.ClasseRepository;
 import com.pfe.gestionetudiant.repository.FiliereRepository;
+import com.pfe.gestionetudiant.repository.ModuleRepository;
 import com.pfe.gestionetudiant.repository.StudentRepository;
 import com.pfe.gestionetudiant.repository.UserRepository;
 import com.pfe.gestionetudiant.service.AnnouncementService;
@@ -40,6 +42,7 @@ public class AnnouncementServiceImpl implements AnnouncementService {
     private final UserRepository userRepository;
     private final ClasseRepository classeRepository;
     private final FiliereRepository filiereRepository;
+    private final ModuleRepository moduleRepository;
     private final StudentRepository studentRepository;
     private final EmailService emailService;
 
@@ -52,7 +55,17 @@ public class AnnouncementServiceImpl implements AnnouncementService {
                                            Long authorId,
                                            Long classeId,
                                            Long filiereId) {
-        return createAnnouncement(title, message, authorId, classeId, filiereId, null);
+        return createAnnouncement(title, message, authorId, classeId, filiereId, null, null);
+    }
+
+    @Override
+    public Announcement createAnnouncement(String title,
+                                           String message,
+                                           Long authorId,
+                                           Long classeId,
+                                           Long filiereId,
+                                           Long moduleId) {
+        return createAnnouncement(title, message, authorId, classeId, filiereId, moduleId, null);
     }
 
     @Override
@@ -62,13 +75,25 @@ public class AnnouncementServiceImpl implements AnnouncementService {
                                            Long classeId,
                                            Long filiereId,
                                            MultipartFile attachment) {
+        return createAnnouncement(title, message, authorId, classeId, filiereId, null, attachment);
+    }
+
+    @Override
+    public Announcement createAnnouncement(String title,
+                                           String message,
+                                           Long authorId,
+                                           Long classeId,
+                                           Long filiereId,
+                                           Long moduleId,
+                                           MultipartFile attachment) {
         User author = userRepository.findById(authorId)
                 .orElseThrow(() -> new IllegalArgumentException("Auteur introuvable."));
         if (author.getRole() != Role.TEACHER) {
             throw new IllegalArgumentException("Seul un enseignant peut publier des annonces.");
         }
 
-        Target target = resolveTarget(classeId, filiereId);
+        Module module = loadTeacherModule(moduleId, authorId);
+        Target target = resolveTarget(classeId, filiereId, module);
 
         Announcement announcement = new Announcement();
         announcement.setTitle(title != null ? title.trim() : null);
@@ -160,9 +185,24 @@ public class AnnouncementServiceImpl implements AnnouncementService {
         return announcementRepository.findVisibleForStudent(classeId, filiereId);
     }
 
-    private Target resolveTarget(Long classeId, Long filiereId) {
+    private Module loadTeacherModule(Long moduleId, Long teacherId) {
+        if (moduleId == null) {
+            return null;
+        }
+        Module module = moduleRepository.findById(moduleId)
+                .orElseThrow(() -> new IllegalArgumentException("Module introuvable."));
+        if (module.getTeacher() == null || !teacherId.equals(module.getTeacher().getId())) {
+            throw new IllegalArgumentException("Vous ne pouvez publier que dans vos modules.");
+        }
+        return module;
+    }
+
+    private Target resolveTarget(Long classeId, Long filiereId, Module module) {
         if (classeId == null && filiereId == null) {
-            throw new IllegalArgumentException("Veuillez choisir une classe ou une filiere cible.");
+            if (module != null && module.getFiliere() != null) {
+                return new Target(null, module.getFiliere());
+            }
+            throw new IllegalArgumentException("Veuillez choisir un module, une classe ou une filiere cible.");
         }
 
         if (classeId != null) {
@@ -174,11 +214,19 @@ public class AnnouncementServiceImpl implements AnnouncementService {
             if (filiereId != null && !filiereId.equals(classe.getFiliere().getId())) {
                 throw new IllegalArgumentException("La classe ne correspond pas a la filiere cible.");
             }
+            if (module != null && module.getFiliere() != null
+                    && !module.getFiliere().getId().equals(classe.getFiliere().getId())) {
+                throw new IllegalArgumentException("La classe ne correspond pas a la filiere du module.");
+            }
             return new Target(classe, classe.getFiliere());
         }
 
         Filiere filiere = filiereRepository.findById(filiereId)
                 .orElseThrow(() -> new IllegalArgumentException("Filiere introuvable."));
+        if (module != null && module.getFiliere() != null
+                && !module.getFiliere().getId().equals(filiere.getId())) {
+            throw new IllegalArgumentException("La filiere ne correspond pas au module.");
+        }
         return new Target(null, filiere);
     }
 

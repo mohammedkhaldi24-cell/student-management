@@ -1,14 +1,19 @@
 package com.pfe.gestionetudiantmobile.data.repository
 
+import com.google.gson.Gson
 import com.pfe.gestionetudiantmobile.BuildConfig
 import com.pfe.gestionetudiantmobile.data.api.RetrofitClient
+import com.pfe.gestionetudiantmobile.data.model.ApiMessage
 import com.pfe.gestionetudiantmobile.data.model.AuthResponse
 import com.pfe.gestionetudiantmobile.data.model.LoginRequest
 import com.pfe.gestionetudiantmobile.util.ApiResult
+import com.pfe.gestionetudiantmobile.util.MobileApiConfig
+import retrofit2.Response
 
 class AuthRepository {
 
     private val api get() = RetrofitClient.api
+    private val gson = Gson()
 
     suspend fun login(username: String, password: String): ApiResult<AuthResponse> {
         val normalizedUsername = username.trim()
@@ -29,7 +34,7 @@ class AuthRepository {
                     return ApiResult.Success(response.body()!!)
                 }
 
-                val parsed = RepositoryUtils.parseError(response)
+                val parsed = parseLoginError(response)
                 val code = response.code()
 
                 if (code == 401 || code == 403) {
@@ -39,7 +44,7 @@ class AuthRepository {
 
                 lastError = parsed
             } catch (ex: Exception) {
-                val raw = ex.message ?: "Erreur de connexion"
+                val raw = RepositoryUtils.networkError(ex)
                 lastError = if (raw.contains("10.0.2.2")) {
                     "Connexion impossible. Sur telephone reel, utilisez l'IP locale du PC (ex: 192.168.x.x:8081)."
                 } else {
@@ -60,7 +65,7 @@ class AuthRepository {
                 ApiResult.Error(RepositoryUtils.parseError(response))
             }
         }.getOrElse {
-            ApiResult.Error(it.message ?: "Erreur de session")
+            ApiResult.Error(RepositoryUtils.networkError(it))
         }
     }
 
@@ -74,7 +79,7 @@ class AuthRepository {
                 ApiResult.Error(RepositoryUtils.parseError(response))
             }
         }.getOrElse {
-            ApiResult.Error(it.message ?: "Erreur de deconnexion")
+            ApiResult.Error(RepositoryUtils.networkError(it))
         }
     }
 
@@ -82,19 +87,44 @@ class AuthRepository {
         val ordered = linkedSetOf<String>()
         val lan = BuildConfig.LAN_BASE_URL.trim()
         val configured = BuildConfig.BASE_URL.trim()
-        ordered += current
+        ordered += MobileApiConfig.normalizeBaseUrl(current, configured)
         if (configured.isNotBlank()) {
-            ordered += configured
-            ordered += configured.replace(":8080/", ":8081/")
-            ordered += configured.replace(":8081/", ":8080/")
+            ordered += MobileApiConfig.normalizeBaseUrl(configured, configured)
         }
         if (lan.isNotBlank()) {
-            ordered += lan
-            ordered += lan.replace(":8080/", ":8081/")
-            ordered += lan.replace(":8081/", ":8080/")
+            ordered += MobileApiConfig.normalizeBaseUrl(lan, configured)
         }
-        ordered += current.replace(":8080/", ":8081/")
-        ordered += current.replace(":8081/", ":8080/")
         return ordered.toList()
+    }
+
+    private fun parseLoginError(response: Response<AuthResponse>): String {
+        val requestUrl = response.raw().request.url.toString()
+        if (response.code() == 404) {
+            return "API mobile introuvable (404): $requestUrl. Verifiez que Spring Boot est lance sur 8081."
+        }
+        if (response.code() == 405) {
+            return "Methode non autorisee (405): $requestUrl. Le login mobile doit appeler POST /api/mobile/auth/login."
+        }
+
+        val body = response.errorBody()?.string()
+        if (body.isNullOrBlank()) {
+            return "Erreur login (${response.code()})"
+        }
+
+        parseAuthResponseMessage(body)?.let { return it }
+        parseApiMessage(body)?.let { return it }
+        return "Erreur login (${response.code()})"
+    }
+
+    private fun parseAuthResponseMessage(body: String): String? {
+        return runCatching {
+            gson.fromJson(body, AuthResponse::class.java)?.message?.takeIf { it.isNotBlank() }
+        }.getOrNull()
+    }
+
+    private fun parseApiMessage(body: String): String? {
+        return runCatching {
+            gson.fromJson(body, ApiMessage::class.java)?.message?.takeIf { it.isNotBlank() }
+        }.getOrNull()
     }
 }

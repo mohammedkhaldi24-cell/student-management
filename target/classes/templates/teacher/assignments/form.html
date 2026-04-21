@@ -11,7 +11,7 @@
 
             <div class="row justify-content-center">
                 <div class="col-xl-9">
-                    <div class="card">
+                    <div class="card form-card">
                         <div class="card-header">
                             <h6 class="mb-0">
                                 <i class="bi bi-journal-check me-2"></i>
@@ -45,12 +45,13 @@
                                     </div>
 
                                     <div class="col-md-6">
-                                        <label class="form-label fw-semibold">Module (optionnel)</label>
-                                        <select class="form-select" id="moduleSelect" name="moduleId" onchange="syncTargets()">
-                                            <option value="">-- Sans module --</option>
+                                        <label class="form-label fw-semibold">Module *</label>
+                                        <select class="form-select" id="moduleSelect" name="moduleId" required onchange="syncTargets()">
+                                            <option value="">-- Choisir un module --</option>
                                             <option th:each="m : ${modules}"
                                                     th:value="${m.id}"
-                                                    th:data-filiere-id="${m.filiere.id}"
+                                                    th:data-filiere-id="${m.filiere != null ? m.filiere.id : ''}"
+                                                    th:data-filiere-name="${m.filiere != null ? m.filiere.nom : 'Filiere du module'}"
                                                     th:text="${m.nom + ' (' + m.code + ')'}"
                                                     th:selected="${selectedModuleId != null and selectedModuleId == m.id}">
                                                 Module
@@ -59,24 +60,17 @@
                                     </div>
 
                                     <div class="col-md-6">
-                                        <label class="form-label fw-semibold">Filiere cible *</label>
-                                        <select class="form-select" id="filiereSelect" name="filiereId" onchange="syncClassesByFiliere()">
-                                            <option value="">-- Choisir une filiere --</option>
-                                            <option th:each="m : ${modules}"
-                                                    th:value="${m.filiere.id}"
-                                                    th:text="${m.filiere.nom}"
-                                                    th:selected="${selectedFiliereId != null and selectedFiliereId == m.filiere.id}">
-                                                Filiere
-                                            </option>
-                                        </select>
-                                        <small class="text-muted">Obligatoire. La classe est optionnelle.</small>
-                                    </div>
-
-                                    <div class="col-md-6">
                                         <label class="form-label fw-semibold">Classe cible (optionnel)</label>
                                         <select class="form-select" id="classeSelect" name="classeId">
                                             <option value="">-- Toute la filiere --</option>
                                         </select>
+                                        <small class="text-muted">La liste est chargee automatiquement depuis le module.</small>
+                                    </div>
+
+                                    <div class="col-12">
+                                        <div class="alert alert-light border mb-0" id="audienceSummary">
+                                            Selectionnez un module pour determiner automatiquement la filiere et les classes.
+                                        </div>
                                     </div>
 
                                     <div class="col-md-8">
@@ -101,10 +95,10 @@
                                 </div>
 
                                 <div class="alert alert-info mt-3 mb-0">
-                                    Le devoir est visible par les etudiants seulement s'il est publie.
+                                    Le devoir cible automatiquement la filiere du module. Choisissez une classe seulement si la publication doit etre limitee.
                                 </div>
 
-                                <div class="d-flex justify-content-end gap-2 mt-4">
+                                <div class="form-actions">
                                     <a th:href="@{/teacher/assignments}" class="btn btn-secondary">Annuler</a>
                                     <button type="submit" class="btn btn-primary">
                                         <i class="bi bi-check-circle me-1"></i>
@@ -124,41 +118,23 @@
     const classesByFiliere = /*[[${classesByFiliere}]]*/ {};
     const selectedClasseId = /*[[${selectedClasseId}]]*/ null;
 
-    function dedupeFiliereOptions() {
-        const select = document.getElementById('filiereSelect');
-        const seen = new Set();
-        Array.from(select.options).forEach((opt) => {
-            if (!opt.value) {
-                return;
-            }
-            if (seen.has(opt.value)) {
-                opt.remove();
-            } else {
-                seen.add(opt.value);
-            }
-        });
-    }
-
     function syncTargets() {
         const moduleSelect = document.getElementById('moduleSelect');
-        const filiereSelect = document.getElementById('filiereSelect');
-        const selectedOption = moduleSelect.options[moduleSelect.selectedIndex];
-        if (!selectedOption) {
-            return;
-        }
-        const filiereId = selectedOption.getAttribute('data-filiere-id');
-        if (filiereId) {
-            filiereSelect.value = filiereId;
-        }
-        syncClassesByFiliere();
-    }
-
-    function syncClassesByFiliere() {
-        const filiereId = document.getElementById('filiereSelect').value;
         const classeSelect = document.getElementById('classeSelect');
+        const summary = document.getElementById('audienceSummary');
+        const selectedOption = moduleSelect.options[moduleSelect.selectedIndex];
         classeSelect.innerHTML = '<option value="">-- Toute la filiere --</option>';
 
-        (classesByFiliere[filiereId] || []).forEach((c) => {
+        if (!selectedOption || !selectedOption.value) {
+            summary.textContent = 'Selectionnez un module pour determiner automatiquement la filiere et les classes.';
+            return;
+        }
+
+        const filiereId = selectedOption.getAttribute('data-filiere-id');
+        const filiereName = selectedOption.getAttribute('data-filiere-name') || 'filiere du module';
+        const classes = classesByFiliere[filiereId] || [];
+
+        classes.forEach((c) => {
             const opt = document.createElement('option');
             opt.value = c.id;
             opt.textContent = c.nom + ' (' + c.niveau + ')';
@@ -167,10 +143,17 @@
             }
             classeSelect.appendChild(opt);
         });
+
+        if (classes.length > 0) {
+            summary.textContent = `Audience automatique: ${filiereName} (${classes.length} classe${classes.length > 1 ? 's' : ''}).`;
+        } else if (filiereId) {
+            summary.textContent = `Audience automatique: ${filiereName}. Aucune classe specifique trouvee.`;
+        } else {
+            summary.textContent = 'Ce module ne contient pas de filiere exploitable. Verifiez sa configuration.';
+        }
     }
 
-    dedupeFiliereOptions();
-    syncClassesByFiliere();
+    syncTargets();
 </script>
 </body>
 </html>

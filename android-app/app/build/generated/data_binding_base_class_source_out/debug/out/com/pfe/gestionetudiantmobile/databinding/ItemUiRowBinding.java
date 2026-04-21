@@ -23,15 +23,19 @@ public final class ItemUiRowBinding implements ViewBinding {
   public final TextView tvBadge;
 
   @NonNull
+  public final TextView tvIcon;
+
+  @NonNull
   public final TextView tvSubtitle;
 
   @NonNull
   public final TextView tvTitle;
 
   private ItemUiRowBinding(@NonNull MaterialCardView rootView, @NonNull TextView tvBadge,
-      @NonNull TextView tvSubtitle, @NonNull TextView tvTitle) {
+      @NonNull TextView tvIcon, @NonNull TextView tvSubtitle, @NonNull TextView tvTitle) {
     this.rootView = rootView;
     this.tvBadge = tvBadge;
+    this.tvIcon = tvIcon;
     this.tvSubtitle = tvSubtitle;
     this.tvTitle = tvTitle;
   }
@@ -69,6 +73,12 @@ public final class ItemUiRowBinding implements ViewBinding {
         break missingId;
       }
 
+      id = R.id.tvIcon;
+      TextView tvIcon = ViewBindings.findChildViewById(rootView, id);
+      if (tvIcon == null) {
+        break missingId;
+      }
+
       id = R.id.tvSubtitle;
       TextView tvSubtitle = ViewBindings.findChildViewById(rootView, id);
       if (tvSubtitle == null) {
@@ -81,7 +91,8 @@ public final class ItemUiRowBinding implements ViewBinding {
         break missingId;
       }
 
-      return new ItemUiRowBinding((MaterialCardView) rootView, tvBadge, tvSubtitle, tvTitle);
+      return new ItemUiRowBinding((MaterialCardView) rootView, tvBadge, tvIcon, tvSubtitle,
+          tvTitle);
     }
     String missingId = rootView.getResources().getResourceName(id);
     throw new NullPointerException("Missing required view with ID: ".concat(missingId));

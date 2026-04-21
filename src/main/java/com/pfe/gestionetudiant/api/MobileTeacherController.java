@@ -7,6 +7,8 @@ import com.pfe.gestionetudiant.model.AssignmentSubmission;
 import com.pfe.gestionetudiant.model.AssignmentSubmissionFile;
 import com.pfe.gestionetudiant.model.Classe;
 import com.pfe.gestionetudiant.model.CourseContent;
+import com.pfe.gestionetudiant.model.CourseDocument;
+import com.pfe.gestionetudiant.model.EmploiDuTemps;
 import com.pfe.gestionetudiant.model.Module;
 import com.pfe.gestionetudiant.model.Note;
 import com.pfe.gestionetudiant.model.Student;
@@ -18,6 +20,7 @@ import com.pfe.gestionetudiant.service.AssignmentService;
 import com.pfe.gestionetudiant.service.AssignmentSubmissionService;
 import com.pfe.gestionetudiant.service.ClasseService;
 import com.pfe.gestionetudiant.service.CourseContentService;
+import com.pfe.gestionetudiant.service.EmploiDuTempsService;
 import com.pfe.gestionetudiant.service.ModuleService;
 import com.pfe.gestionetudiant.service.NoteService;
 import com.pfe.gestionetudiant.repository.StudentRepository;
@@ -65,6 +68,7 @@ public class MobileTeacherController {
     private final ClasseService classeService;
     private final NoteService noteService;
     private final AbsenceService absenceService;
+    private final EmploiDuTempsService emploiDuTempsService;
     private final CourseContentService courseContentService;
     private final AnnouncementService announcementService;
     private final AssignmentService assignmentService;
@@ -131,6 +135,29 @@ public class MobileTeacherController {
         Long teacherUserId = accessService.currentUser().getId();
         return moduleService.findByTeacherId(teacherUserId).stream()
                 .map(mapper::toTeacherModuleItem)
+                .toList();
+    }
+
+    @GetMapping("/timetable")
+    public List<MobileDtos.TimetableItem> timetable() {
+        Long teacherUserId = accessService.currentUser().getId();
+        Set<Long> moduleIds = moduleService.findByTeacherId(teacherUserId).stream()
+                .map(Module::getId)
+                .collect(Collectors.toSet());
+
+        if (moduleIds.isEmpty()) {
+            return List.of();
+        }
+
+        return emploiDuTempsService.findAll().stream()
+                .filter(e -> e.getModule() != null && moduleIds.contains(e.getModule().getId()))
+                .filter(EmploiDuTemps::isValide)
+                .collect(Collectors.toMap(EmploiDuTemps::getId, e -> e, (a, b) -> a))
+                .values()
+                .stream()
+                .sorted(Comparator.comparingInt(MobileTeacherController::dayOrder)
+                        .thenComparing(EmploiDuTemps::getHeureDebut, Comparator.nullsLast(Comparator.naturalOrder())))
+                .map(mapper::toTimetableItem)
                 .toList();
     }
 
@@ -327,6 +354,46 @@ public class MobileTeacherController {
         return mapper.toNoteItem(saved);
     }
 
+    @PostMapping("/notes/bulk")
+    public List<MobileDtos.NoteItem> upsertNotesBulk(@RequestBody MobileDtos.NoteBulkRequest request) {
+        if (request == null || request.moduleId() == null || request.notes() == null) {
+            throw new IllegalArgumentException("moduleId et notes sont obligatoires.");
+        }
+
+        Long teacherUserId = accessService.currentUser().getId();
+        Module module = requireTeacherModule(request.moduleId(), teacherUserId);
+        String semestre = StringUtils.hasText(request.semestre()) ? request.semestre().trim() : "S1";
+        String annee = StringUtils.hasText(request.anneeAcademique())
+                ? request.anneeAcademique().trim()
+                : DEFAULT_ACADEMIC_YEAR;
+
+        List<Note> savedNotes = new ArrayList<>();
+        for (MobileDtos.NoteBulkItem item : request.notes()) {
+            if (item == null || item.studentId() == null) {
+                continue;
+            }
+            Student student = requireStudent(item.studentId());
+            validateStudentForModule(student, module);
+            Optional<Note> existing = noteService.findByStudentModuleSemestreAnnee(
+                    student.getId(), module.getId(), semestre, annee);
+
+            if (existing.isPresent()) {
+                savedNotes.add(noteService.updateNote(existing.get().getId(), item.noteCc(), item.noteExamen()));
+            } else {
+                Note note = new Note();
+                note.setStudent(student);
+                note.setModule(module);
+                note.setSemestre(semestre);
+                note.setAnneeAcademique(annee);
+                note.setNoteCC(item.noteCc());
+                note.setNoteExamen(item.noteExamen());
+                savedNotes.add(noteService.saveNote(note));
+            }
+        }
+
+        return savedNotes.stream().map(mapper::toNoteItem).toList();
+    }
+
     @DeleteMapping("/notes/{noteId}")
     public MobileDtos.ApiMessage deleteNote(@PathVariable Long noteId) {
         Long teacherUserId = accessService.currentUser().getId();
@@ -402,6 +469,82 @@ public class MobileTeacherController {
         return mapper.toAbsenceItem(absenceService.saveAbsence(absence));
     }
 
+    @PostMapping("/absences/session")
+    public MobileDtos.AbsenceSessionResponse saveAbsenceSession(@RequestBody MobileDtos.AbsenceSessionRequest request) {
+        if (request == null || request.moduleId() == null || request.dateAbsence() == null) {
+            throw new IllegalArgumentException("moduleId et dateAbsence sont obligatoires.");
+        }
+
+        Long teacherUserId = accessService.currentUser().getId();
+        Module module = requireTeacherModule(request.moduleId(), teacherUserId);
+        int hours = request.nombreHeures() != null && request.nombreHeures() > 0
+                ? request.nombreHeures()
+                : 2;
+
+        List<Student> targetStudents = studentsForModuleScope(module, request.classeId());
+        Set<Long> targetStudentIds = targetStudents.stream()
+                .map(Student::getId)
+                .collect(Collectors.toSet());
+        Set<Long> absentStudentIds = request.absentStudentIds() == null
+                ? Set.of()
+                : request.absentStudentIds().stream()
+                        .filter(targetStudentIds::contains)
+                        .collect(Collectors.toSet());
+
+        List<Absence> existingForDate = absenceService.findByModuleId(module.getId()).stream()
+                .filter(absence -> absence.getStudent() != null
+                        && targetStudentIds.contains(absence.getStudent().getId())
+                        && request.dateAbsence().equals(absence.getDateAbsence()))
+                .toList();
+
+        Set<Long> changedStudentIds = new HashSet<>();
+        for (Absence existing : existingForDate) {
+            Long studentId = existing.getStudent().getId();
+            if (absentStudentIds.contains(studentId)) {
+                if (existing.getNombreHeures() == null || !existing.getNombreHeures().equals(hours)) {
+                    existing.setNombreHeures(hours);
+                    absenceService.saveAbsence(existing);
+                    changedStudentIds.add(studentId);
+                }
+            } else {
+                absenceService.deleteAbsence(existing.getId());
+                changedStudentIds.add(studentId);
+            }
+        }
+
+        Set<Long> alreadyAbsent = existingForDate.stream()
+                .map(Absence::getStudent)
+                .filter(student -> student != null)
+                .map(Student::getId)
+                .collect(Collectors.toSet());
+
+        for (Student student : targetStudents) {
+            if (!absentStudentIds.contains(student.getId()) || alreadyAbsent.contains(student.getId())) {
+                continue;
+            }
+            Absence absence = new Absence();
+            absence.setStudent(student);
+            absence.setModule(module);
+            absence.setDateAbsence(request.dateAbsence());
+            absence.setNombreHeures(hours);
+            absence.setJustifiee(false);
+            absenceService.saveAbsence(absence);
+            changedStudentIds.add(student.getId());
+        }
+
+        List<MobileDtos.AbsenceItem> currentAbsences = absenceService.findByModuleId(module.getId()).stream()
+                .filter(absence -> absence.getStudent() != null
+                        && targetStudentIds.contains(absence.getStudent().getId())
+                        && request.dateAbsence().equals(absence.getDateAbsence()))
+                .map(mapper::toAbsenceItem)
+                .toList();
+
+        String message = changedStudentIds.isEmpty()
+                ? "Aucun changement d'absence."
+                : changedStudentIds.size() + " changement(s) d'absence enregistre(s).";
+        return new MobileDtos.AbsenceSessionResponse(message, currentAbsences);
+    }
+
     @PostMapping("/absences/{absenceId}/justify")
     public MobileDtos.AbsenceItem justifyAbsence(@PathVariable Long absenceId,
                                                  @RequestParam(required = false) String motif) {
@@ -449,12 +592,17 @@ public class MobileTeacherController {
                                               @RequestParam Long moduleId,
                                               @RequestParam(required = false) Long classeId,
                                               @RequestParam(required = false) Long filiereId,
+                                              @RequestParam(required = false) MultipartFile[] files,
                                               @RequestParam(required = false) MultipartFile file) {
         Long teacherUserId = accessService.currentUser().getId();
+        MultipartFile[] normalizedFiles = files;
+        if ((normalizedFiles == null || normalizedFiles.length == 0) && file != null && !file.isEmpty()) {
+            normalizedFiles = new MultipartFile[]{file};
+        }
         CourseContent saved = courseContentService.createCourse(
                 title,
                 description,
-                file,
+                normalizedFiles,
                 moduleId,
                 teacherUserId,
                 classeId,
@@ -478,10 +626,26 @@ public class MobileTeacherController {
         return mapper.toCourseItem(updated, "/api/mobile/teacher/courses/" + updated.getId() + "/download");
     }
 
+    @PostMapping(value = "/courses/{id}/files", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
+    public MobileDtos.CourseItem addCourseFiles(@PathVariable Long id,
+                                                @RequestParam MultipartFile[] files) {
+        Long teacherUserId = accessService.currentUser().getId();
+        CourseContent updated = courseContentService.addCourseFiles(id, teacherUserId, files);
+        return mapper.toCourseItem(updated, "/api/mobile/teacher/courses/" + updated.getId() + "/download");
+    }
+
     @DeleteMapping("/courses/{id}/file")
     public MobileDtos.CourseItem removeCourseFile(@PathVariable Long id) {
         Long teacherUserId = accessService.currentUser().getId();
         CourseContent updated = courseContentService.removeCourseFile(id, teacherUserId);
+        return mapper.toCourseItem(updated, "/api/mobile/teacher/courses/" + updated.getId() + "/download");
+    }
+
+    @DeleteMapping("/courses/{id}/files/{fileId}")
+    public MobileDtos.CourseItem removeCourseFileById(@PathVariable Long id,
+                                                      @PathVariable Long fileId) {
+        Long teacherUserId = accessService.currentUser().getId();
+        CourseContent updated = courseContentService.removeCourseFile(id, teacherUserId, fileId);
         return mapper.toCourseItem(updated, "/api/mobile/teacher/courses/" + updated.getId() + "/download");
     }
 
@@ -495,6 +659,21 @@ public class MobileTeacherController {
         }
         Resource resource = courseContentService.loadFileAsResource(course);
         return MobileFileResponseBuilder.asDownload(resource, course.getFilePath());
+    }
+
+    @GetMapping("/courses/{id}/files/{fileId}")
+    public ResponseEntity<Resource> downloadCourseFileById(@PathVariable Long id,
+                                                           @PathVariable Long fileId) {
+        Long teacherUserId = accessService.currentUser().getId();
+        CourseContent course = courseContentService.findById(id)
+                .orElseThrow(() -> new IllegalArgumentException("Cours introuvable."));
+        if (course.getTeacher() == null || !teacherUserId.equals(course.getTeacher().getId())) {
+            throw new IllegalArgumentException("Acces non autorise.");
+        }
+
+        CourseDocument document = courseContentService.findFileForCourse(id, fileId);
+        Resource resource = courseContentService.loadFileAsResource(document);
+        return MobileFileResponseBuilder.asDownload(resource, document.getFilePath());
     }
 
     @GetMapping("/announcements")
@@ -520,7 +699,8 @@ public class MobileTeacherController {
                 request.message(),
                 teacherUserId,
                 request.classeId(),
-                request.filiereId()
+                request.filiereId(),
+                request.moduleId()
         );
 
         return mapper.toAnnouncementItem(
@@ -532,6 +712,7 @@ public class MobileTeacherController {
     @PostMapping(value = "/announcements", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     public MobileDtos.AnnouncementItem createAnnouncement(@RequestParam String title,
                                                           @RequestParam String message,
+                                                          @RequestParam(required = false) Long moduleId,
                                                           @RequestParam(required = false) Long classeId,
                                                           @RequestParam(required = false) Long filiereId,
                                                           @RequestParam(required = false) MultipartFile attachment) {
@@ -542,6 +723,7 @@ public class MobileTeacherController {
                 teacherUserId,
                 classeId,
                 filiereId,
+                moduleId,
                 attachment
         );
 
@@ -828,6 +1010,18 @@ public class MobileTeacherController {
                 .orElseThrow(() -> new IllegalArgumentException("Etudiant introuvable."));
     }
 
+    private List<Student> studentsForModuleScope(Module module, Long classeId) {
+        if (classeId != null) {
+            Classe classe = requireClasse(classeId);
+            validateClasseForModule(classe, module);
+            return studentRepository.findByClasseId(classe.getId());
+        }
+        if (module.getFiliere() == null) {
+            return List.of();
+        }
+        return studentRepository.findByFiliereId(module.getFiliere().getId());
+    }
+
     private void validateClasseForModule(Classe classe, Module module) {
         if (classe.getFiliere() == null || module.getFiliere() == null
                 || !classe.getFiliere().getId().equals(module.getFiliere().getId())) {
@@ -859,5 +1053,19 @@ public class MobileTeacherController {
         }
 
         throw new IllegalArgumentException("Format de date limite invalide.");
+    }
+
+    private static int dayOrder(EmploiDuTemps emploiDuTemps) {
+        String day = emploiDuTemps.getJour() != null
+                ? emploiDuTemps.getJour().trim().toLowerCase(Locale.ROOT)
+                : "";
+        if (day.startsWith("lun") || day.startsWith("mon")) return 1;
+        if (day.startsWith("mar") || day.startsWith("tue")) return 2;
+        if (day.startsWith("mer") || day.startsWith("wed")) return 3;
+        if (day.startsWith("jeu") || day.startsWith("thu")) return 4;
+        if (day.startsWith("ven") || day.startsWith("fri")) return 5;
+        if (day.startsWith("sam") || day.startsWith("sat")) return 6;
+        if (day.startsWith("dim") || day.startsWith("sun")) return 7;
+        return 8;
     }
 }

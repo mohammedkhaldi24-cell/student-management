@@ -2,8 +2,10 @@ package com.pfe.gestionetudiant.api;
 
 import com.pfe.gestionetudiant.dto.UserDto;
 import com.pfe.gestionetudiant.model.Classe;
+import com.pfe.gestionetudiant.model.EmploiDuTemps;
 import com.pfe.gestionetudiant.model.Filiere;
 import com.pfe.gestionetudiant.model.Module;
+import com.pfe.gestionetudiant.model.Note;
 import com.pfe.gestionetudiant.model.Role;
 import com.pfe.gestionetudiant.model.User;
 import com.pfe.gestionetudiant.repository.AbsenceRepository;
@@ -14,6 +16,7 @@ import com.pfe.gestionetudiant.repository.NoteRepository;
 import com.pfe.gestionetudiant.repository.StudentRepository;
 import com.pfe.gestionetudiant.repository.UserRepository;
 import com.pfe.gestionetudiant.service.ClasseService;
+import com.pfe.gestionetudiant.service.EmploiDuTempsService;
 import com.pfe.gestionetudiant.service.FiliereService;
 import com.pfe.gestionetudiant.service.ModuleService;
 import com.pfe.gestionetudiant.service.UserService;
@@ -31,10 +34,14 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
+import java.time.LocalTime;
+import java.util.Comparator;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
+import java.util.Objects;
+import java.util.stream.Collectors;
 
 @RestController
 @RequestMapping("/api/mobile/admin")
@@ -49,6 +56,7 @@ public class MobileAdminController {
     private final FiliereService filiereService;
     private final ClasseService classeService;
     private final ModuleService moduleService;
+    private final EmploiDuTempsService emploiDuTempsService;
 
     private final UserRepository userRepository;
     private final StudentRepository studentRepository;
@@ -72,6 +80,28 @@ public class MobileAdminController {
                 noteRepository.count(),
                 absenceRepository.count()
         );
+    }
+
+    @GetMapping("/top-students")
+    public List<MobileDtos.TopStudentItem> topStudents(@RequestParam(defaultValue = "5") int limit) {
+        accessService.currentUser();
+        int safeLimit = Math.max(1, Math.min(limit, 5));
+
+        return noteRepository.findAll().stream()
+                .filter(note -> note.getStudent() != null)
+                .filter(note -> note.getStudent().getUser() != null)
+                .filter(note -> note.getNoteFinal() != null)
+                .collect(Collectors.groupingBy(note -> note.getStudent().getId()))
+                .values()
+                .stream()
+                .map(this::toTopStudentItem)
+                .filter(Objects::nonNull)
+                .sorted(Comparator
+                        .comparingDouble(MobileDtos.TopStudentItem::average)
+                        .reversed()
+                        .thenComparing(item -> safe(item.name()), String.CASE_INSENSITIVE_ORDER))
+                .limit(safeLimit)
+                .toList();
     }
 
     @GetMapping("/users")
@@ -289,6 +319,56 @@ public class MobileAdminController {
         return new MobileDtos.ApiMessage("Module supprime avec succes.");
     }
 
+    @GetMapping("/timetable")
+    public List<MobileDtos.TimetableItem> timetable(@RequestParam(required = false) Long filiereId,
+                                                     @RequestParam(required = false) Long classeId,
+                                                     @RequestParam(required = false) String q) {
+        accessService.currentUser();
+
+        List<EmploiDuTemps> sessions = classeId != null
+                ? emploiDuTempsService.findByClasseId(classeId)
+                : (filiereId != null ? emploiDuTempsService.findByFiliereId(filiereId) : emploiDuTempsService.findAll());
+
+        String normalizedQuery = normalize(q);
+        return sessions.stream()
+                .filter(e -> !StringUtils.hasText(normalizedQuery) || matchesTimetable(e, normalizedQuery))
+                .map(mapper::toTimetableItem)
+                .toList();
+    }
+
+    @PostMapping("/timetable")
+    public MobileDtos.TimetableItem createTimetable(@RequestBody MobileDtos.AdminTimetableUpsertRequest request) {
+        accessService.currentUser();
+
+        EmploiDuTemps emploiDuTemps = new EmploiDuTemps();
+        applyTimetableRequest(emploiDuTemps, request, true);
+        EmploiDuTemps saved = emploiDuTempsService.save(emploiDuTemps);
+        return mapper.toTimetableItem(saved);
+    }
+
+    @PutMapping("/timetable/{id}")
+    public MobileDtos.TimetableItem updateTimetable(@PathVariable Long id,
+                                                    @RequestBody MobileDtos.AdminTimetableUpsertRequest request) {
+        accessService.currentUser();
+
+        EmploiDuTemps emploiDuTemps = emploiDuTempsService.findById(id)
+                .orElseThrow(() -> new IllegalArgumentException("Seance EDT introuvable."));
+        applyTimetableRequest(emploiDuTemps, request, false);
+        EmploiDuTemps saved = emploiDuTempsService.save(emploiDuTemps);
+        return mapper.toTimetableItem(saved);
+    }
+
+    @DeleteMapping("/timetable/{id}")
+    public MobileDtos.ApiMessage deleteTimetable(@PathVariable Long id) {
+        accessService.currentUser();
+        try {
+            emploiDuTempsService.delete(id);
+        } catch (RuntimeException ex) {
+            throw new IllegalStateException("Impossible de supprimer cette seance.");
+        }
+        return new MobileDtos.ApiMessage("Seance EDT supprimee avec succes.");
+    }
+
     private Map<String, Object> persistFiliere(Filiere filiere) {
         try {
             Filiere saved = filiereService.save(filiere);
@@ -406,6 +486,63 @@ public class MobileAdminController {
         }
     }
 
+    private void applyTimetableRequest(EmploiDuTemps emploiDuTemps,
+                                       MobileDtos.AdminTimetableUpsertRequest request,
+                                       boolean creation) {
+        if (creation || StringUtils.hasText(request.jour())) {
+            emploiDuTemps.setJour(requireText(request.jour(), "Le jour est obligatoire."));
+        }
+        if (creation || StringUtils.hasText(request.heureDebut())) {
+            emploiDuTemps.setHeureDebut(parseTime(request.heureDebut(), "Heure de debut invalide (format HH:mm)."));
+        }
+        if (creation || StringUtils.hasText(request.heureFin())) {
+            emploiDuTemps.setHeureFin(parseTime(request.heureFin(), "Heure de fin invalide (format HH:mm)."));
+        }
+        if (creation || StringUtils.hasText(request.salle())) {
+            emploiDuTemps.setSalle(requireText(request.salle(), "La salle est obligatoire."));
+        }
+        if (creation || request.valide() != null) {
+            emploiDuTemps.setValide(request.valide() != null && request.valide());
+        }
+
+        if (request.filiereId() != null) {
+            Filiere filiere = filiereRepository.findById(request.filiereId())
+                    .orElseThrow(() -> new IllegalArgumentException("Filiere introuvable."));
+            emploiDuTemps.setFiliere(filiere);
+        } else if (creation || emploiDuTemps.getFiliere() == null) {
+            throw new IllegalArgumentException("La filiere est obligatoire.");
+        }
+
+        if (request.classeId() != null) {
+            Classe classe = classeRepository.findById(request.classeId())
+                    .orElseThrow(() -> new IllegalArgumentException("Classe introuvable."));
+            emploiDuTemps.setClasse(classe);
+        } else if (creation || emploiDuTemps.getClasse() == null) {
+            throw new IllegalArgumentException("La classe est obligatoire.");
+        }
+
+        if (request.moduleId() != null) {
+            Module module = moduleRepository.findById(request.moduleId())
+                    .orElseThrow(() -> new IllegalArgumentException("Module introuvable."));
+            emploiDuTemps.setModule(module);
+        } else if (creation || emploiDuTemps.getModule() == null) {
+            throw new IllegalArgumentException("Le module est obligatoire.");
+        }
+
+        if (request.teacherId() != null) {
+            if (request.teacherId() == 0L) {
+                emploiDuTemps.setTeacher(null);
+            } else {
+                User teacher = userRepository.findById(request.teacherId())
+                        .orElseThrow(() -> new IllegalArgumentException("Enseignant introuvable."));
+                if (teacher.getRole() != Role.TEACHER) {
+                    throw new IllegalArgumentException("L'utilisateur selectionne n'est pas un enseignant.");
+                }
+                emploiDuTemps.setTeacher(teacher);
+            }
+        }
+    }
+
     private UserDto toUserDto(MobileDtos.AdminUserUpsertRequest request, User existing) {
         Role role = parseRole(request.role(), existing != null ? existing.getRole() : null, existing == null);
 
@@ -478,6 +615,30 @@ public class MobileAdminController {
         return row;
     }
 
+    private MobileDtos.TopStudentItem toTopStudentItem(List<Note> notes) {
+        if (notes == null || notes.isEmpty()) {
+            return null;
+        }
+
+        Note first = notes.get(0);
+        if (first.getStudent() == null || first.getStudent().getUser() == null) {
+            return null;
+        }
+
+        double average = notes.stream()
+                .map(Note::getNoteFinal)
+                .filter(Objects::nonNull)
+                .mapToDouble(Double::doubleValue)
+                .average()
+                .orElse(0.0);
+
+        return new MobileDtos.TopStudentItem(
+                first.getStudent().getId(),
+                first.getStudent().getUser().getFullName(),
+                average
+        );
+    }
+
     private Role parseRole(String role, Role fallback, boolean required) {
         if (!StringUtils.hasText(role)) {
             if (fallback != null) {
@@ -540,6 +701,24 @@ public class MobileAdminController {
                 || contains(module.getSemestre(), q)
                 || contains(module.getFiliere() != null ? module.getFiliere().getNom() : null, q)
                 || contains(module.getTeacher() != null ? module.getTeacher().getFullName() : null, q);
+    }
+
+    private boolean matchesTimetable(EmploiDuTemps emploiDuTemps, String q) {
+        return contains(emploiDuTemps.getJour(), q)
+                || contains(emploiDuTemps.getSalle(), q)
+                || contains(emploiDuTemps.getModule() != null ? emploiDuTemps.getModule().getNom() : null, q)
+                || contains(emploiDuTemps.getModule() != null ? emploiDuTemps.getModule().getCode() : null, q)
+                || contains(emploiDuTemps.getClasse() != null ? emploiDuTemps.getClasse().getNom() : null, q)
+                || contains(emploiDuTemps.getFiliere() != null ? emploiDuTemps.getFiliere().getNom() : null, q)
+                || contains(emploiDuTemps.getTeacher() != null ? emploiDuTemps.getTeacher().getFullName() : null, q);
+    }
+
+    private LocalTime parseTime(String value, String errorMessage) {
+        try {
+            return LocalTime.parse(requireText(value, errorMessage));
+        } catch (Exception ex) {
+            throw new IllegalArgumentException(errorMessage);
+        }
     }
 
     private boolean contains(String value, String query) {

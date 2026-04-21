@@ -76,6 +76,7 @@ public class AssignmentSubmissionServiceImpl implements AssignmentSubmissionServ
             throw new IllegalArgumentException("Modification impossible apres la date limite.");
         }
 
+        boolean resubmission = existingOpt.isPresent();
         AssignmentSubmission submission = existingOpt.orElseGet(AssignmentSubmission::new);
         submission.setAssignment(assignment);
         submission.setStudent(student);
@@ -83,19 +84,16 @@ public class AssignmentSubmissionServiceImpl implements AssignmentSubmissionServ
         submission.setSubmittedAt(now);
         submission.setLateSubmission(now.isAfter(assignment.getDueDate()));
         submission.setStatus(SubmissionStatus.SUBMITTED);
+        if (resubmission) {
+            submission.setScore(null);
+            submission.setFeedback(null);
+        }
 
         submission = submissionRepository.save(submission);
 
         if (!incomingFiles.isEmpty()) {
-            removeSubmissionFiles(submission);
-            List<AssignmentSubmissionFile> storedFiles = storeSubmissionFiles(incomingFiles, submission);
-            if (submission.getFiles() == null) {
-                submission.setFiles(new java.util.ArrayList<>());
-            } else {
-                submission.getFiles().clear();
-            }
-            submission.getFiles().addAll(storedFiles);
-            submission.setFilePath(storedFiles.get(0).getFilePath());
+            storeSubmissionFiles(incomingFiles, submission);
+            updateSubmissionPrimaryFilePath(submission);
         } else if (submission.getFiles() != null && !submission.getFiles().isEmpty()) {
             // Conserver les fichiers existants si la mise a jour ne contient pas de nouveaux fichiers.
             submission.setFilePath(submission.getFiles().get(0).getFilePath());

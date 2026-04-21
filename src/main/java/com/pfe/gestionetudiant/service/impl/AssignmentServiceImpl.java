@@ -62,7 +62,7 @@ public class AssignmentServiceImpl implements AssignmentService {
                                        boolean published) {
         User teacher = loadTeacher(teacherId);
         Module module = loadModule(moduleId, teacherId);
-        Target target = resolveTarget(classeId, filiereId);
+        Target target = resolveTarget(classeId, filiereId, module);
         validateModuleTarget(module, target.filiere());
         validateDueDate(dueDate);
 
@@ -99,7 +99,7 @@ public class AssignmentServiceImpl implements AssignmentService {
                 .orElseThrow(() -> new IllegalArgumentException("Devoir introuvable ou non autorise."));
 
         Module module = loadModule(moduleId, teacherId);
-        Target target = resolveTarget(classeId, filiereId);
+        Target target = resolveTarget(classeId, filiereId, module);
         validateModuleTarget(module, target.filiere());
         validateDueDate(dueDate);
 
@@ -241,9 +241,12 @@ public class AssignmentServiceImpl implements AssignmentService {
         return module;
     }
 
-    private Target resolveTarget(Long classeId, Long filiereId) {
+    private Target resolveTarget(Long classeId, Long filiereId, Module module) {
         if (classeId == null && filiereId == null) {
-            throw new IllegalArgumentException("Veuillez choisir une classe ou une filiere cible.");
+            if (module != null && module.getFiliere() != null) {
+                return new Target(null, module.getFiliere());
+            }
+            throw new IllegalArgumentException("Veuillez choisir un module, une classe ou une filiere cible.");
         }
 
         if (classeId != null) {
@@ -255,11 +258,19 @@ public class AssignmentServiceImpl implements AssignmentService {
             if (filiereId != null && !filiereId.equals(classe.getFiliere().getId())) {
                 throw new IllegalArgumentException("Classe et filiere incompatibles.");
             }
+            if (module != null && module.getFiliere() != null
+                    && !module.getFiliere().getId().equals(classe.getFiliere().getId())) {
+                throw new IllegalArgumentException("La classe ne correspond pas a la filiere du module.");
+            }
             return new Target(classe, classe.getFiliere());
         }
 
         Filiere filiere = filiereRepository.findById(filiereId)
                 .orElseThrow(() -> new IllegalArgumentException("Filiere introuvable."));
+        if (module != null && module.getFiliere() != null
+                && !module.getFiliere().getId().equals(filiere.getId())) {
+            throw new IllegalArgumentException("La filiere ne correspond pas au module.");
+        }
         return new Target(null, filiere);
     }
 

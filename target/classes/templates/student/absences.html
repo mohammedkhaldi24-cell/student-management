@@ -11,6 +11,9 @@
                 <a th:href="@{/student/dashboard}" class="btn btn-outline-secondary btn-sm">
                     <i class="bi bi-arrow-left me-1"></i>Retour Dashboard
                 </a>
+                <a th:href="@{/student/modules}" class="btn btn-outline-primary btn-sm">
+                    <i class="bi bi-journal-bookmark me-1"></i>Choisir un module
+                </a>
                 <a th:href="@{/student/notes}" class="btn btn-outline-primary btn-sm">
                     <i class="bi bi-journal-check me-1"></i>Voir mes notes
                 </a>
@@ -19,10 +22,43 @@
                 </a>
             </div>
 
+            <div class="card mb-3">
+                <div class="card-body">
+                    <form method="get" th:action="@{/student/absences}" class="row g-2 align-items-end">
+                        <div class="col-md-8 col-lg-6">
+                            <label for="moduleId" class="form-label mb-1">
+                                <i class="bi bi-calendar-x me-1"></i>Filtrer par module
+                            </label>
+                            <select id="moduleId" name="moduleId" class="form-select">
+                                <option value="" th:selected="${selectedModuleId == null}">Tous les modules</option>
+                                <option th:each="module : ${availableModules}"
+                                        th:value="${module.id}"
+                                        th:selected="${selectedModuleId != null && selectedModuleId == module.id}"
+                                        th:text="${module.nom + ' (' + module.code + ')'}">Module</option>
+                            </select>
+                        </div>
+                        <div class="col-md-4 col-lg-3 d-flex gap-2">
+                            <button type="submit" class="btn btn-primary w-100">Appliquer</button>
+                            <a th:href="@{/student/absences}" class="btn btn-outline-secondary">Reset</a>
+                        </div>
+                        <div class="col-12" th:if="${selectedModule != null}">
+                            <a th:href="@{/student/modules/{id}(id=${selectedModule.id})}" class="btn btn-sm btn-outline-primary mt-2">
+                                <i class="bi bi-arrow-right-circle me-1"></i>Ouvrir details du module selectionne
+                            </a>
+                        </div>
+                    </form>
+                </div>
+            </div>
+
             <div class="row g-3 mb-4">
                 <div class="col-md-6">
                     <div class="card h-100">
                         <div class="card-body">
+                            <div class="mb-2" th:if="${selectedModule != null}">
+                                <span class="badge bg-primary">
+                                    Module: <span th:text="${selectedModule.nom}">Module</span>
+                                </span>
+                            </div>
                             <div class="text-muted small">Total des absences</div>
                             <div class="fs-4 fw-bold" th:text="${totalHeuresAbsence + 'h'}">0h</div>
                         </div>

@@ -4,6 +4,9 @@
     <meta charset="UTF-8"/>
     <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
     <title>Connexion | GestionEtu</title>
+    <link rel="icon" type="image/x-icon" th:href="@{/favicon.ico(v=2)}"/>
+    <link rel="shortcut icon" type="image/x-icon" th:href="@{/favicon.ico(v=2)}"/>
+    <link rel="icon" type="image/png" th:href="@{/favicon.png(v=2)}"/>
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css"/>
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.css"/>
     <link rel="stylesheet" th:href="@{/css/style.css}"/>
@@ -14,7 +17,7 @@
     <!-- Côté gauche - Branding -->
     <div class="login-left d-none d-lg-flex flex-column justify-content-center align-items-center">
         <div class="login-brand">
-            <img th:src="@{/images/esto-logo.jpg}" alt="Logo ESTO" class="login-brand-logo"/>
+            <img th:src="@{/images/esto-logo.jpg(v=2)}" alt="Logo ESTO" class="login-brand-logo"/>
             <h1 class="login-brand-title">GestionEtu</h1>
             <p class="login-brand-subtitle">Plateforme de Gestion des Notes et Absences</p>
         </div>
@@ -43,7 +46,7 @@
         <div class="login-card">
             <div class="login-card-header text-center mb-4">
                 <div class="d-lg-none mb-3">
-                    <img th:src="@{/images/esto-logo.jpg}" alt="Logo ESTO" class="login-brand-logo-sm"/>
+                    <img th:src="@{/images/esto-logo.jpg(v=2)}" alt="Logo ESTO" class="login-brand-logo-sm"/>
                 </div>
                 <h2 class="fw-bold">Connexion</h2>
                 <p class="text-muted">Entrez vos identifiants pour accéder à votre espace</p>
@@ -131,5 +134,6 @@
 </script>
 </body>
 </html>
+
 
 

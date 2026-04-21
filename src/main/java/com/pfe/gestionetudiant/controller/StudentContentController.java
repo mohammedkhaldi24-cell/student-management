@@ -1,6 +1,7 @@
 package com.pfe.gestionetudiant.controller;
 
 import com.pfe.gestionetudiant.model.CourseContent;
+import com.pfe.gestionetudiant.model.CourseDocument;
 import com.pfe.gestionetudiant.model.Student;
 import com.pfe.gestionetudiant.model.User;
 import com.pfe.gestionetudiant.repository.StudentRepository;
@@ -20,10 +21,14 @@ import org.springframework.util.StringUtils;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.util.LinkedHashMap;
+import java.util.List;
+import java.util.Map;
 import java.util.Set;
 import java.util.stream.Collectors;
 
@@ -51,15 +56,31 @@ public class StudentContentController {
     }
 
     @GetMapping("/courses")
-    public String courses(Model model) {
+    public String courses(@RequestParam(required = false) Long moduleId, Model model) {
         Student student = getCurrentStudent();
         Long classeId = student.getClasse() != null ? student.getClasse().getId() : null;
         Long filiereId = (student.getClasse() != null && student.getClasse().getFiliere() != null)
                 ? student.getClasse().getFiliere().getId()
                 : null;
 
+        List<CourseContent> allCourses = courseContentService.findForStudent(classeId, filiereId);
+        List<CourseModuleGroupView> moduleGroups = buildModuleGroups(allCourses);
+        Long selectedModuleId = moduleId != null
+                && moduleGroups.stream().anyMatch(group -> moduleId.equals(group.moduleId()))
+                ? moduleId
+                : null;
+        List<CourseContent> filteredCourses = selectedModuleId == null
+                ? List.of()
+                : allCourses.stream()
+                .filter(course -> course.getModule() != null && selectedModuleId.equals(course.getModule().getId()))
+                .toList();
+
         model.addAttribute("student", student);
-        model.addAttribute("courses", courseContentService.findForStudent(classeId, filiereId));
+        model.addAttribute("courses", filteredCourses);
+        model.addAttribute("moduleGroups", moduleGroups);
+        model.addAttribute("selectedModuleId", selectedModuleId);
+        model.addAttribute("selectedModuleLabel", selectedModuleLabel(moduleGroups, selectedModuleId));
+        model.addAttribute("showModuleSelection", selectedModuleId == null);
         return "student/courses";
     }
 
@@ -97,6 +118,77 @@ public class StudentContentController {
         return buildFileResponse(resource, course.getFilePath());
     }
 
+    @GetMapping("/courses/{id}/files/{fileId}")
+    public ResponseEntity<Resource> downloadCourseFileById(@PathVariable Long id,
+                                                           @PathVariable Long fileId) {
+        Student student = getCurrentStudent();
+        Long classeId = student.getClasse() != null ? student.getClasse().getId() : null;
+        Long filiereId = (student.getClasse() != null && student.getClasse().getFiliere() != null)
+                ? student.getClasse().getFiliere().getId()
+                : null;
+
+        Set<Long> visibleIds = courseContentService.findForStudent(classeId, filiereId).stream()
+                .map(CourseContent::getId)
+                .collect(Collectors.toSet());
+        if (!visibleIds.contains(id)) {
+            throw new IllegalArgumentException("Acces non autorise a ce document.");
+        }
+
+        CourseDocument document = courseContentService.findFileForCourse(id, fileId);
+        Resource resource = courseContentService.loadFileAsResource(document);
+        return buildFileResponse(resource, document.getFilePath());
+    }
+
+    private List<CourseModuleGroupView> buildModuleGroups(List<CourseContent> courses) {
+        Map<Long, List<CourseContent>> grouped = new LinkedHashMap<>();
+        courses.stream()
+                .filter(course -> course.getModule() != null)
+                .sorted((left, right) -> String.CASE_INSENSITIVE_ORDER.compare(
+                        left.getModule().getNom() != null ? left.getModule().getNom() : "",
+                        right.getModule().getNom() != null ? right.getModule().getNom() : ""
+                ))
+                .forEach(course -> grouped
+                        .computeIfAbsent(course.getModule().getId(), ignored -> new java.util.ArrayList<>())
+                        .add(course));
+
+        return grouped.entrySet().stream()
+                .map(entry -> {
+                    CourseContent first = entry.getValue().get(0);
+                    String moduleName = first.getModule().getNom() != null ? first.getModule().getNom() : "Module";
+                    String moduleCode = first.getModule().getCode();
+                    int documentCount = entry.getValue().stream().mapToInt(this::documentCount).sum();
+                    return new CourseModuleGroupView(
+                            entry.getKey(),
+                            moduleName,
+                            moduleCode,
+                            moduleCode != null && !moduleCode.isBlank()
+                                    ? moduleName + " (" + moduleCode + ")"
+                                    : moduleName,
+                            entry.getValue().size(),
+                            documentCount
+                    );
+                })
+                .toList();
+    }
+
+    private int documentCount(CourseContent course) {
+        if (course.getFiles() != null && !course.getFiles().isEmpty()) {
+            return course.getFiles().size();
+        }
+        return StringUtils.hasText(course.getFilePath()) ? 1 : 0;
+    }
+
+    private String selectedModuleLabel(List<CourseModuleGroupView> groups, Long selectedModuleId) {
+        if (selectedModuleId == null) {
+            return null;
+        }
+        return groups.stream()
+                .filter(group -> selectedModuleId.equals(group.moduleId()))
+                .map(CourseModuleGroupView::label)
+                .findFirst()
+                .orElse("Module selectionne");
+    }
+
     private Student getCurrentStudent() {
         User currentUser = userService.getCurrentUser();
         return studentRepository.findByUserId(currentUser.getId())
@@ -123,5 +215,12 @@ public class StudentContentController {
                 .header(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=\"" + fileName + "\"")
                 .body(resource);
     }
-}
 
+    public record CourseModuleGroupView(Long moduleId,
+                                        String moduleName,
+                                        String moduleCode,
+                                        String label,
+                                        int courseCount,
+                                        int documentCount) {
+    }
+}

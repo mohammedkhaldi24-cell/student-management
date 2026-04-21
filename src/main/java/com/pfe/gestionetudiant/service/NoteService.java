@@ -19,6 +19,8 @@ public interface NoteService {
 
     List<Note> findByStudentId(Long studentId);
 
+    List<Note> findByStudentAndModule(Long studentId, Long moduleId);
+
     List<Note> findByModuleId(Long moduleId);
 
     List<Note> findByModuleAndClasse(Long moduleId, Long classeId);

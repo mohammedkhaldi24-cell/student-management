@@ -34,33 +34,38 @@
                                             <option value="">-- Choisir --</option>
                                             <option th:each="m : ${modules}"
                                                     th:value="${m.id}"
-                                                    th:data-filiere="${m.filiere.id}"
+                                                    th:data-filiere="${m.filiere != null ? m.filiere.id : ''}"
+                                                    th:data-filiere-name="${m.filiere != null ? m.filiere.nom : 'Filiere du module'}"
                                                     th:text="${m.nom + ' (' + m.code + ')'}">Module</option>
                                         </select>
                                     </div>
                                     <div class="col-md-6">
-                                        <label class="form-label fw-semibold">Fichier (optionnel)</label>
-                                        <input type="file" class="form-control" name="file"/>
-                                        <small class="text-muted">PDF, DOCX, PPT, ZIP...</small>
+                                        <label class="form-label fw-semibold">Fichiers (optionnel)</label>
+                                        <input type="file" class="form-control" id="courseFilesInput" name="files" multiple/>
+                                        <small class="text-muted">Selection multiple: PDF, DOCX, PPT, ZIP...</small>
+                                        <div id="selected-files-box" class="border rounded p-2 mt-2 d-none">
+                                            <div class="small text-muted mb-2">Fichiers selectionnes</div>
+                                            <ul id="selected-files-list" class="list-group list-group-flush"></ul>
+                                        </div>
                                     </div>
 
-                                    <div class="col-md-6">
-                                        <label class="form-label fw-semibold">Cible Filiere</label>
-                                        <select class="form-select" id="filiereSelect" name="filiereId">
-                                            <option value="">-- Filiere du module (auto) --</option>
-                                        </select>
-                                    </div>
-                                    <div class="col-md-6">
-                                        <label class="form-label fw-semibold">Cible Classe (prioritaire)</label>
+                                    <div class="col-12">
+                                        <label class="form-label fw-semibold">Classe cible (optionnel)</label>
                                         <select class="form-select" id="classeSelect" name="classeId">
                                             <option value="">-- Toute la filiere --</option>
                                         </select>
+                                        <small class="text-muted">La filiere est deduite automatiquement du module.</small>
+                                    </div>
+
+                                    <div class="col-12">
+                                        <div class="alert alert-light border mb-0" id="audienceSummary">
+                                            Selectionnez un module pour charger les classes disponibles.
+                                        </div>
                                     </div>
                                 </div>
 
                                 <div class="alert alert-info mt-3 mb-0">
-                                    Si une classe est selectionnee, la publication sera limitee a cette classe.
-                                    Sinon, elle sera visible par toute la filiere.
+                                    Le contenu cible automatiquement la filiere du module. La classe est optionnelle.
                                 </div>
 
                                 <div class="d-flex justify-content-end gap-2 mt-4">
@@ -83,35 +88,69 @@
 
     function syncTargets() {
         const module = document.getElementById('moduleSelect');
-        const filiereSelect = document.getElementById('filiereSelect');
         const classeSelect = document.getElementById('classeSelect');
+        const summary = document.getElementById('audienceSummary');
 
         const selected = module.options[module.selectedIndex];
         const filiereId = selected ? selected.getAttribute('data-filiere') : null;
+        const filiereName = selected ? selected.getAttribute('data-filiere-name') : null;
 
-        filiereSelect.innerHTML = '<option value="">-- Filiere du module (auto) --</option>';
         classeSelect.innerHTML = '<option value="">-- Toute la filiere --</option>';
 
         if (!filiereId) {
+            summary.textContent = 'Selectionnez un module pour charger les classes disponibles.';
             return;
         }
 
-        const option = document.createElement('option');
-        option.value = filiereId;
-        option.selected = true;
-        option.textContent = 'Filiere du module';
-        filiereSelect.appendChild(option);
-
-        (classesByFiliere[filiereId] || []).forEach(c => {
+        const classes = classesByFiliere[filiereId] || [];
+        classes.forEach(c => {
             const cOpt = document.createElement('option');
             cOpt.value = c.id;
             cOpt.textContent = `${c.nom} (${c.niveau})`;
             classeSelect.appendChild(cOpt);
         });
+
+        summary.textContent = `Audience automatique: ${filiereName || 'filiere du module'} (${classes.length} classe${classes.length > 1 ? 's' : ''}).`;
     }
 
     syncTargets();
+
+    (function () {
+        const input = document.getElementById('courseFilesInput');
+        const box = document.getElementById('selected-files-box');
+        const list = document.getElementById('selected-files-list');
+        if (!input || !box || !list) return;
+
+        function formatSize(size) {
+            if (!size && size !== 0) return '-';
+            if (size < 1024) return size + ' B';
+            const kb = size / 1024;
+            if (kb < 1024) return kb.toFixed(1) + ' KB';
+            const mb = kb / 1024;
+            if (mb < 1024) return mb.toFixed(1) + ' MB';
+            return (mb / 1024).toFixed(2) + ' GB';
+        }
+
+        function render() {
+            list.innerHTML = '';
+            const files = Array.from(input.files || []);
+            if (files.length === 0) {
+                box.classList.add('d-none');
+                return;
+            }
+            box.classList.remove('d-none');
+            files.forEach(file => {
+                const li = document.createElement('li');
+                li.className = 'list-group-item d-flex justify-content-between align-items-center py-2';
+                li.innerHTML =
+                    '<span><i class="bi bi-file-earmark-text me-2"></i>' + file.name + '</span>' +
+                    '<small class="text-muted">' + formatSize(file.size) + '</small>';
+                list.appendChild(li);
+            });
+        }
+
+        input.addEventListener('change', render);
+    })();
 </script>
 </body>
 </html>
-

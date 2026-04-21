@@ -67,6 +67,7 @@ C:\Users\moham\OneDrive\Desktop\student-management\src\main\java\com\pfe\gestion
 C:\Users\moham\OneDrive\Desktop\student-management\src\main\java\com\pfe\gestionetudiant\service\impl\AnnouncementServiceImpl.java
 C:\Users\moham\OneDrive\Desktop\student-management\src\main\java\com\pfe\gestionetudiant\service\impl\FiliereServiceImpl.java
 C:\Users\moham\OneDrive\Desktop\student-management\src\main\java\com\pfe\gestionetudiant\service\impl\EmailServiceImpl.java
+C:\Users\moham\OneDrive\Desktop\student-management\src\main\java\com\pfe\gestionetudiant\repository\CourseDocumentRepository.java
 C:\Users\moham\OneDrive\Desktop\student-management\src\main\java\com\pfe\gestionetudiant\controller\TeacherAssignmentController.java
 C:\Users\moham\OneDrive\Desktop\student-management\src\main\java\com\pfe\gestionetudiant\model\Module.java
 C:\Users\moham\OneDrive\Desktop\student-management\src\main\java\com\pfe\gestionetudiant\model\Filiere.java
@@ -76,6 +77,7 @@ C:\Users\moham\OneDrive\Desktop\student-management\src\main\java\com\pfe\gestion
 C:\Users\moham\OneDrive\Desktop\student-management\src\main\java\com\pfe\gestionetudiant\model\Assignment.java
 C:\Users\moham\OneDrive\Desktop\student-management\src\main\java\com\pfe\gestionetudiant\model\Student.java
 C:\Users\moham\OneDrive\Desktop\student-management\src\main\java\com\pfe\gestionetudiant\service\impl\AbsenceServiceImpl.java
+C:\Users\moham\OneDrive\Desktop\student-management\src\main\java\com\pfe\gestionetudiant\model\CourseDocument.java
 C:\Users\moham\OneDrive\Desktop\student-management\src\main\java\com\pfe\gestionetudiant\controller\AuthController.java
 C:\Users\moham\OneDrive\Desktop\student-management\src\main\java\com\pfe\gestionetudiant\controller\ChefScheduleController.java
 C:\Users\moham\OneDrive\Desktop\student-management\src\main\java\com\pfe\gestionetudiant\model\Note.java

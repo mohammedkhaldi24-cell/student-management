@@ -33,16 +33,10 @@ public final class ActivityTeacherCreateAssignmentBinding implements ViewBinding
   public final MaterialButton btnSave;
 
   @NonNull
-  public final TextInputEditText etClasseId;
-
-  @NonNull
   public final TextInputEditText etDescription;
 
   @NonNull
   public final TextInputEditText etDueDate;
-
-  @NonNull
-  public final TextInputEditText etFiliereId;
 
   @NonNull
   public final TextInputEditText etTitle;
@@ -54,27 +48,33 @@ public final class ActivityTeacherCreateAssignmentBinding implements ViewBinding
   public final SwitchMaterial switchPublished;
 
   @NonNull
+  public final TextView tvAudienceSummary;
+
+  @NonNull
   public final TextView tvFileName;
+
+  @NonNull
+  public final TextView tvStudentSummary;
 
   private ActivityTeacherCreateAssignmentBinding(@NonNull ScrollView rootView,
       @NonNull MaterialButton btnBack, @NonNull MaterialButton btnChooseFile,
-      @NonNull MaterialButton btnSave, @NonNull TextInputEditText etClasseId,
-      @NonNull TextInputEditText etDescription, @NonNull TextInputEditText etDueDate,
-      @NonNull TextInputEditText etFiliereId, @NonNull TextInputEditText etTitle,
+      @NonNull MaterialButton btnSave, @NonNull TextInputEditText etDescription,
+      @NonNull TextInputEditText etDueDate, @NonNull TextInputEditText etTitle,
       @NonNull Spinner spinnerModule, @NonNull SwitchMaterial switchPublished,
-      @NonNull TextView tvFileName) {
+      @NonNull TextView tvAudienceSummary, @NonNull TextView tvFileName,
+      @NonNull TextView tvStudentSummary) {
     this.rootView = rootView;
     this.btnBack = btnBack;
     this.btnChooseFile = btnChooseFile;
     this.btnSave = btnSave;
-    this.etClasseId = etClasseId;
     this.etDescription = etDescription;
     this.etDueDate = etDueDate;
-    this.etFiliereId = etFiliereId;
     this.etTitle = etTitle;
     this.spinnerModule = spinnerModule;
     this.switchPublished = switchPublished;
+    this.tvAudienceSummary = tvAudienceSummary;
     this.tvFileName = tvFileName;
+    this.tvStudentSummary = tvStudentSummary;
   }
 
   @Override
@@ -122,12 +122,6 @@ public final class ActivityTeacherCreateAssignmentBinding implements ViewBinding
         break missingId;
       }
 
-      id = R.id.etClasseId;
-      TextInputEditText etClasseId = ViewBindings.findChildViewById(rootView, id);
-      if (etClasseId == null) {
-        break missingId;
-      }
-
       id = R.id.etDescription;
       TextInputEditText etDescription = ViewBindings.findChildViewById(rootView, id);
       if (etDescription == null) {
@@ -137,12 +131,6 @@ public final class ActivityTeacherCreateAssignmentBinding implements ViewBinding
       id = R.id.etDueDate;
       TextInputEditText etDueDate = ViewBindings.findChildViewById(rootView, id);
       if (etDueDate == null) {
-        break missingId;
-      }
-
-      id = R.id.etFiliereId;
-      TextInputEditText etFiliereId = ViewBindings.findChildViewById(rootView, id);
-      if (etFiliereId == null) {
         break missingId;
       }
 
@@ -164,15 +152,27 @@ public final class ActivityTeacherCreateAssignmentBinding implements ViewBinding
         break missingId;
       }
 
+      id = R.id.tvAudienceSummary;
+      TextView tvAudienceSummary = ViewBindings.findChildViewById(rootView, id);
+      if (tvAudienceSummary == null) {
+        break missingId;
+      }
+
       id = R.id.tvFileName;
       TextView tvFileName = ViewBindings.findChildViewById(rootView, id);
       if (tvFileName == null) {
         break missingId;
       }
 
+      id = R.id.tvStudentSummary;
+      TextView tvStudentSummary = ViewBindings.findChildViewById(rootView, id);
+      if (tvStudentSummary == null) {
+        break missingId;
+      }
+
       return new ActivityTeacherCreateAssignmentBinding((ScrollView) rootView, btnBack,
-          btnChooseFile, btnSave, etClasseId, etDescription, etDueDate, etFiliereId, etTitle,
-          spinnerModule, switchPublished, tvFileName);
+          btnChooseFile, btnSave, etDescription, etDueDate, etTitle, spinnerModule, switchPublished,
+          tvAudienceSummary, tvFileName, tvStudentSummary);
     }
     String missingId = rootView.getResources().getResourceName(id);
     throw new NullPointerException("Missing required view with ID: ".concat(missingId));

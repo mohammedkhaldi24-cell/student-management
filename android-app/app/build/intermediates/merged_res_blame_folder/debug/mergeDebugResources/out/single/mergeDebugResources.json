@@ -1,15 +1,115 @@
 [
     {
-        "merged": "C:\\Users\\moham\\.gradle\\daemon\\9.0.0\\com.pfe.gestionetudiantmobile.app-debug-39:\\drawable_bg_chip_admin.xml.flat",
-        "source": "C:\\Users\\moham\\.gradle\\daemon\\9.0.0\\com.pfe.gestionetudiantmobile.app-main-41:\\drawable\\bg_chip_admin.xml"
-    },
-    {
         "merged": "C:\\Users\\moham\\.gradle\\daemon\\9.0.0\\com.pfe.gestionetudiantmobile.app-debug-39:\\drawable_bg_hero_student.xml.flat",
         "source": "C:\\Users\\moham\\.gradle\\daemon\\9.0.0\\com.pfe.gestionetudiantmobile.app-main-41:\\drawable\\bg_hero_student.xml"
     },
     {
         "merged": "C:\\Users\\moham\\.gradle\\daemon\\9.0.0\\com.pfe.gestionetudiantmobile.app-debug-39:\\layout_item_ui_row.xml.flat",
         "source": "C:\\Users\\moham\\.gradle\\daemon\\9.0.0\\com.pfe.gestionetudiantmobile.app-main-41:\\layout\\item_ui_row.xml"
+    },
+    {
+        "merged": "C:\\Users\\moham\\.gradle\\daemon\\9.0.0\\com.pfe.gestionetudiantmobile.app-debug-39:\\drawable_ic_edit.xml.flat",
+        "source": "C:\\Users\\moham\\.gradle\\daemon\\9.0.0\\com.pfe.gestionetudiantmobile.app-main-41:\\drawable\\ic_edit.xml"
+    },
+    {
+        "merged": "C:\\Users\\moham\\.gradle\\daemon\\9.0.0\\com.pfe.gestionetudiantmobile.app-debug-39:\\drawable_bg_list_icon.xml.flat",
+        "source": "C:\\Users\\moham\\.gradle\\daemon\\9.0.0\\com.pfe.gestionetudiantmobile.app-main-41:\\drawable\\bg_list_icon.xml"
+    },
+    {
+        "merged": "C:\\Users\\moham\\.gradle\\daemon\\9.0.0\\com.pfe.gestionetudiantmobile.app-debug-39:\\drawable_ic_dashboard.xml.flat",
+        "source": "C:\\Users\\moham\\.gradle\\daemon\\9.0.0\\com.pfe.gestionetudiantmobile.app-main-41:\\drawable\\ic_dashboard.xml"
+    },
+    {
+        "merged": "C:\\Users\\moham\\.gradle\\daemon\\9.0.0\\com.pfe.gestionetudiantmobile.app-debug-39:\\mipmap-anydpi-v26_ic_launcher.xml.flat",
+        "source": "C:\\Users\\moham\\.gradle\\daemon\\9.0.0\\com.pfe.gestionetudiantmobile.app-main-41:\\mipmap-anydpi-v26\\ic_launcher.xml"
+    },
+    {
+        "merged": "C:\\Users\\moham\\.gradle\\daemon\\9.0.0\\com.pfe.gestionetudiantmobile.app-debug-39:\\drawable_ic_lock.xml.flat",
+        "source": "C:\\Users\\moham\\.gradle\\daemon\\9.0.0\\com.pfe.gestionetudiantmobile.app-main-41:\\drawable\\ic_lock.xml"
+    },
+    {
+        "merged": "C:\\Users\\moham\\.gradle\\daemon\\9.0.0\\com.pfe.gestionetudiantmobile.app-debug-39:\\mipmap-anydpi-v26_ic_launcher_round.xml.flat",
+        "source": "C:\\Users\\moham\\.gradle\\daemon\\9.0.0\\com.pfe.gestionetudiantmobile.app-main-41:\\mipmap-anydpi-v26\\ic_launcher_round.xml"
+    },
+    {
+        "merged": "C:\\Users\\moham\\.gradle\\daemon\\9.0.0\\com.pfe.gestionetudiantmobile.app-debug-39:\\drawable_ic_check.xml.flat",
+        "source": "C:\\Users\\moham\\.gradle\\daemon\\9.0.0\\com.pfe.gestionetudiantmobile.app-main-41:\\drawable\\ic_check.xml"
+    },
+    {
+        "merged": "C:\\Users\\moham\\.gradle\\daemon\\9.0.0\\com.pfe.gestionetudiantmobile.app-debug-39:\\xml_file_paths.xml.flat",
+        "source": "C:\\Users\\moham\\.gradle\\daemon\\9.0.0\\com.pfe.gestionetudiantmobile.app-main-41:\\xml\\file_paths.xml"
+    },
+    {
+        "merged": "C:\\Users\\moham\\.gradle\\daemon\\9.0.0\\com.pfe.gestionetudiantmobile.app-debug-39:\\drawable_ic_save.xml.flat",
+        "source": "C:\\Users\\moham\\.gradle\\daemon\\9.0.0\\com.pfe.gestionetudiantmobile.app-main-41:\\drawable\\ic_save.xml"
+    },
+    {
+        "merged": "C:\\Users\\moham\\.gradle\\daemon\\9.0.0\\com.pfe.gestionetudiantmobile.app-debug-39:\\drawable_ic_chart.xml.flat",
+        "source": "C:\\Users\\moham\\.gradle\\daemon\\9.0.0\\com.pfe.gestionetudiantmobile.app-main-41:\\drawable\\ic_chart.xml"
+    },
+    {
+        "merged": "C:\\Users\\moham\\.gradle\\daemon\\9.0.0\\com.pfe.gestionetudiantmobile.app-debug-39:\\xml_network_security_config.xml.flat",
+        "source": "C:\\Users\\moham\\.gradle\\daemon\\9.0.0\\com.pfe.gestionetudiantmobile.app-main-41:\\xml\\network_security_config.xml"
+    },
+    {
+        "merged": "C:\\Users\\moham\\.gradle\\daemon\\9.0.0\\com.pfe.gestionetudiantmobile.app-debug-39:\\menu_menu_primary_bottom_nav.xml.flat",
+        "source": "C:\\Users\\moham\\.gradle\\daemon\\9.0.0\\com.pfe.gestionetudiantmobile.app-main-41:\\menu\\menu_primary_bottom_nav.xml"
+    },
+    {
+        "merged": "C:\\Users\\moham\\.gradle\\daemon\\9.0.0\\com.pfe.gestionetudiantmobile.app-debug-39:\\drawable_bg_feature_hero.xml.flat",
+        "source": "C:\\Users\\moham\\.gradle\\daemon\\9.0.0\\com.pfe.gestionetudiantmobile.app-main-41:\\drawable\\bg_feature_hero.xml"
+    },
+    {
+        "merged": "C:\\Users\\moham\\.gradle\\daemon\\9.0.0\\com.pfe.gestionetudiantmobile.app-debug-39:\\layout_activity_feature_list.xml.flat",
+        "source": "C:\\Users\\moham\\.gradle\\daemon\\9.0.0\\com.pfe.gestionetudiantmobile.app-main-41:\\layout\\activity_feature_list.xml"
+    },
+    {
+        "merged": "C:\\Users\\moham\\.gradle\\daemon\\9.0.0\\com.pfe.gestionetudiantmobile.app-debug-39:\\drawable_ic_upload.xml.flat",
+        "source": "C:\\Users\\moham\\.gradle\\daemon\\9.0.0\\com.pfe.gestionetudiantmobile.app-main-41:\\drawable\\ic_upload.xml"
+    },
+    {
+        "merged": "C:\\Users\\moham\\.gradle\\daemon\\9.0.0\\com.pfe.gestionetudiantmobile.app-debug-39:\\drawable_esto_logo.jpg.flat",
+        "source": "C:\\Users\\moham\\.gradle\\daemon\\9.0.0\\com.pfe.gestionetudiantmobile.app-main-41:\\drawable\\esto_logo.jpg"
+    },
+    {
+        "merged": "C:\\Users\\moham\\.gradle\\daemon\\9.0.0\\com.pfe.gestionetudiantmobile.app-debug-39:\\drawable_bg_hero_chef.xml.flat",
+        "source": "C:\\Users\\moham\\.gradle\\daemon\\9.0.0\\com.pfe.gestionetudiantmobile.app-main-41:\\drawable\\bg_hero_chef.xml"
+    },
+    {
+        "merged": "C:\\Users\\moham\\.gradle\\daemon\\9.0.0\\com.pfe.gestionetudiantmobile.app-debug-39:\\layout_activity_login.xml.flat",
+        "source": "C:\\Users\\moham\\.gradle\\daemon\\9.0.0\\com.pfe.gestionetudiantmobile.app-main-41:\\layout\\activity_login.xml"
+    },
+    {
+        "merged": "C:\\Users\\moham\\.gradle\\daemon\\9.0.0\\com.pfe.gestionetudiantmobile.app-debug-39:\\drawable_ic_arrow_back.xml.flat",
+        "source": "C:\\Users\\moham\\.gradle\\daemon\\9.0.0\\com.pfe.gestionetudiantmobile.app-main-41:\\drawable\\ic_arrow_back.xml"
+    },
+    {
+        "merged": "C:\\Users\\moham\\.gradle\\daemon\\9.0.0\\com.pfe.gestionetudiantmobile.app-debug-39:\\layout_activity_teacher_home.xml.flat",
+        "source": "C:\\Users\\moham\\.gradle\\daemon\\9.0.0\\com.pfe.gestionetudiantmobile.app-main-41:\\layout\\activity_teacher_home.xml"
+    },
+    {
+        "merged": "C:\\Users\\moham\\.gradle\\daemon\\9.0.0\\com.pfe.gestionetudiantmobile.app-debug-39:\\layout_item_teacher_note_entry.xml.flat",
+        "source": "C:\\Users\\moham\\.gradle\\daemon\\9.0.0\\com.pfe.gestionetudiantmobile.app-main-41:\\layout\\item_teacher_note_entry.xml"
+    },
+    {
+        "merged": "C:\\Users\\moham\\.gradle\\daemon\\9.0.0\\com.pfe.gestionetudiantmobile.app-debug-39:\\layout_activity_teacher_module_workspace.xml.flat",
+        "source": "C:\\Users\\moham\\.gradle\\daemon\\9.0.0\\com.pfe.gestionetudiantmobile.app-main-41:\\layout\\activity_teacher_module_workspace.xml"
+    },
+    {
+        "merged": "C:\\Users\\moham\\.gradle\\daemon\\9.0.0\\com.pfe.gestionetudiantmobile.app-debug-39:\\drawable_ic_person.xml.flat",
+        "source": "C:\\Users\\moham\\.gradle\\daemon\\9.0.0\\com.pfe.gestionetudiantmobile.app-main-41:\\drawable\\ic_person.xml"
+    },
+    {
+        "merged": "C:\\Users\\moham\\.gradle\\daemon\\9.0.0\\com.pfe.gestionetudiantmobile.app-debug-39:\\drawable_ic_splash_mark.xml.flat",
+        "source": "C:\\Users\\moham\\.gradle\\daemon\\9.0.0\\com.pfe.gestionetudiantmobile.app-main-41:\\drawable\\ic_splash_mark.xml"
+    },
+    {
+        "merged": "C:\\Users\\moham\\.gradle\\daemon\\9.0.0\\com.pfe.gestionetudiantmobile.app-debug-39:\\drawable_bg_mobile_header.xml.flat",
+        "source": "C:\\Users\\moham\\.gradle\\daemon\\9.0.0\\com.pfe.gestionetudiantmobile.app-main-41:\\drawable\\bg_mobile_header.xml"
+    },
+    {
+        "merged": "C:\\Users\\moham\\.gradle\\daemon\\9.0.0\\com.pfe.gestionetudiantmobile.app-debug-39:\\drawable_bg_chip_admin.xml.flat",
+        "source": "C:\\Users\\moham\\.gradle\\daemon\\9.0.0\\com.pfe.gestionetudiantmobile.app-main-41:\\drawable\\bg_chip_admin.xml"
     },
     {
         "merged": "C:\\Users\\moham\\.gradle\\daemon\\9.0.0\\com.pfe.gestionetudiantmobile.app-debug-39:\\drawable_bg_hero_teacher.xml.flat",
@@ -28,12 +128,20 @@
         "source": "C:\\Users\\moham\\.gradle\\daemon\\9.0.0\\com.pfe.gestionetudiantmobile.app-main-41:\\layout\\activity_teacher_create_announcement.xml"
     },
     {
+        "merged": "C:\\Users\\moham\\.gradle\\daemon\\9.0.0\\com.pfe.gestionetudiantmobile.app-debug-39:\\drawable_ic_sync.xml.flat",
+        "source": "C:\\Users\\moham\\.gradle\\daemon\\9.0.0\\com.pfe.gestionetudiantmobile.app-main-41:\\drawable\\ic_sync.xml"
+    },
+    {
+        "merged": "C:\\Users\\moham\\.gradle\\daemon\\9.0.0\\com.pfe.gestionetudiantmobile.app-debug-39:\\drawable_ic_calendar.xml.flat",
+        "source": "C:\\Users\\moham\\.gradle\\daemon\\9.0.0\\com.pfe.gestionetudiantmobile.app-main-41:\\drawable\\ic_calendar.xml"
+    },
+    {
         "merged": "C:\\Users\\moham\\.gradle\\daemon\\9.0.0\\com.pfe.gestionetudiantmobile.app-debug-39:\\drawable_ic_launcher_foreground.xml.flat",
         "source": "C:\\Users\\moham\\.gradle\\daemon\\9.0.0\\com.pfe.gestionetudiantmobile.app-main-41:\\drawable\\ic_launcher_foreground.xml"
     },
     {
-        "merged": "C:\\Users\\moham\\.gradle\\daemon\\9.0.0\\com.pfe.gestionetudiantmobile.app-debug-39:\\mipmap-anydpi-v26_ic_launcher.xml.flat",
-        "source": "C:\\Users\\moham\\.gradle\\daemon\\9.0.0\\com.pfe.gestionetudiantmobile.app-main-41:\\mipmap-anydpi-v26\\ic_launcher.xml"
+        "merged": "C:\\Users\\moham\\.gradle\\daemon\\9.0.0\\com.pfe.gestionetudiantmobile.app-debug-39:\\drawable_ic_logout.xml.flat",
+        "source": "C:\\Users\\moham\\.gradle\\daemon\\9.0.0\\com.pfe.gestionetudiantmobile.app-main-41:\\drawable\\ic_logout.xml"
     },
     {
         "merged": "C:\\Users\\moham\\.gradle\\daemon\\9.0.0\\com.pfe.gestionetudiantmobile.app-debug-39:\\drawable_bg_chip_chef.xml.flat",
@@ -44,52 +152,76 @@
         "source": "C:\\Users\\moham\\.gradle\\daemon\\9.0.0\\com.pfe.gestionetudiantmobile.app-main-41:\\drawable\\bg_hero_admin.xml"
     },
     {
-        "merged": "C:\\Users\\moham\\.gradle\\daemon\\9.0.0\\com.pfe.gestionetudiantmobile.app-debug-39:\\mipmap-anydpi-v26_ic_launcher_round.xml.flat",
-        "source": "C:\\Users\\moham\\.gradle\\daemon\\9.0.0\\com.pfe.gestionetudiantmobile.app-main-41:\\mipmap-anydpi-v26\\ic_launcher_round.xml"
+        "merged": "C:\\Users\\moham\\.gradle\\daemon\\9.0.0\\com.pfe.gestionetudiantmobile.app-debug-39:\\drawable_ic_play.xml.flat",
+        "source": "C:\\Users\\moham\\.gradle\\daemon\\9.0.0\\com.pfe.gestionetudiantmobile.app-main-41:\\drawable\\ic_play.xml"
     },
     {
-        "merged": "com.pfe.gestionetudiantmobile.app-debug-39:/layout_activity_admin_home.xml.flat",
-        "source": "com.pfe.gestionetudiantmobile.app-main-41:/layout/activity_admin_home.xml"
+        "merged": "C:\\Users\\moham\\.gradle\\daemon\\9.0.0\\com.pfe.gestionetudiantmobile.app-debug-39:\\color_bottom_nav_item_color.xml.flat",
+        "source": "C:\\Users\\moham\\.gradle\\daemon\\9.0.0\\com.pfe.gestionetudiantmobile.app-main-41:\\color\\bottom_nav_item_color.xml"
     },
     {
-        "merged": "C:\\Users\\moham\\.gradle\\daemon\\9.0.0\\com.pfe.gestionetudiantmobile.app-debug-39:\\xml_network_security_config.xml.flat",
-        "source": "C:\\Users\\moham\\.gradle\\daemon\\9.0.0\\com.pfe.gestionetudiantmobile.app-main-41:\\xml\\network_security_config.xml"
+        "merged": "C:\\Users\\moham\\.gradle\\daemon\\9.0.0\\com.pfe.gestionetudiantmobile.app-debug-39:\\drawable_bg_bottom_nav.xml.flat",
+        "source": "C:\\Users\\moham\\.gradle\\daemon\\9.0.0\\com.pfe.gestionetudiantmobile.app-main-41:\\drawable\\bg_bottom_nav.xml"
     },
     {
-        "merged": "C:\\Users\\moham\\.gradle\\daemon\\9.0.0\\com.pfe.gestionetudiantmobile.app-debug-39:\\layout_activity_feature_list.xml.flat",
-        "source": "C:\\Users\\moham\\.gradle\\daemon\\9.0.0\\com.pfe.gestionetudiantmobile.app-main-41:\\layout\\activity_feature_list.xml"
+        "merged": "C:\\Users\\moham\\.gradle\\daemon\\9.0.0\\com.pfe.gestionetudiantmobile.app-debug-39:\\drawable_ic_settings.xml.flat",
+        "source": "C:\\Users\\moham\\.gradle\\daemon\\9.0.0\\com.pfe.gestionetudiantmobile.app-main-41:\\drawable\\ic_settings.xml"
+    },
+    {
+        "merged": "C:\\Users\\moham\\.gradle\\daemon\\9.0.0\\com.pfe.gestionetudiantmobile.app-debug-39:\\drawable_ic_info.xml.flat",
+        "source": "C:\\Users\\moham\\.gradle\\daemon\\9.0.0\\com.pfe.gestionetudiantmobile.app-main-41:\\drawable\\ic_info.xml"
+    },
+    {
+        "merged": "C:\\Users\\moham\\.gradle\\daemon\\9.0.0\\com.pfe.gestionetudiantmobile.app-debug-39:\\drawable_ic_history.xml.flat",
+        "source": "C:\\Users\\moham\\.gradle\\daemon\\9.0.0\\com.pfe.gestionetudiantmobile.app-main-41:\\drawable\\ic_history.xml"
     },
     {
         "merged": "C:\\Users\\moham\\.gradle\\daemon\\9.0.0\\com.pfe.gestionetudiantmobile.app-debug-39:\\layout_activity_teacher_create_course.xml.flat",
         "source": "C:\\Users\\moham\\.gradle\\daemon\\9.0.0\\com.pfe.gestionetudiantmobile.app-main-41:\\layout\\activity_teacher_create_course.xml"
     },
     {
-        "merged": "C:\\Users\\moham\\.gradle\\daemon\\9.0.0\\com.pfe.gestionetudiantmobile.app-debug-39:\\drawable_esto_logo.jpg.flat",
-        "source": "C:\\Users\\moham\\.gradle\\daemon\\9.0.0\\com.pfe.gestionetudiantmobile.app-main-41:\\drawable\\esto_logo.jpg"
+        "merged": "C:\\Users\\moham\\.gradle\\daemon\\9.0.0\\com.pfe.gestionetudiantmobile.app-debug-39:\\drawable_ic_search.xml.flat",
+        "source": "C:\\Users\\moham\\.gradle\\daemon\\9.0.0\\com.pfe.gestionetudiantmobile.app-main-41:\\drawable\\ic_search.xml"
     },
     {
-        "merged": "C:\\Users\\moham\\.gradle\\daemon\\9.0.0\\com.pfe.gestionetudiantmobile.app-debug-39:\\drawable_bg_hero_chef.xml.flat",
-        "source": "C:\\Users\\moham\\.gradle\\daemon\\9.0.0\\com.pfe.gestionetudiantmobile.app-main-41:\\drawable\\bg_hero_chef.xml"
+        "merged": "com.pfe.gestionetudiantmobile.app-debug-39:/layout_activity_teacher_create_course.xml.flat",
+        "source": "com.pfe.gestionetudiantmobile.app-main-41:/layout/activity_teacher_create_course.xml"
     },
     {
         "merged": "C:\\Users\\moham\\.gradle\\daemon\\9.0.0\\com.pfe.gestionetudiantmobile.app-debug-39:\\drawable_bg_badge.xml.flat",
         "source": "C:\\Users\\moham\\.gradle\\daemon\\9.0.0\\com.pfe.gestionetudiantmobile.app-main-41:\\drawable\\bg_badge.xml"
     },
     {
+        "merged": "C:\\Users\\moham\\.gradle\\daemon\\9.0.0\\com.pfe.gestionetudiantmobile.app-debug-39:\\layout_activity_academic_statistics.xml.flat",
+        "source": "C:\\Users\\moham\\.gradle\\daemon\\9.0.0\\com.pfe.gestionetudiantmobile.app-main-41:\\layout\\activity_academic_statistics.xml"
+    },
+    {
+        "merged": "C:\\Users\\moham\\.gradle\\daemon\\9.0.0\\com.pfe.gestionetudiantmobile.app-debug-39:\\drawable_bg_row_accent.xml.flat",
+        "source": "C:\\Users\\moham\\.gradle\\daemon\\9.0.0\\com.pfe.gestionetudiantmobile.app-main-41:\\drawable\\bg_row_accent.xml"
+    },
+    {
         "merged": "C:\\Users\\moham\\.gradle\\daemon\\9.0.0\\com.pfe.gestionetudiantmobile.app-debug-39:\\layout_activity_student_home.xml.flat",
         "source": "C:\\Users\\moham\\.gradle\\daemon\\9.0.0\\com.pfe.gestionetudiantmobile.app-main-41:\\layout\\activity_student_home.xml"
     },
     {
-        "merged": "C:\\Users\\moham\\.gradle\\daemon\\9.0.0\\com.pfe.gestionetudiantmobile.app-debug-39:\\layout_activity_login.xml.flat",
-        "source": "C:\\Users\\moham\\.gradle\\daemon\\9.0.0\\com.pfe.gestionetudiantmobile.app-main-41:\\layout\\activity_login.xml"
+        "merged": "C:\\Users\\moham\\.gradle\\daemon\\9.0.0\\com.pfe.gestionetudiantmobile.app-debug-39:\\layout_item_teacher_absence_entry.xml.flat",
+        "source": "C:\\Users\\moham\\.gradle\\daemon\\9.0.0\\com.pfe.gestionetudiantmobile.app-main-41:\\layout\\item_teacher_absence_entry.xml"
     },
     {
         "merged": "C:\\Users\\moham\\.gradle\\daemon\\9.0.0\\com.pfe.gestionetudiantmobile.app-debug-39:\\drawable_bg_chip_teacher.xml.flat",
         "source": "C:\\Users\\moham\\.gradle\\daemon\\9.0.0\\com.pfe.gestionetudiantmobile.app-main-41:\\drawable\\bg_chip_teacher.xml"
     },
     {
-        "merged": "C:\\Users\\moham\\.gradle\\daemon\\9.0.0\\com.pfe.gestionetudiantmobile.app-debug-39:\\layout_activity_teacher_home.xml.flat",
-        "source": "C:\\Users\\moham\\.gradle\\daemon\\9.0.0\\com.pfe.gestionetudiantmobile.app-main-41:\\layout\\activity_teacher_home.xml"
+        "merged": "C:\\Users\\moham\\.gradle\\daemon\\9.0.0\\com.pfe.gestionetudiantmobile.app-debug-39:\\drawable_ic_email.xml.flat",
+        "source": "C:\\Users\\moham\\.gradle\\daemon\\9.0.0\\com.pfe.gestionetudiantmobile.app-main-41:\\drawable\\ic_email.xml"
+    },
+    {
+        "merged": "C:\\Users\\moham\\.gradle\\daemon\\9.0.0\\com.pfe.gestionetudiantmobile.app-debug-39:\\layout_include_primary_bottom_nav.xml.flat",
+        "source": "C:\\Users\\moham\\.gradle\\daemon\\9.0.0\\com.pfe.gestionetudiantmobile.app-main-41:\\layout\\include_primary_bottom_nav.xml"
+    },
+    {
+        "merged": "C:\\Users\\moham\\.gradle\\daemon\\9.0.0\\com.pfe.gestionetudiantmobile.app-debug-39:\\drawable_bg_form_hero.xml.flat",
+        "source": "C:\\Users\\moham\\.gradle\\daemon\\9.0.0\\com.pfe.gestionetudiantmobile.app-main-41:\\drawable\\bg_form_hero.xml"
     },
     {
         "merged": "C:\\Users\\moham\\.gradle\\daemon\\9.0.0\\com.pfe.gestionetudiantmobile.app-debug-39:\\drawable_bg_stat_card.xml.flat",
@@ -98,6 +230,14 @@
     {
         "merged": "C:\\Users\\moham\\.gradle\\daemon\\9.0.0\\com.pfe.gestionetudiantmobile.app-debug-39:\\layout_activity_admin_home.xml.flat",
         "source": "C:\\Users\\moham\\.gradle\\daemon\\9.0.0\\com.pfe.gestionetudiantmobile.app-main-41:\\layout\\activity_admin_home.xml"
+    },
+    {
+        "merged": "C:\\Users\\moham\\.gradle\\daemon\\9.0.0\\com.pfe.gestionetudiantmobile.app-debug-39:\\drawable_ic_course.xml.flat",
+        "source": "C:\\Users\\moham\\.gradle\\daemon\\9.0.0\\com.pfe.gestionetudiantmobile.app-main-41:\\drawable\\ic_course.xml"
+    },
+    {
+        "merged": "C:\\Users\\moham\\.gradle\\daemon\\9.0.0\\com.pfe.gestionetudiantmobile.app-debug-39:\\drawable_bg_login_screen.xml.flat",
+        "source": "C:\\Users\\moham\\.gradle\\daemon\\9.0.0\\com.pfe.gestionetudiantmobile.app-main-41:\\drawable\\bg_login_screen.xml"
     },
     {
         "merged": "C:\\Users\\moham\\.gradle\\daemon\\9.0.0\\com.pfe.gestionetudiantmobile.app-debug-39:\\drawable_bg_chip_student.xml.flat",

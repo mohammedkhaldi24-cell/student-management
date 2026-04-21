@@ -5,17 +5,27 @@
 document.addEventListener("DOMContentLoaded", () => {
     const sidebarToggle = document.getElementById("sidebarToggle");
     const sidebar = document.querySelector(".sidebar");
+    const sidebarBackdrop = ensureSidebarBackdrop();
 
     if (sidebarToggle && sidebar) {
         sidebarToggle.addEventListener("click", () => {
             sidebar.classList.toggle("show");
+            document.body.classList.toggle("sidebar-open", sidebar.classList.contains("show"));
         });
 
         document.addEventListener("click", (e) => {
             if (!sidebar.contains(e.target) && !sidebarToggle.contains(e.target)) {
                 sidebar.classList.remove("show");
+                document.body.classList.remove("sidebar-open");
             }
         });
+
+        if (sidebarBackdrop) {
+            sidebarBackdrop.addEventListener("click", () => {
+                sidebar.classList.remove("show");
+                document.body.classList.remove("sidebar-open");
+            });
+        }
     }
 
     document.querySelectorAll(".alert.alert-success, .alert.alert-info").forEach((alert) => {
@@ -33,6 +43,21 @@ document.addEventListener("DOMContentLoaded", () => {
             if (!confirm(message)) {
                 e.preventDefault();
             }
+        });
+    });
+
+    document.querySelectorAll("form").forEach((form) => {
+        form.addEventListener("submit", (event) => {
+            if (event.defaultPrevented) {
+                return;
+            }
+            const submitter = form.querySelector("button[type='submit']:not([data-no-loading])");
+            if (!submitter) {
+                return;
+            }
+            submitter.dataset.originalText = submitter.innerHTML;
+            submitter.disabled = true;
+            submitter.innerHTML = "<span class=\"spinner-border spinner-border-sm me-2\" aria-hidden=\"true\"></span>Traitement...";
         });
     });
 
@@ -60,7 +85,19 @@ document.addEventListener("DOMContentLoaded", () => {
     initBreadcrumb();
     initTopbarAvatar();
     initNotificationBadge();
+    enhanceFileInputs();
 });
+
+function ensureSidebarBackdrop() {
+    if (document.querySelector(".mobile-sidebar-backdrop")) {
+        return document.querySelector(".mobile-sidebar-backdrop");
+    }
+
+    const backdrop = document.createElement("div");
+    backdrop.className = "mobile-sidebar-backdrop";
+    document.body.appendChild(backdrop);
+    return backdrop;
+}
 
 function markActiveSidebarLink() {
     const currentPath = window.location.pathname;
@@ -168,4 +205,82 @@ function capitalize(value) {
         return "";
     }
     return value.charAt(0).toUpperCase() + value.slice(1);
+}
+
+function enhanceFileInputs() {
+    document.querySelectorAll("input[type='file']").forEach((input) => {
+        if (input.dataset.enhanced === "true") {
+            return;
+        }
+        input.dataset.enhanced = "true";
+
+        const preview = document.createElement("div");
+        preview.className = "file-preview-list";
+        input.insertAdjacentElement("afterend", preview);
+
+        const render = () => {
+            preview.innerHTML = "";
+            const files = Array.from(input.files || []);
+            if (files.length === 0) {
+                return;
+            }
+
+            files.forEach((file, index) => {
+                const item = document.createElement("div");
+                item.className = "file-preview-item";
+
+                const icon = document.createElement("span");
+                icon.className = "file-icon";
+                icon.innerHTML = `<i class="${fileIconClass(file.name)}"></i>`;
+
+                const name = document.createElement("span");
+                name.className = "file-preview-name";
+                name.textContent = file.name;
+
+                const meta = document.createElement("span");
+                meta.className = "file-preview-meta";
+                meta.textContent = formatBytes(file.size);
+
+                const remove = document.createElement("button");
+                remove.type = "button";
+                remove.className = "file-preview-remove";
+                remove.innerHTML = "<i class=\"bi bi-x-lg\"></i>";
+                remove.setAttribute("aria-label", "Retirer le fichier");
+                remove.addEventListener("click", () => {
+                    const transfer = new DataTransfer();
+                    files.forEach((candidate, candidateIndex) => {
+                        if (candidateIndex !== index) {
+                            transfer.items.add(candidate);
+                        }
+                    });
+                    input.files = transfer.files;
+                    input.dispatchEvent(new Event("change", { bubbles: true }));
+                });
+
+                item.append(icon, name, meta, remove);
+                preview.appendChild(item);
+            });
+        };
+
+        input.addEventListener("change", render);
+    });
+}
+
+function fileIconClass(name) {
+    const lower = (name || "").toLowerCase();
+    if (lower.endsWith(".pdf")) return "bi bi-file-earmark-pdf";
+    if (lower.match(/\.(png|jpg|jpeg|gif|webp|svg)$/)) return "bi bi-file-earmark-image";
+    if (lower.match(/\.(doc|docx)$/)) return "bi bi-file-earmark-word";
+    if (lower.match(/\.(xls|xlsx|csv)$/)) return "bi bi-file-earmark-spreadsheet";
+    if (lower.match(/\.(zip|rar|7z)$/)) return "bi bi-file-earmark-zip";
+    return "bi bi-file-earmark";
+}
+
+function formatBytes(bytes) {
+    if (!bytes || bytes <= 0) {
+        return "0 KB";
+    }
+    const units = ["B", "KB", "MB", "GB"];
+    const index = Math.min(Math.floor(Math.log(bytes) / Math.log(1024)), units.length - 1);
+    return `${(bytes / Math.pow(1024, index)).toFixed(index === 0 ? 0 : 1)} ${units[index]}`;
 }

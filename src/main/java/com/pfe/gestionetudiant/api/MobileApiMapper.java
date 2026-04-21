@@ -6,6 +6,7 @@ import com.pfe.gestionetudiant.model.Assignment;
 import com.pfe.gestionetudiant.model.AssignmentSubmission;
 import com.pfe.gestionetudiant.model.AssignmentSubmissionFile;
 import com.pfe.gestionetudiant.model.CourseContent;
+import com.pfe.gestionetudiant.model.CourseDocument;
 import com.pfe.gestionetudiant.model.EmploiDuTemps;
 import com.pfe.gestionetudiant.model.Module;
 import com.pfe.gestionetudiant.model.Note;
@@ -82,7 +83,12 @@ public class MobileApiMapper {
                 note.getNoteFinal(),
                 note.getSemestre(),
                 note.getAnneeAcademique(),
-                note.getStatut()
+                note.getStatut(),
+                note.getCreatedAt(),
+                note.getUpdatedAt(),
+                note.getModule() != null && note.getModule().getTeacher() != null
+                        ? note.getModule().getTeacher().getFullName()
+                        : null
         );
     }
 
@@ -98,7 +104,11 @@ public class MobileApiMapper {
                 absence.getDateAbsence(),
                 absence.getNombreHeures(),
                 absence.isJustifiee(),
-                absence.getMotif()
+                absence.getMotif(),
+                absence.getCreatedAt(),
+                absence.getModule() != null && absence.getModule().getTeacher() != null
+                        ? absence.getModule().getTeacher().getFullName()
+                        : null
         );
     }
 
@@ -138,8 +148,37 @@ public class MobileApiMapper {
                 courseContent.getClasse() != null ? courseContent.getClasse().getNom() : null,
                 courseContent.getFiliere() != null ? courseContent.getFiliere().getId() : null,
                 courseContent.getFiliere() != null ? courseContent.getFiliere().getNom() : null,
-                courseContent.getCreatedAt()
+                courseContent.getCreatedAt(),
+                courseContent.getFiles() == null
+                        ? List.of()
+                        : courseContent.getFiles().stream()
+                        .sorted(Comparator.comparing(CourseDocument::getUploadedAt))
+                        .map(file -> toCourseDocumentItem(file, documentDownloadUrl(downloadUrl, file)))
+                        .toList()
         );
+    }
+
+    private MobileDtos.CourseDocumentItem toCourseDocumentItem(CourseDocument file, String downloadUrl) {
+        return new MobileDtos.CourseDocumentItem(
+                file.getId(),
+                downloadUrl,
+                FileUiUtils.fileName(file.getFilePath()),
+                file.getContentType(),
+                file.getFileSize(),
+                file.getUploadedAt()
+        );
+    }
+
+    private String documentDownloadUrl(String courseDownloadUrl, CourseDocument file) {
+        if (courseDownloadUrl == null || file == null || file.getId() == null) {
+            return courseDownloadUrl;
+        }
+        String marker = "/download";
+        int index = courseDownloadUrl.lastIndexOf(marker);
+        if (index < 0) {
+            return courseDownloadUrl;
+        }
+        return courseDownloadUrl.substring(0, index) + "/files/" + file.getId();
     }
 
     public MobileDtos.AnnouncementItem toAnnouncementItem(Announcement announcement) {
@@ -255,6 +294,22 @@ public class MobileApiMapper {
                 module.getFiliere() != null ? module.getFiliere().getNom() : null,
                 module.getTeacher() != null ? module.getTeacher().getId() : null,
                 module.getTeacher() != null ? module.getTeacher().getFullName() : null
+        );
+    }
+
+    public MobileDtos.StudentModuleItem toStudentModuleItem(Module module, Student student) {
+        return new MobileDtos.StudentModuleItem(
+                module.getId(),
+                module.getNom(),
+                module.getCode(),
+                module.getSemestre(),
+                module.getVolumeHoraire(),
+                module.getTeacher() != null ? module.getTeacher().getId() : null,
+                module.getTeacher() != null ? module.getTeacher().getFullName() : null,
+                student != null && student.getClasse() != null ? student.getClasse().getId() : null,
+                student != null && student.getClasse() != null ? student.getClasse().getNom() : null,
+                module.getFiliere() != null ? module.getFiliere().getId() : null,
+                module.getFiliere() != null ? module.getFiliere().getNom() : null
         );
     }
 }

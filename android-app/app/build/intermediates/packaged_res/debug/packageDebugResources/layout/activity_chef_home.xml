@@ -1,10 +1,17 @@
 <?xml version="1.0" encoding="utf-8"?>
-<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:background="@color/background"
-    android:padding="14dp">
+    android:orientation="vertical">
+
+    <ScrollView
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:layout_weight="1"
+        android:background="@color/background"
+        android:padding="14dp">
 
     <LinearLayout
         android:layout_width="match_parent"
@@ -20,9 +27,10 @@
             android:paddingVertical="4dp">
 
             <ImageView
-                android:layout_width="42dp"
-                android:layout_height="42dp"
+                android:layout_width="32dp"
+                android:layout_height="32dp"
                 android:contentDescription="Logo"
+                android:scaleType="centerInside"
                 android:src="@drawable/esto_logo" />
 
             <LinearLayout
@@ -101,12 +109,107 @@
                 </LinearLayout>
 
                 <ImageView
-                    android:layout_width="56dp"
-                    android:layout_height="56dp"
+                    android:layout_width="48dp"
+                    android:layout_height="48dp"
                     android:contentDescription="Logo"
+                    android:scaleType="centerInside"
                     android:src="@drawable/esto_logo" />
             </LinearLayout>
         </com.google.android.material.card.MaterialCardView>
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="12dp"
+            android:orientation="horizontal">
+
+            <com.google.android.material.card.MaterialCardView
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_marginEnd="6dp"
+                android:layout_weight="1"
+                app:cardBackgroundColor="@color/surface"
+                app:cardCornerRadius="14dp"
+                app:cardElevation="0dp"
+                app:strokeColor="@color/chefPrimary"
+                app:strokeWidth="1dp">
+
+                <TextView
+                    android:id="@+id/tvTotalClasses"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:padding="14dp"
+                    android:textColor="@color/chefPrimary"
+                    android:textStyle="bold" />
+            </com.google.android.material.card.MaterialCardView>
+
+            <com.google.android.material.card.MaterialCardView
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="6dp"
+                android:layout_weight="1"
+                app:cardBackgroundColor="@color/surface"
+                app:cardCornerRadius="14dp"
+                app:cardElevation="0dp"
+                app:strokeColor="@color/statGreen"
+                app:strokeWidth="1dp">
+
+                <TextView
+                    android:id="@+id/tvTotalStudents"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:padding="14dp"
+                    android:textColor="@color/statGreen"
+                    android:textStyle="bold" />
+            </com.google.android.material.card.MaterialCardView>
+        </LinearLayout>
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="10dp"
+            android:orientation="horizontal">
+
+            <com.google.android.material.card.MaterialCardView
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_marginEnd="6dp"
+                android:layout_weight="1"
+                app:cardBackgroundColor="@color/surface"
+                app:cardCornerRadius="14dp"
+                app:cardElevation="0dp"
+                app:strokeColor="@color/statBlue"
+                app:strokeWidth="1dp">
+
+                <TextView
+                    android:id="@+id/tvTotalCourses"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:padding="14dp"
+                    android:textColor="@color/statBlue"
+                    android:textStyle="bold" />
+            </com.google.android.material.card.MaterialCardView>
+
+            <com.google.android.material.card.MaterialCardView
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="6dp"
+                android:layout_weight="1"
+                app:cardBackgroundColor="@color/surface"
+                app:cardCornerRadius="14dp"
+                app:cardElevation="0dp"
+                app:strokeColor="@color/statAmber"
+                app:strokeWidth="1dp">
+
+                <TextView
+                    android:id="@+id/tvTotalAbsences"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:padding="14dp"
+                    android:textColor="@color/statAmber"
+                    android:textStyle="bold" />
+            </com.google.android.material.card.MaterialCardView>
+        </LinearLayout>
 
         <TextView
             android:layout_width="wrap_content"
@@ -119,57 +222,66 @@
 
         <com.google.android.material.button.MaterialButton
             android:id="@+id/btnStudents"
-            style="@style/Widget.Material3.Button.OutlinedButton"
+            style="@style/Widget.Gestion.DashboardAction"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginTop="10dp"
             android:text="Etudiants"
-            app:icon="@android:drawable/ic_menu_myplaces" />
+            app:icon="@drawable/ic_person" />
 
         <com.google.android.material.button.MaterialButton
             android:id="@+id/btnNotes"
-            style="@style/Widget.Material3.Button.OutlinedButton"
+            style="@style/Widget.Gestion.DashboardAction"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginTop="8dp"
             android:text="Notes"
-            app:icon="@android:drawable/ic_menu_edit" />
+            app:icon="@drawable/ic_edit" />
 
         <com.google.android.material.button.MaterialButton
             android:id="@+id/btnAbsences"
-            style="@style/Widget.Material3.Button.OutlinedButton"
+            style="@style/Widget.Gestion.DashboardAction"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginTop="8dp"
             android:text="Absences"
-            app:icon="@android:drawable/ic_menu_recent_history" />
+            app:icon="@drawable/ic_history" />
 
         <com.google.android.material.button.MaterialButton
             android:id="@+id/btnCourses"
-            style="@style/Widget.Material3.Button.OutlinedButton"
+            style="@style/Widget.Gestion.DashboardAction"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginTop="8dp"
             android:text="Cours"
-            app:icon="@android:drawable/ic_menu_upload" />
+            app:icon="@drawable/ic_upload" />
 
         <com.google.android.material.button.MaterialButton
             android:id="@+id/btnAnnouncements"
-            style="@style/Widget.Material3.Button.OutlinedButton"
+            style="@style/Widget.Gestion.DashboardAction"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginTop="8dp"
             android:text="Annonces"
-            app:icon="@android:drawable/ic_dialog_info" />
+            app:icon="@drawable/ic_info" />
 
         <com.google.android.material.button.MaterialButton
             android:id="@+id/btnTimetable"
-            style="@style/Widget.Material3.Button.OutlinedButton"
+            style="@style/Widget.Gestion.DashboardAction"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginTop="8dp"
             android:text="Emploi du temps"
-            app:icon="@android:drawable/ic_menu_my_calendar" />
+            app:icon="@drawable/ic_calendar" />
+
+        <com.google.android.material.button.MaterialButton
+            android:id="@+id/btnProfile"
+            style="@style/Widget.Gestion.DashboardAction"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="8dp"
+            android:text="Mon profil"
+            app:icon="@drawable/ic_person" />
 
         <com.google.android.material.button.MaterialButton
             android:id="@+id/btnLogout"
@@ -181,4 +293,7 @@
 
     </LinearLayout>
 
-</ScrollView>
+    </ScrollView>
+
+    <include layout="@layout/include_primary_bottom_nav" />
+</LinearLayout>

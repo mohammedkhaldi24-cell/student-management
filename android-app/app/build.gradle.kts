@@ -6,7 +6,7 @@ plugins {
 val mobileBaseUrl = (project.findProperty("MOBILE_BASE_URL") as String?)
     ?.trim()
     ?.takeIf { it.isNotEmpty() }
-    ?: "http://10.0.2.2:8080/"
+    ?: "http://10.0.2.2:8081/"
 
 val mobileLanBaseUrl = (project.findProperty("MOBILE_LAN_BASE_URL") as String?)
     ?.trim()

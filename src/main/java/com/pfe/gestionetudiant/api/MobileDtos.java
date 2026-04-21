@@ -30,6 +30,11 @@ public final class MobileDtos {
                               String redirectPath) {
     }
 
+    public record TopStudentItem(Long studentId,
+                                 String name,
+                                 Double average) {
+    }
+
     public record StudentProfile(Long id,
                                  String matricule,
                                  String fullName,
@@ -64,7 +69,10 @@ public final class MobileDtos {
                            Double noteFinal,
                            String semestre,
                            String anneeAcademique,
-                           String statut) {
+                           String statut,
+                           LocalDateTime createdAt,
+                           LocalDateTime updatedAt,
+                           String actorName) {
     }
 
     public record AbsenceItem(Long id,
@@ -77,7 +85,9 @@ public final class MobileDtos {
                               LocalDate dateAbsence,
                               Integer nombreHeures,
                               boolean justifiee,
-                              String motif) {
+                              String motif,
+                              LocalDateTime createdAt,
+                              String actorName) {
     }
 
     public record TimetableItem(Long id,
@@ -111,7 +121,16 @@ public final class MobileDtos {
                              String classeNom,
                              Long filiereId,
                              String filiereNom,
-                             LocalDateTime createdAt) {
+                             LocalDateTime createdAt,
+                             List<CourseDocumentItem> files) {
+    }
+
+    public record CourseDocumentItem(Long id,
+                                     String filePath,
+                                     String fileName,
+                                     String contentType,
+                                     Long fileSize,
+                                     LocalDateTime uploadedAt) {
     }
 
     public record AnnouncementItem(Long id,
@@ -179,11 +198,13 @@ public final class MobileDtos {
                                      LocalDateTime uploadedAt) {
     }
 
-    public record NotificationItem(String type,
+    public record NotificationItem(String eventId,
+                                   String type,
                                    String title,
                                    String message,
                                    LocalDateTime createdAt,
-                                   String actionPath) {
+                                   String actionPath,
+                                   boolean emailRelated) {
     }
 
     public record StudentDashboard(double moyenneS1,
@@ -241,6 +262,19 @@ public final class MobileDtos {
                                     String teacherName) {
     }
 
+    public record StudentModuleItem(Long id,
+                                    String nom,
+                                    String code,
+                                    String semestre,
+                                    Integer volumeHoraire,
+                                    Long teacherId,
+                                    String teacherName,
+                                    Long classeId,
+                                    String classeNom,
+                                    Long filiereId,
+                                    String filiereNom) {
+    }
+
     public record ClasseItem(Long id,
                              String nom,
                              Long filiereId,
@@ -255,16 +289,39 @@ public final class MobileDtos {
                                     Double noteExamen) {
     }
 
+    public record NoteBulkItem(Long studentId,
+                               Double noteCc,
+                               Double noteExamen) {
+    }
+
+    public record NoteBulkRequest(Long moduleId,
+                                  String semestre,
+                                  String anneeAcademique,
+                                  List<NoteBulkItem> notes) {
+    }
+
     public record AbsenceCreateRequest(Long studentId,
                                        Long moduleId,
                                        LocalDate dateAbsence,
                                        Integer nombreHeures) {
     }
 
+    public record AbsenceSessionRequest(Long moduleId,
+                                        Long classeId,
+                                        LocalDate dateAbsence,
+                                        Integer nombreHeures,
+                                        List<Long> absentStudentIds) {
+    }
+
+    public record AbsenceSessionResponse(String message,
+                                         List<AbsenceItem> absences) {
+    }
+
     public record AnnouncementCreateRequest(String title,
                                             String message,
                                             Long classeId,
-                                            Long filiereId) {
+                                            Long filiereId,
+                                            Long moduleId) {
     }
 
     public record SubmissionReviewRequest(Double score,
@@ -305,5 +362,16 @@ public final class MobileDtos {
                                            String semestre,
                                            Long filiereId,
                                            Long teacherId) {
+    }
+
+    public record AdminTimetableUpsertRequest(String jour,
+                                              String heureDebut,
+                                              String heureFin,
+                                              Long moduleId,
+                                              Long classeId,
+                                              Long filiereId,
+                                              Long teacherId,
+                                              String salle,
+                                              Boolean valide) {
     }
 }

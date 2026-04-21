@@ -4,5 +4,6 @@ data class UiRow(
     val id: Long? = null,
     val title: String,
     val subtitle: String,
-    val badge: String = ""
+    val badge: String = "",
+    val icon: String? = null
 )

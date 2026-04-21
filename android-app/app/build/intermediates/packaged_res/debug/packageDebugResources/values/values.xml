@@ -1,40 +1,65 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources xmlns:ns1="http://schemas.android.com/tools">
-    <color name="adminDark">#1A3C68</color>
-    <color name="adminPrimary">#224F87</color>
-    <color name="background">#F1F4F9</color>
-    <color name="chefDark">#155261</color>
-    <color name="chefPrimary">#1E6B7D</color>
-    <color name="error">#B3261E</color>
+    <color name="adminDark">#152F52</color>
+    <color name="adminPrimary">#204F8F</color>
+    <color name="background">#F3F6FB</color>
+    <color name="chefDark">#0E3451</color>
+    <color name="chefPrimary">#1A5276</color>
+    <color name="error">#C92F3D</color>
     <color name="onPrimary">#FFFFFF</color>
-    <color name="onPrimaryContainer">#001A41</color>
+    <color name="onPrimaryContainer">#172033</color>
     <color name="onSecondary">#FFFFFF</color>
-    <color name="primary">#224F87</color>
-    <color name="primaryContainer">#D6E3FF</color>
-    <color name="secondary">#2E7D32</color>
-    <color name="statAmber">#E2B93B</color>
-    <color name="statBlue">#2F80ED</color>
-    <color name="statGreen">#27AE60</color>
-    <color name="statRed">#D64545</color>
-    <color name="studentDark">#341A49</color>
-    <color name="studentPrimary">#4B2367</color>
+    <color name="outline">#E6EBF3</color>
+    <color name="outlineStrong">#CAD4E5</color>
+    <color name="primary">#204F8F</color>
+    <color name="primaryContainer">#EAF1FF</color>
+    <color name="primaryDark">#152F52</color>
+    <color name="secondary">#1F8A4C</color>
+    <color name="secondaryContainer">#E9F8EF</color>
+    <color name="softAmber">#FFF6DC</color>
+    <color name="softBlue">#EAF1FF</color>
+    <color name="softGreen">#E9F8EF</color>
+    <color name="softPurple">#F3E5F5</color>
+    <color name="softRed">#FDECEF</color>
+    <color name="statAmber">#946B00</color>
+    <color name="statBlue">#204F8F</color>
+    <color name="statGreen">#1F8A4C</color>
+    <color name="statPurple">#6A1B9A</color>
+    <color name="statRed">#C92F3D</color>
+    <color name="studentDark">#2E1437</color>
+    <color name="studentPrimary">#4A235A</color>
     <color name="surface">#FFFFFF</color>
-    <color name="teacherDark">#055637</color>
-    <color name="teacherPrimary">#0B6B46</color>
-    <color name="textPrimary">#1A1C1E</color>
-    <color name="textSecondary">#5E6167</color>
-    <string name="admin_dashboard">Dashboard Admin</string>
-    <string name="app_name">GestionEtu Mobile</string>
+    <color name="surfaceElevated">#FFFFFF</color>
+    <color name="surfaceVariant">#F6F8FC</color>
+    <color name="teacherDark">#0B3D21</color>
+    <color name="teacherPrimary">#145A32</color>
+    <color name="tertiary">#F2BF3D</color>
+    <color name="tertiaryContainer">#FFF6DC</color>
+    <color name="textMuted">#7B8697</color>
+    <color name="textPrimary">#172033</color>
+    <color name="textSecondary">#6C7585</color>
+    <string name="admin_dashboard">Tableau de bord admin</string>
+    <string name="app_name">GestionEtu</string>
     <string name="back">Retour</string>
-    <string name="chef_dashboard">Dashboard Chef Filiere</string>
+    <string name="chef_dashboard">Tableau de bord chef filiere</string>
     <string name="login_title">Connexion</string>
     <string name="logout">Deconnexion</string>
     <string name="password">Mot de passe</string>
     <string name="refresh">Rafraichir</string>
     <string name="sign_in">Se connecter</string>
-    <string name="student_dashboard">Dashboard Etudiant</string>
-    <string name="teacher_dashboard">Dashboard Enseignant</string>
+    <string name="student_dashboard">Mon espace etudiant</string>
+    <string name="teacher_dashboard">Tableau de bord enseignant</string>
     <string name="username">Nom utilisateur</string>
+    <style name="TextAppearance.Gestion.BottomNav.Active" parent="TextAppearance.Material3.LabelMedium">
+        <item name="android:textSize">11sp</item>
+        <item name="android:textStyle">bold</item>
+        <item name="android:letterSpacing">0</item>
+    </style>
+    <style name="TextAppearance.Gestion.BottomNav.Inactive" parent="TextAppearance.Material3.LabelMedium">
+        <item name="android:textSize">11sp</item>
+        <item name="android:textStyle">normal</item>
+        <item name="android:letterSpacing">0</item>
+    </style>
     <style name="Theme.StudentManagementMobile" parent="Theme.Material3.DayNight.NoActionBar">
         <item name="colorPrimary">@color/primary</item>
         <item name="colorOnPrimary">@color/onPrimary</item>
@@ -42,6 +67,64 @@
         <item name="colorOnPrimaryContainer">@color/onPrimaryContainer</item>
         <item name="colorSecondary">@color/secondary</item>
         <item name="colorOnSecondary">@color/onSecondary</item>
-        <item name="android:statusBarColor" ns1:targetApi="l">@color/primary</item>
+        <item name="colorSurface">@color/surface</item>
+        <item name="colorSurfaceVariant">@color/surfaceVariant</item>
+        <item name="colorOutline">@color/outline</item>
+        <item name="android:fontFamily">sans</item>
+        <item name="android:windowBackground">@color/background</item>
+        <item name="android:windowDisablePreview">true</item>
+        <item name="android:navigationBarColor">@color/background</item>
+        <item name="android:statusBarColor" ns1:targetApi="l">@color/primaryDark</item>
+        <item name="android:windowLightStatusBar" ns1:targetApi="m">false</item>
+    </style>
+    <style name="Widget.Gestion.BottomNavItem" parent="Widget.Material3.Button.TextButton">
+        <item name="android:minWidth">0dp</item>
+        <item name="android:minHeight">48dp</item>
+        <item name="android:textAllCaps">false</item>
+        <item name="android:textColor">@color/textSecondary</item>
+        <item name="android:textSize">11sp</item>
+        <item name="iconGravity">top</item>
+        <item name="iconPadding">1dp</item>
+        <item name="iconSize">20dp</item>
+        <item name="iconTint">@color/textSecondary</item>
+        <item name="backgroundTint">@android:color/transparent</item>
+        <item name="cornerRadius">16dp</item>
+        <item name="android:paddingLeft">0dp</item>
+        <item name="android:paddingRight">0dp</item>
+    </style>
+    <style name="Widget.Gestion.DashboardAction" parent="Widget.Material3.Button.OutlinedButton">
+        <item name="cornerRadius">18dp</item>
+        <item name="android:minHeight">62dp</item>
+        <item name="android:textAllCaps">false</item>
+        <item name="android:textColor">@color/textPrimary</item>
+        <item name="android:textSize">15sp</item>
+        <item name="backgroundTint">@color/surface</item>
+        <item name="iconTint">@color/primary</item>
+        <item name="strokeColor">@color/outline</item>
+        <item name="android:gravity">center_vertical|start</item>
+        <item name="android:paddingStart">18dp</item>
+        <item name="android:paddingEnd">18dp</item>
+    </style>
+    <style name="Widget.Gestion.OutlinedButton" parent="Widget.Material3.Button.OutlinedButton">
+        <item name="cornerRadius">12dp</item>
+        <item name="android:minHeight">52dp</item>
+        <item name="android:textAllCaps">false</item>
+        <item name="strokeColor">@color/outline</item>
+    </style>
+    <style name="Widget.Gestion.PrimaryButton" parent="Widget.Material3.Button">
+        <item name="cornerRadius">12dp</item>
+        <item name="android:minHeight">52dp</item>
+        <item name="android:textAllCaps">false</item>
+    </style>
+    <style name="Widget.Gestion.TextInput" parent="Widget.Material3.TextInputLayout.OutlinedBox">
+        <item name="boxBackgroundColor">@color/surface</item>
+        <item name="boxCornerRadiusTopStart">12dp</item>
+        <item name="boxCornerRadiusTopEnd">12dp</item>
+        <item name="boxCornerRadiusBottomStart">12dp</item>
+        <item name="boxCornerRadiusBottomEnd">12dp</item>
+        <item name="boxStrokeColor">@color/primary</item>
+        <item name="hintTextColor">@color/textSecondary</item>
+        <item name="startIconTint">@color/primary</item>
+        <item name="endIconTint">@color/primary</item>
     </style>
 </resources>

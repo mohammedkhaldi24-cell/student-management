@@ -11,30 +11,36 @@
 
             <div class="card mb-4">
                 <div class="card-header">
-                    <h6 class="mb-0"><i class="bi bi-funnel me-2"></i>Sélectionner Module et Classe</h6>
+                    <h6 class="mb-0"><i class="bi bi-lightning-charge me-2"></i>Appel rapide de la session</h6>
                 </div>
                 <div class="card-body">
                     <div class="row g-3 align-items-end">
-                        <div class="col-md-4">
+                        <div class="col-md-5">
                             <label class="form-label fw-semibold">Module</label>
                             <select id="moduleAbs" class="form-select" onchange="updateClassesAbs()">
-                                <option value="">-- Sélectionner --</option>
+                                <option value="">-- Selectionner un module --</option>
                                 <option th:each="m : ${modules}"
                                         th:value="${m.id}"
-                                        th:data-filiere="${m.filiere.id}"
+                                        th:data-filiere="${m.filiere != null ? m.filiere.id : ''}"
+                                        th:data-filiere-name="${m.filiere != null ? m.filiere.nom : 'Filiere du module'}"
                                         th:text="${m.nom + ' (' + m.semestre + ')'}">Module</option>
                             </select>
                         </div>
                         <div class="col-md-4">
                             <label class="form-label fw-semibold">Classe</label>
-                            <select id="classeAbs" class="form-select">
-                                <option value="">-- Sélectionner --</option>
+                            <select id="classeAbs" class="form-select" onchange="updateAudienceAbs()">
+                                <option value="">Auto / session du jour</option>
                             </select>
                         </div>
-                        <div class="col-md-2">
-                            <button type="button" class="btn btn-primary w-100" onclick="chargerAbsences()">
-                                <i class="bi bi-search me-1"></i>Charger
+                        <div class="col-md-3">
+                            <button type="button" class="btn btn-danger w-100" onclick="chargerAbsences()">
+                                <i class="bi bi-calendar-check me-1"></i>Ouvrir l'appel
                             </button>
+                        </div>
+                        <div class="col-12">
+                            <div id="audienceAbs" class="alert alert-light border mb-0">
+                                Choisissez un module. Le site detectera la classe de la session du jour si possible.
+                            </div>
                         </div>
                     </div>
                 </div>
@@ -42,8 +48,8 @@
 
             <div class="text-center py-5 text-muted">
                 <i class="bi bi-calendar-x fs-1 d-block mb-3 text-danger opacity-50"></i>
-                <h5>Sélectionnez un module et une classe</h5>
-                <p>Vous pourrez ensuite marquer les absences des étudiants</p>
+                <h5>Selectionnez un module pour charger les etudiants</h5>
+                <p>La date est pre-remplie et les etudiants presents restent non coches.</p>
             </div>
         </div>
     </div>
@@ -58,28 +64,43 @@ function updateClassesAbs() {
     const selectedOption = moduleSelect.options[moduleSelect.selectedIndex];
     const filiereId = selectedOption ? selectedOption.getAttribute('data-filiere') : null;
 
-    classeSelect.innerHTML = '<option value="">-- Sélectionner --</option>';
-
-    if (!filiereId || !classesByFiliere[filiereId]) {
-        return;
-    }
-
-    classesByFiliere[filiereId].forEach(c => {
+    classeSelect.innerHTML = '<option value="">Auto / session du jour</option>';
+    (classesByFiliere[filiereId] || []).forEach(c => {
         const option = document.createElement('option');
         option.value = c.id;
         option.textContent = `${c.nom} (${c.niveau})`;
         classeSelect.appendChild(option);
     });
+    updateAudienceAbs();
+}
+
+function updateAudienceAbs() {
+    const moduleSelect = document.getElementById('moduleAbs');
+    const classeSelect = document.getElementById('classeAbs');
+    const selectedOption = moduleSelect.options[moduleSelect.selectedIndex];
+    const filiereName = selectedOption ? selectedOption.getAttribute('data-filiere-name') : '';
+    const selectedClass = classeSelect.value ? classeSelect.options[classeSelect.selectedIndex].text : '';
+    const summary = document.getElementById('audienceAbs');
+
+    if (!moduleSelect.value) {
+        summary.textContent = 'Choisissez un module. Le site detectera la classe de la session du jour si possible.';
+        return;
+    }
+    summary.textContent = selectedClass
+        ? `Audience: ${selectedClass} | ${filiereName}`
+        : `Audience automatique: ${filiereName}. La session du jour sera utilisee si elle existe.`;
 }
 
 function chargerAbsences() {
     const moduleId = document.getElementById('moduleAbs').value;
     const classeId = document.getElementById('classeAbs').value;
-    if (!moduleId || !classeId) {
-        alert('Veuillez sélectionner un module et une classe.');
+    if (!moduleId) {
+        alert('Veuillez selectionner un module.');
         return;
     }
-    window.location.href = `/teacher/absences/module/${moduleId}/classe/${classeId}`;
+    const params = new URLSearchParams();
+    if (classeId) params.set('classeId', classeId);
+    window.location.href = `/teacher/absences/module/${moduleId}${params.toString() ? '?' + params.toString() : ''}`;
 }
 
 updateClassesAbs();

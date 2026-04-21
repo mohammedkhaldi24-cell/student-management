@@ -45,7 +45,7 @@ public class ModuleServiceImpl implements ModuleService {
     @Override
     @Transactional(readOnly = true)
     public List<Module> findByFiliereId(Long filiereId) {
-        return moduleRepository.findByFiliereId(filiereId);
+        return moduleRepository.findByFiliereIdOrdered(filiereId);
     }
 
     @Override

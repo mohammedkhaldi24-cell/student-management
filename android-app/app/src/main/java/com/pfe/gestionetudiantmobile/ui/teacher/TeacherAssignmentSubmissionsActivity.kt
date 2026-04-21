@@ -1,7 +1,5 @@
 package com.pfe.gestionetudiantmobile.ui.teacher
 
-import android.content.Intent
-import android.net.Uri
 import android.os.Bundle
 import android.text.InputType
 import android.widget.ArrayAdapter
@@ -17,10 +15,11 @@ import com.pfe.gestionetudiantmobile.data.model.AssignmentSubmissionItem
 import com.pfe.gestionetudiantmobile.data.model.SubmissionFileItem
 import com.pfe.gestionetudiantmobile.data.repository.TeacherRepository
 import com.pfe.gestionetudiantmobile.databinding.ActivityFeatureListBinding
+import com.pfe.gestionetudiantmobile.ui.common.FeatureStateController
 import com.pfe.gestionetudiantmobile.ui.common.UiRow
 import com.pfe.gestionetudiantmobile.ui.common.UiRowAdapter
-import com.pfe.gestionetudiantmobile.util.AppUrlUtils
 import com.pfe.gestionetudiantmobile.util.ApiResult
+import com.pfe.gestionetudiantmobile.util.AuthenticatedFileOpener
 import kotlinx.coroutines.launch
 
 class TeacherAssignmentSubmissionsActivity : AppCompatActivity() {
@@ -28,6 +27,7 @@ class TeacherAssignmentSubmissionsActivity : AppCompatActivity() {
     private lateinit var binding: ActivityFeatureListBinding
     private val repository = TeacherRepository()
     private val adapter = UiRowAdapter { row -> onSubmissionClicked(row) }
+    private lateinit var stateController: FeatureStateController
     private var assignmentId: Long = -1L
     private var submissionsById: Map<Long, AssignmentSubmissionItem> = emptyMap()
 
@@ -47,6 +47,7 @@ class TeacherAssignmentSubmissionsActivity : AppCompatActivity() {
 
         binding.recyclerView.layoutManager = LinearLayoutManager(this)
         binding.recyclerView.adapter = adapter
+        stateController = FeatureStateController(binding) { loadSubmissions() }
         binding.tvTitle.text = "Soumissions: $title"
         binding.btnBack.setOnClickListener { finish() }
         binding.swipeLayout.setOnRefreshListener { loadSubmissions() }
@@ -56,20 +57,30 @@ class TeacherAssignmentSubmissionsActivity : AppCompatActivity() {
 
     private fun loadSubmissions() {
         lifecycleScope.launch {
+            val refreshing = binding.swipeLayout.isRefreshing
             binding.swipeLayout.isRefreshing = true
+            if (!refreshing) {
+                stateController.showLoading("Chargement des soumissions...")
+            }
             when (val result = repository.submissions(assignmentId)) {
                 is ApiResult.Success -> {
                     submissionsById = result.data.associateBy { it.id }
-                    adapter.submitList(result.data.map {
-                        UiRow(
-                            id = it.id,
-                            title = "${it.studentName ?: "Etudiant"} (${it.matricule ?: "-"})",
-                            subtitle = "Statut: ${it.status} | Date: ${it.submittedAt ?: "-"} | Note: ${it.score ?: "-"} | Fichiers: ${it.files.size}",
-                            badge = if (it.lateSubmission) "Late" else "On time"
-                        )
-                    })
+                    stateController.showRows(
+                        adapter = adapter,
+                        rows = result.data.map {
+                            UiRow(
+                                id = it.id,
+                                title = "${it.studentName ?: "Etudiant"} (${it.matricule ?: "-"})",
+                                subtitle = "Statut: ${it.status} | Date: ${it.submittedAt ?: "-"} | Note: ${it.score ?: "-"} | Fichiers: ${it.files.size}",
+                                badge = if (it.lateSubmission) "Late" else "On time"
+                            )
+                        },
+                        emptyTitle = "Aucune soumission",
+                        emptyMessage = "Les travaux envoyes par les etudiants apparaitront ici.",
+                        emptyIcon = "DEV"
+                    )
                 }
-                is ApiResult.Error -> Toast.makeText(this@TeacherAssignmentSubmissionsActivity, result.message, Toast.LENGTH_LONG).show()
+                is ApiResult.Error -> stateController.showError(result.message, "Chargement impossible", retryVisible = true)
             }
             binding.swipeLayout.isRefreshing = false
         }
@@ -180,18 +191,23 @@ class TeacherAssignmentSubmissionsActivity : AppCompatActivity() {
             binding.swipeLayout.isRefreshing = true
             when (val result = repository.reviewSubmission(assignmentId, submissionId, score, feedback, status)) {
                 is ApiResult.Success -> {
-                    Toast.makeText(this@TeacherAssignmentSubmissionsActivity, "Evaluation enregistree", Toast.LENGTH_LONG).show()
+                    stateController.showSuccess("Evaluation enregistree")
                     loadSubmissions()
                 }
-                is ApiResult.Error -> Toast.makeText(this@TeacherAssignmentSubmissionsActivity, result.message, Toast.LENGTH_LONG).show()
+                is ApiResult.Error -> stateController.showErrorMessage(result.message)
             }
             binding.swipeLayout.isRefreshing = false
         }
     }
 
     private fun openExternal(url: String) {
-        val target = AppUrlUtils.toAbsolute(url)
-        startActivity(Intent(Intent.ACTION_VIEW, Uri.parse(target)))
+        Toast.makeText(this, "Telechargement du document...", Toast.LENGTH_SHORT).show()
+        lifecycleScope.launch {
+            when (val result = AuthenticatedFileOpener.downloadAndOpen(this@TeacherAssignmentSubmissionsActivity, url)) {
+                is ApiResult.Success -> Unit
+                is ApiResult.Error -> stateController.showErrorMessage(result.message)
+            }
+        }
     }
 
     companion object {

@@ -4,8 +4,8 @@
         "source": "C:\\Users\\moham\\.gradle\\daemon\\9.0.0\\com.pfe.gestionetudiantmobile.app-main-41:\\layout\\activity_admin_home.xml"
     },
     {
-        "merged": "com.pfe.gestionetudiantmobile.app-mergeDebugResources-38:/layout/activity_admin_home.xml",
-        "source": "com.pfe.gestionetudiantmobile.app-main-41:/layout/activity_admin_home.xml"
+        "merged": "C:\\Users\\moham\\.gradle\\daemon\\9.0.0\\com.pfe.gestionetudiantmobile.app-mergeDebugResources-38:\\layout\\activity_teacher_module_workspace.xml",
+        "source": "C:\\Users\\moham\\.gradle\\daemon\\9.0.0\\com.pfe.gestionetudiantmobile.app-main-41:\\layout\\activity_teacher_module_workspace.xml"
     },
     {
         "merged": "C:\\Users\\moham\\.gradle\\daemon\\9.0.0\\com.pfe.gestionetudiantmobile.app-mergeDebugResources-38:\\layout\\activity_teacher_create_assignment.xml",
@@ -20,20 +20,12 @@
         "source": "C:\\Users\\moham\\.gradle\\daemon\\9.0.0\\com.pfe.gestionetudiantmobile.app-main-41:\\layout\\activity_chef_home.xml"
     },
     {
-        "merged": "C:\\Users\\moham\\.gradle\\daemon\\9.0.0\\com.pfe.gestionetudiantmobile.app-mergeDebugResources-38:\\layout\\activity_feature_list.xml",
-        "source": "C:\\Users\\moham\\.gradle\\daemon\\9.0.0\\com.pfe.gestionetudiantmobile.app-main-41:\\layout\\activity_feature_list.xml"
-    },
-    {
-        "merged": "C:\\Users\\moham\\.gradle\\daemon\\9.0.0\\com.pfe.gestionetudiantmobile.app-mergeDebugResources-38:\\layout\\activity_login.xml",
-        "source": "C:\\Users\\moham\\.gradle\\daemon\\9.0.0\\com.pfe.gestionetudiantmobile.app-main-41:\\layout\\activity_login.xml"
+        "merged": "C:\\Users\\moham\\.gradle\\daemon\\9.0.0\\com.pfe.gestionetudiantmobile.app-mergeDebugResources-38:\\layout\\include_primary_bottom_nav.xml",
+        "source": "C:\\Users\\moham\\.gradle\\daemon\\9.0.0\\com.pfe.gestionetudiantmobile.app-main-41:\\layout\\include_primary_bottom_nav.xml"
     },
     {
         "merged": "C:\\Users\\moham\\.gradle\\daemon\\9.0.0\\com.pfe.gestionetudiantmobile.app-mergeDebugResources-38:\\layout\\activity_teacher_home.xml",
         "source": "C:\\Users\\moham\\.gradle\\daemon\\9.0.0\\com.pfe.gestionetudiantmobile.app-main-41:\\layout\\activity_teacher_home.xml"
-    },
-    {
-        "merged": "C:\\Users\\moham\\.gradle\\daemon\\9.0.0\\com.pfe.gestionetudiantmobile.app-mergeDebugResources-38:\\layout\\item_ui_row.xml",
-        "source": "C:\\Users\\moham\\.gradle\\daemon\\9.0.0\\com.pfe.gestionetudiantmobile.app-main-41:\\layout\\item_ui_row.xml"
     },
     {
         "merged": "C:\\Users\\moham\\.gradle\\daemon\\9.0.0\\com.pfe.gestionetudiantmobile.app-mergeDebugResources-38:\\layout\\activity_teacher_create_course.xml",
@@ -42,5 +34,33 @@
     {
         "merged": "C:\\Users\\moham\\.gradle\\daemon\\9.0.0\\com.pfe.gestionetudiantmobile.app-mergeDebugResources-38:\\layout\\activity_teacher_create_announcement.xml",
         "source": "C:\\Users\\moham\\.gradle\\daemon\\9.0.0\\com.pfe.gestionetudiantmobile.app-main-41:\\layout\\activity_teacher_create_announcement.xml"
+    },
+    {
+        "merged": "com.pfe.gestionetudiantmobile.app-mergeDebugResources-38:/layout/activity_teacher_create_course.xml",
+        "source": "com.pfe.gestionetudiantmobile.app-main-41:/layout/activity_teacher_create_course.xml"
+    },
+    {
+        "merged": "C:\\Users\\moham\\.gradle\\daemon\\9.0.0\\com.pfe.gestionetudiantmobile.app-mergeDebugResources-38:\\layout\\item_teacher_absence_entry.xml",
+        "source": "C:\\Users\\moham\\.gradle\\daemon\\9.0.0\\com.pfe.gestionetudiantmobile.app-main-41:\\layout\\item_teacher_absence_entry.xml"
+    },
+    {
+        "merged": "C:\\Users\\moham\\.gradle\\daemon\\9.0.0\\com.pfe.gestionetudiantmobile.app-mergeDebugResources-38:\\layout\\activity_feature_list.xml",
+        "source": "C:\\Users\\moham\\.gradle\\daemon\\9.0.0\\com.pfe.gestionetudiantmobile.app-main-41:\\layout\\activity_feature_list.xml"
+    },
+    {
+        "merged": "C:\\Users\\moham\\.gradle\\daemon\\9.0.0\\com.pfe.gestionetudiantmobile.app-mergeDebugResources-38:\\layout\\activity_login.xml",
+        "source": "C:\\Users\\moham\\.gradle\\daemon\\9.0.0\\com.pfe.gestionetudiantmobile.app-main-41:\\layout\\activity_login.xml"
+    },
+    {
+        "merged": "C:\\Users\\moham\\.gradle\\daemon\\9.0.0\\com.pfe.gestionetudiantmobile.app-mergeDebugResources-38:\\layout\\item_teacher_note_entry.xml",
+        "source": "C:\\Users\\moham\\.gradle\\daemon\\9.0.0\\com.pfe.gestionetudiantmobile.app-main-41:\\layout\\item_teacher_note_entry.xml"
+    },
+    {
+        "merged": "C:\\Users\\moham\\.gradle\\daemon\\9.0.0\\com.pfe.gestionetudiantmobile.app-mergeDebugResources-38:\\layout\\item_ui_row.xml",
+        "source": "C:\\Users\\moham\\.gradle\\daemon\\9.0.0\\com.pfe.gestionetudiantmobile.app-main-41:\\layout\\item_ui_row.xml"
+    },
+    {
+        "merged": "C:\\Users\\moham\\.gradle\\daemon\\9.0.0\\com.pfe.gestionetudiantmobile.app-mergeDebugResources-38:\\layout\\activity_academic_statistics.xml",
+        "source": "C:\\Users\\moham\\.gradle\\daemon\\9.0.0\\com.pfe.gestionetudiantmobile.app-main-41:\\layout\\activity_academic_statistics.xml"
     }
 ]

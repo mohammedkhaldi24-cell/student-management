@@ -19,14 +19,29 @@
 
             <div class="welcome-banner admin-welcome-banner mb-4 p-4 rounded d-flex justify-content-between align-items-center">
                 <div>
-                    <h4 class="fw-bold mb-1">
+                    <div class="dashboard-kicker">
+                        <i class="bi bi-stars"></i> Command center
+                    </div>
+                    <h4 class="dashboard-hero-title mb-1">
                         Bienvenue, <span sec:authentication="name">admin</span>
                     </h4>
-                    <p class="text-muted mb-0">
+                    <p class="dashboard-hero-subtitle mb-0">
                         Supervisez la plateforme, les utilisateurs et les ressources pedagogiques.
                     </p>
+                    <div class="dashboard-hero-actions">
+                        <a th:href="@{/admin/users/new}" class="btn btn-light">
+                            <i class="bi bi-person-plus me-1"></i>Nouvel utilisateur
+                        </a>
+                        <a th:href="@{/admin/emploi-du-temps/new}" class="btn btn-outline-light">
+                            <i class="bi bi-calendar-plus me-1"></i>Planifier une seance
+                        </a>
+                    </div>
+                    <div class="metric-ribbon">
+                        <span class="metric-pill"><i class="bi bi-shield-check"></i>Administration</span>
+                        <span class="metric-pill"><i class="bi bi-database-check"></i>Données centralisées</span>
+                    </div>
                 </div>
-                <img th:src="@{/images/esto-logo.jpg}" alt="Logo ESTO" class="dashboard-brand-logo d-none d-md-block"/>
+                <img th:src="@{/images/esto-logo.jpg(v=2)}" alt="Logo ESTO" class="dashboard-brand-logo d-none d-md-block"/>
             </div>
 
             <!-- Cartes statistiques -->
@@ -119,21 +134,41 @@
                             </h6>
                         </div>
                         <div class="card-body">
-                            <div class="d-grid gap-2">
-                                <a th:href="@{/admin/users/new}" class="btn btn-primary">
-                                    <i class="bi bi-person-plus me-2"></i>Nouvel Utilisateur
+                            <div class="d-grid gap-3">
+                                <a th:href="@{/admin/users/new}" class="action-card">
+                                    <span class="action-card-icon"><i class="bi bi-person-plus"></i></span>
+                                    <span>
+                                        <span class="action-card-title">Nouvel Utilisateur</span>
+                                        <span class="action-card-subtitle">Créer un compte et attribuer un rôle</span>
+                                    </span>
                                 </a>
-                                <a th:href="@{/admin/filieres/new}" class="btn btn-primary">
-                                    <i class="bi bi-plus-circle me-2"></i>Nouvelle FiliÃ¨re
+                                <a th:href="@{/admin/filieres/new}" class="action-card action-card-success">
+                                    <span class="action-card-icon"><i class="bi bi-diagram-3"></i></span>
+                                    <span>
+                                        <span class="action-card-title">Nouvelle FiliÃ¨re</span>
+                                        <span class="action-card-subtitle">Structurer une formation</span>
+                                    </span>
                                 </a>
-                                <a th:href="@{/admin/classes/new}" class="btn btn-primary">
-                                    <i class="bi bi-plus-circle me-2"></i>Nouvelle Classe
+                                <a th:href="@{/admin/classes/new}" class="action-card action-card-info">
+                                    <span class="action-card-icon"><i class="bi bi-mortarboard"></i></span>
+                                    <span>
+                                        <span class="action-card-title">Nouvelle Classe</span>
+                                        <span class="action-card-subtitle">Ajouter un groupe pédagogique</span>
+                                    </span>
                                 </a>
-                                <a th:href="@{/admin/modules/new}" class="btn btn-primary">
-                                    <i class="bi bi-plus-circle me-2"></i>Nouveau Module
+                                <a th:href="@{/admin/modules/new}" class="action-card action-card-warning">
+                                    <span class="action-card-icon"><i class="bi bi-book"></i></span>
+                                    <span>
+                                        <span class="action-card-title">Nouveau Module</span>
+                                        <span class="action-card-subtitle">Créer une unité d’enseignement</span>
+                                    </span>
                                 </a>
-                                <a th:href="@{/admin/emploi-du-temps/new}" class="btn btn-primary">
-                                    <i class="bi bi-calendar-plus me-2"></i>Nouvelle Seance EDT
+                                <a th:href="@{/admin/emploi-du-temps/new}" class="action-card action-card-danger">
+                                    <span class="action-card-icon"><i class="bi bi-calendar-plus"></i></span>
+                                    <span>
+                                        <span class="action-card-title">Nouvelle Seance EDT</span>
+                                        <span class="action-card-subtitle">Planifier salle, module et enseignant</span>
+                                    </span>
                                 </a>
                             </div>
                         </div>
@@ -203,4 +238,5 @@
 <div th:replace="~{fragments/layout :: scripts}"></div>
 </body>
 </html>
+
 

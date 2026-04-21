@@ -2,6 +2,7 @@ package com.pfe.gestionetudiant.controller;
 
 import com.pfe.gestionetudiant.model.Announcement;
 import com.pfe.gestionetudiant.model.CourseContent;
+import com.pfe.gestionetudiant.model.CourseDocument;
 import com.pfe.gestionetudiant.model.Module;
 import com.pfe.gestionetudiant.model.User;
 import com.pfe.gestionetudiant.service.AnnouncementService;
@@ -46,12 +47,21 @@ public class TeacherContentController {
     private final AnnouncementService announcementService;
 
     @GetMapping("/courses")
-    public String listCourses(Model model) {
+    public String listCourses(@RequestParam(required = false) Long moduleId, Model model) {
         User teacher = userService.getCurrentUser();
         List<Module> modules = moduleService.findByTeacherId(teacher.getId());
+        Long selectedModuleId = moduleId != null
+                && modules.stream().anyMatch(module -> moduleId.equals(module.getId()))
+                ? moduleId
+                : null;
+        List<CourseContent> courses = courseContentService.findByTeacherId(teacher.getId()).stream()
+                .filter(course -> selectedModuleId == null
+                        || (course.getModule() != null && selectedModuleId.equals(course.getModule().getId())))
+                .toList();
 
-        model.addAttribute("courses", courseContentService.findByTeacherId(teacher.getId()));
+        model.addAttribute("courses", courses);
         model.addAttribute("modules", modules);
+        model.addAttribute("selectedModuleId", selectedModuleId);
         model.addAttribute("classesByFiliere", buildClassesByFiliere(modules));
         return "teacher/courses/list";
     }
@@ -72,12 +82,17 @@ public class TeacherContentController {
                                @RequestParam Long moduleId,
                                @RequestParam(required = false) Long classeId,
                                @RequestParam(required = false) Long filiereId,
+                               @RequestParam(required = false) MultipartFile[] files,
                                @RequestParam(required = false) MultipartFile file,
                                RedirectAttributes flash) {
         User teacher = userService.getCurrentUser();
+        MultipartFile[] normalizedFiles = files;
+        if ((normalizedFiles == null || normalizedFiles.length == 0) && file != null && !file.isEmpty()) {
+            normalizedFiles = new MultipartFile[]{file};
+        }
 
         courseContentService.createCourse(
-                title, description, file, moduleId, teacher.getId(), classeId, filiereId
+                title, description, normalizedFiles, moduleId, teacher.getId(), classeId, filiereId
         );
 
         flash.addFlashAttribute("successMessage", "Contenu de cours publie avec succes.");
@@ -95,6 +110,21 @@ public class TeacherContentController {
 
         Resource resource = courseContentService.loadFileAsResource(course);
         return buildFileResponse(resource, course.getFilePath());
+    }
+
+    @GetMapping("/courses/{id}/files/{fileId}/download")
+    public ResponseEntity<Resource> downloadCourseDocument(@PathVariable Long id,
+                                                           @PathVariable Long fileId) {
+        User teacher = userService.getCurrentUser();
+        CourseContent course = courseContentService.findById(id)
+                .orElseThrow(() -> new IllegalArgumentException("Cours introuvable."));
+        if (course.getTeacher() == null || !teacher.getId().equals(course.getTeacher().getId())) {
+            throw new IllegalArgumentException("Acces non autorise.");
+        }
+
+        CourseDocument document = courseContentService.findFileForCourse(id, fileId);
+        Resource resource = courseContentService.loadFileAsResource(document);
+        return buildFileResponse(resource, document.getFilePath());
     }
 
     @PostMapping("/courses/{id}/delete")
@@ -129,11 +159,12 @@ public class TeacherContentController {
     @PostMapping("/announcements/new")
     public String createAnnouncement(@RequestParam String title,
                                      @RequestParam String message,
+                                     @RequestParam(required = false) Long moduleId,
                                      @RequestParam(required = false) Long classeId,
                                      @RequestParam(required = false) Long filiereId,
                                      RedirectAttributes flash) {
         User teacher = userService.getCurrentUser();
-        announcementService.createAnnouncement(title, message, teacher.getId(), classeId, filiereId);
+        announcementService.createAnnouncement(title, message, teacher.getId(), classeId, filiereId, moduleId);
         flash.addFlashAttribute("successMessage", "Annonce publiee avec succes.");
         return "redirect:/teacher/announcements";
     }
@@ -191,4 +222,3 @@ public class TeacherContentController {
                 .body(resource);
     }
 }
-

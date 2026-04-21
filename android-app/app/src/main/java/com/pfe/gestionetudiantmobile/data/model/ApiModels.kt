@@ -28,6 +28,12 @@ data class UserSummary(
     val redirectPath: String
 )
 
+data class TopStudentItem(
+    val studentId: Long?,
+    val name: String,
+    val average: Double
+)
+
 data class StudentProfile(
     val id: Long,
     val matricule: String,
@@ -65,7 +71,10 @@ data class NoteItem(
     val noteFinal: Double?,
     val semestre: String,
     val anneeAcademique: String,
-    val statut: String
+    val statut: String,
+    val createdAt: LocalDateTime? = null,
+    val updatedAt: LocalDateTime? = null,
+    val actorName: String? = null
 )
 
 data class AbsenceItem(
@@ -79,7 +88,25 @@ data class AbsenceItem(
     val dateAbsence: LocalDate,
     val nombreHeures: Int,
     val justifiee: Boolean,
-    val motif: String?
+    val motif: String?,
+    val createdAt: LocalDateTime? = null,
+    val actorName: String? = null
+)
+
+data class AcademicHistoryEvent(
+    val key: String,
+    val type: String,
+    val title: String,
+    val message: String,
+    val moduleId: Long?,
+    val moduleName: String?,
+    val studentId: Long?,
+    val studentName: String?,
+    val actorName: String,
+    val occurredAt: LocalDateTime?,
+    val dateLabel: String,
+    val badge: String,
+    val pending: Boolean = false
 )
 
 data class TimetableItem(
@@ -115,7 +142,17 @@ data class CourseItem(
     val classeNom: String?,
     val filiereId: Long?,
     val filiereNom: String?,
-    val createdAt: LocalDateTime?
+    val createdAt: LocalDateTime?,
+    val files: List<CourseDocumentItem>? = null
+)
+
+data class CourseDocumentItem(
+    val id: Long? = null,
+    val filePath: String? = null,
+    val fileName: String? = null,
+    val contentType: String? = null,
+    val fileSize: Long? = null,
+    val uploadedAt: LocalDateTime? = null
 )
 
 data class AnnouncementItem(
@@ -188,12 +225,19 @@ data class SubmissionFileItem(
 )
 
 data class NotificationItem(
+    val eventId: String? = null,
     val type: String,
     val title: String,
     val message: String,
     val createdAt: LocalDateTime?,
-    val actionPath: String
-)
+    val actionPath: String,
+    val emailRelated: Boolean = false
+) {
+    fun stableKey(): String {
+        return eventId?.trim()?.takeIf { it.isNotEmpty() }
+            ?: listOf(type, title, createdAt?.toString().orEmpty(), actionPath).joinToString("|")
+    }
+}
 
 data class StudentDashboard(
     val moyenneS1: Double,
@@ -255,6 +299,20 @@ data class TeacherModuleItem(
     val teacherName: String?
 )
 
+data class StudentModuleItem(
+    val id: Long,
+    val nom: String,
+    val code: String,
+    val semestre: String?,
+    val volumeHoraire: Int? = null,
+    val teacherId: Long?,
+    val teacherName: String?,
+    val classeId: Long?,
+    val classeNom: String?,
+    val filiereId: Long?,
+    val filiereNom: String?
+)
+
 data class ClasseItem(
     val id: Long,
     val nom: String,
@@ -271,6 +329,19 @@ data class NoteUpsertRequest(
     val noteExamen: Double?
 )
 
+data class NoteBulkItem(
+    val studentId: Long,
+    val noteCc: Double?,
+    val noteExamen: Double?
+)
+
+data class NoteBulkRequest(
+    val moduleId: Long,
+    val semestre: String,
+    val anneeAcademique: String,
+    val notes: List<NoteBulkItem>
+)
+
 data class AbsenceCreateRequest(
     val studentId: Long,
     val moduleId: Long,
@@ -278,11 +349,25 @@ data class AbsenceCreateRequest(
     val nombreHeures: Int?
 )
 
+data class AbsenceSessionRequest(
+    val moduleId: Long,
+    val classeId: Long?,
+    val dateAbsence: String,
+    val nombreHeures: Int,
+    val absentStudentIds: List<Long>
+)
+
+data class AbsenceSessionResponse(
+    val message: String,
+    val absences: List<AbsenceItem>
+)
+
 data class AnnouncementCreateRequest(
     val title: String,
     val message: String,
     val classeId: Long?,
-    val filiereId: Long?
+    val filiereId: Long?,
+    val moduleId: Long? = null
 )
 
 data class SubmissionReviewRequest(
@@ -328,4 +413,16 @@ data class AdminModuleUpsertRequest(
     val semestre: String,
     val filiereId: Long,
     val teacherId: Long? = null
+)
+
+data class AdminTimetableUpsertRequest(
+    val jour: String,
+    val heureDebut: String,
+    val heureFin: String,
+    val moduleId: Long,
+    val classeId: Long,
+    val filiereId: Long,
+    val teacherId: Long? = null,
+    val salle: String,
+    val valide: Boolean = true
 )

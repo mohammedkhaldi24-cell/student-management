@@ -19,16 +19,31 @@
                 <!-- Titre filière -->
                 <div class="filiere-header mb-4 p-4 rounded d-flex justify-content-between align-items-center">
                     <div>
-                        <h4 class="fw-bold mb-1">
+                        <div class="dashboard-kicker">
+                            <i class="bi bi-diagram-3"></i> Pilotage filière
+                        </div>
+                        <h4 class="dashboard-hero-title mb-1">
                             <i class="bi bi-diagram-3-fill me-2"></i>
                             Filiere : <span th:text="${filiere.nom}">-</span>
                         </h4>
-                        <p class="text-muted mb-0">
+                        <p class="dashboard-hero-subtitle mb-0">
                             Code : <strong th:text="${filiere.code}">-</strong>
                             &bull; Annee academique : <strong th:text="${anneeAcademique}">-</strong>
                         </p>
+                        <div class="dashboard-hero-actions">
+                            <a th:href="@{/chef/emploi-du-temps}" class="btn btn-light">
+                                <i class="bi bi-calendar3-week me-1"></i>Gérer EDT
+                            </a>
+                            <a th:href="@{/chef/rapport}" class="btn btn-outline-light">
+                                <i class="bi bi-file-earmark-pdf me-1"></i>Rapports PDF
+                            </a>
+                        </div>
+                        <div class="metric-ribbon">
+                            <span class="metric-pill"><i class="bi bi-people"></i><span th:text="${totalEtudiants + ' étudiants'}">0 étudiants</span></span>
+                            <span class="metric-pill"><i class="bi bi-building"></i><span th:text="${totalClasses + ' classes'}">0 classes</span></span>
+                        </div>
                     </div>
-                    <img th:src="@{/images/esto-logo.jpg}" alt="Logo ESTO" class="dashboard-brand-logo d-none d-md-block"/>
+                    <img th:src="@{/images/esto-logo.jpg(v=2)}" alt="Logo ESTO" class="dashboard-brand-logo d-none d-md-block"/>
                 </div>
 
                 <!-- Cartes statistiques -->
@@ -102,6 +117,45 @@
                 </div>
 
                 <!-- Graphiques -->
+                <div class="row g-4 mb-4">
+                    <div class="col-md-4 col-lg-2">
+                        <a th:href="@{/chef/etudiants}" class="action-card">
+                            <span class="action-card-icon"><i class="bi bi-person-vcard"></i></span>
+                            <span><span class="action-card-title">Étudiants</span><span class="action-card-subtitle">Liste filière</span></span>
+                        </a>
+                    </div>
+                    <div class="col-md-4 col-lg-2">
+                        <a th:href="@{/chef/notes}" class="action-card action-card-success">
+                            <span class="action-card-icon"><i class="bi bi-clipboard2-data"></i></span>
+                            <span><span class="action-card-title">Notes</span><span class="action-card-subtitle">Vue globale</span></span>
+                        </a>
+                    </div>
+                    <div class="col-md-4 col-lg-2">
+                        <a th:href="@{/chef/absences}" class="action-card action-card-danger">
+                            <span class="action-card-icon"><i class="bi bi-calendar-x"></i></span>
+                            <span><span class="action-card-title">Absences</span><span class="action-card-subtitle">Suivi heures</span></span>
+                        </a>
+                    </div>
+                    <div class="col-md-4 col-lg-2">
+                        <a th:href="@{/chef/emploi-du-temps}" class="action-card action-card-info">
+                            <span class="action-card-icon"><i class="bi bi-calendar3-week"></i></span>
+                            <span><span class="action-card-title">EDT</span><span class="action-card-subtitle">Planification</span></span>
+                        </a>
+                    </div>
+                    <div class="col-md-4 col-lg-2">
+                        <a th:href="@{/chef/courses}" class="action-card action-card-warning">
+                            <span class="action-card-icon"><i class="bi bi-journals"></i></span>
+                            <span><span class="action-card-title">Cours</span><span class="action-card-subtitle">Ressources</span></span>
+                        </a>
+                    </div>
+                    <div class="col-md-4 col-lg-2">
+                        <a th:href="@{/chef/announcements}" class="action-card">
+                            <span class="action-card-icon"><i class="bi bi-megaphone"></i></span>
+                            <span><span class="action-card-title">Annonces</span><span class="action-card-subtitle">Communication</span></span>
+                        </a>
+                    </div>
+                </div>
+
                 <div class="row g-4 mb-4">
                     <!-- Graphique moyennes par classe -->
                     <div class="col-lg-7">
@@ -237,5 +291,6 @@
 </script>
 </body>
 </html>
+
 
 

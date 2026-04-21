@@ -4,7 +4,10 @@ package com.pfe.gestionetudiantmobile.databinding;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.FrameLayout;
+import android.widget.HorizontalScrollView;
 import android.widget.LinearLayout;
+import android.widget.ProgressBar;
 import android.widget.TextView;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
@@ -32,6 +35,24 @@ public final class ActivityFeatureListBinding implements ViewBinding {
   public final MaterialButton btnFilter;
 
   @NonNull
+  public final MaterialButton btnStateRetry;
+
+  @NonNull
+  public final FrameLayout contentFrame;
+
+  @NonNull
+  public final LinearLayout layoutModuleSelector;
+
+  @NonNull
+  public final LinearLayout layoutState;
+
+  @NonNull
+  public final HorizontalScrollView moduleSelectorScroll;
+
+  @NonNull
+  public final ProgressBar progressState;
+
+  @NonNull
   public final RecyclerView recyclerView;
 
   @NonNull
@@ -41,20 +62,46 @@ public final class ActivityFeatureListBinding implements ViewBinding {
   public final TextView tvFilterSummary;
 
   @NonNull
+  public final TextView tvNotificationHint;
+
+  @NonNull
+  public final TextView tvStateIcon;
+
+  @NonNull
+  public final TextView tvStateMessage;
+
+  @NonNull
+  public final TextView tvStateTitle;
+
+  @NonNull
   public final TextView tvTitle;
 
   private ActivityFeatureListBinding(@NonNull LinearLayout rootView,
       @NonNull MaterialButton btnAction, @NonNull MaterialButton btnBack,
-      @NonNull MaterialButton btnFilter, @NonNull RecyclerView recyclerView,
+      @NonNull MaterialButton btnFilter, @NonNull MaterialButton btnStateRetry,
+      @NonNull FrameLayout contentFrame, @NonNull LinearLayout layoutModuleSelector,
+      @NonNull LinearLayout layoutState, @NonNull HorizontalScrollView moduleSelectorScroll,
+      @NonNull ProgressBar progressState, @NonNull RecyclerView recyclerView,
       @NonNull SwipeRefreshLayout swipeLayout, @NonNull TextView tvFilterSummary,
-      @NonNull TextView tvTitle) {
+      @NonNull TextView tvNotificationHint, @NonNull TextView tvStateIcon,
+      @NonNull TextView tvStateMessage, @NonNull TextView tvStateTitle, @NonNull TextView tvTitle) {
     this.rootView = rootView;
     this.btnAction = btnAction;
     this.btnBack = btnBack;
     this.btnFilter = btnFilter;
+    this.btnStateRetry = btnStateRetry;
+    this.contentFrame = contentFrame;
+    this.layoutModuleSelector = layoutModuleSelector;
+    this.layoutState = layoutState;
+    this.moduleSelectorScroll = moduleSelectorScroll;
+    this.progressState = progressState;
     this.recyclerView = recyclerView;
     this.swipeLayout = swipeLayout;
     this.tvFilterSummary = tvFilterSummary;
+    this.tvNotificationHint = tvNotificationHint;
+    this.tvStateIcon = tvStateIcon;
+    this.tvStateMessage = tvStateMessage;
+    this.tvStateTitle = tvStateTitle;
     this.tvTitle = tvTitle;
   }
 
@@ -103,6 +150,42 @@ public final class ActivityFeatureListBinding implements ViewBinding {
         break missingId;
       }
 
+      id = R.id.btnStateRetry;
+      MaterialButton btnStateRetry = ViewBindings.findChildViewById(rootView, id);
+      if (btnStateRetry == null) {
+        break missingId;
+      }
+
+      id = R.id.contentFrame;
+      FrameLayout contentFrame = ViewBindings.findChildViewById(rootView, id);
+      if (contentFrame == null) {
+        break missingId;
+      }
+
+      id = R.id.layoutModuleSelector;
+      LinearLayout layoutModuleSelector = ViewBindings.findChildViewById(rootView, id);
+      if (layoutModuleSelector == null) {
+        break missingId;
+      }
+
+      id = R.id.layoutState;
+      LinearLayout layoutState = ViewBindings.findChildViewById(rootView, id);
+      if (layoutState == null) {
+        break missingId;
+      }
+
+      id = R.id.moduleSelectorScroll;
+      HorizontalScrollView moduleSelectorScroll = ViewBindings.findChildViewById(rootView, id);
+      if (moduleSelectorScroll == null) {
+        break missingId;
+      }
+
+      id = R.id.progressState;
+      ProgressBar progressState = ViewBindings.findChildViewById(rootView, id);
+      if (progressState == null) {
+        break missingId;
+      }
+
       id = R.id.recyclerView;
       RecyclerView recyclerView = ViewBindings.findChildViewById(rootView, id);
       if (recyclerView == null) {
@@ -121,6 +204,30 @@ public final class ActivityFeatureListBinding implements ViewBinding {
         break missingId;
       }
 
+      id = R.id.tvNotificationHint;
+      TextView tvNotificationHint = ViewBindings.findChildViewById(rootView, id);
+      if (tvNotificationHint == null) {
+        break missingId;
+      }
+
+      id = R.id.tvStateIcon;
+      TextView tvStateIcon = ViewBindings.findChildViewById(rootView, id);
+      if (tvStateIcon == null) {
+        break missingId;
+      }
+
+      id = R.id.tvStateMessage;
+      TextView tvStateMessage = ViewBindings.findChildViewById(rootView, id);
+      if (tvStateMessage == null) {
+        break missingId;
+      }
+
+      id = R.id.tvStateTitle;
+      TextView tvStateTitle = ViewBindings.findChildViewById(rootView, id);
+      if (tvStateTitle == null) {
+        break missingId;
+      }
+
       id = R.id.tvTitle;
       TextView tvTitle = ViewBindings.findChildViewById(rootView, id);
       if (tvTitle == null) {
@@ -128,7 +235,9 @@ public final class ActivityFeatureListBinding implements ViewBinding {
       }
 
       return new ActivityFeatureListBinding((LinearLayout) rootView, btnAction, btnBack, btnFilter,
-          recyclerView, swipeLayout, tvFilterSummary, tvTitle);
+          btnStateRetry, contentFrame, layoutModuleSelector, layoutState, moduleSelectorScroll,
+          progressState, recyclerView, swipeLayout, tvFilterSummary, tvNotificationHint,
+          tvStateIcon, tvStateMessage, tvStateTitle, tvTitle);
     }
     String missingId = rootView.getResources().getResourceName(id);
     throw new NullPointerException("Missing required view with ID: ".concat(missingId));

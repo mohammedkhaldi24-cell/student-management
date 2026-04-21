@@ -4,13 +4,14 @@ package com.pfe.gestionetudiantmobile.databinding;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.ScrollView;
+import android.widget.LinearLayout;
 import android.widget.TextView;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.viewbinding.ViewBinding;
 import androidx.viewbinding.ViewBindings;
 import com.google.android.material.button.MaterialButton;
+import com.google.android.material.card.MaterialCardView;
 import com.pfe.gestionetudiantmobile.R;
 import java.lang.NullPointerException;
 import java.lang.Override;
@@ -18,7 +19,7 @@ import java.lang.String;
 
 public final class ActivityAdminHomeBinding implements ViewBinding {
   @NonNull
-  private final ScrollView rootView;
+  private final LinearLayout rootView;
 
   @NonNull
   public final MaterialButton btnClasses;
@@ -33,7 +34,67 @@ public final class ActivityAdminHomeBinding implements ViewBinding {
   public final MaterialButton btnModules;
 
   @NonNull
+  public final MaterialButton btnProfile;
+
+  @NonNull
+  public final MaterialButton btnTimetable;
+
+  @NonNull
   public final MaterialButton btnUsers;
+
+  @NonNull
+  public final MaterialCardView cardAdminTopStudents;
+
+  @NonNull
+  public final LinearLayout rowAdminTopStudent1;
+
+  @NonNull
+  public final LinearLayout rowAdminTopStudent2;
+
+  @NonNull
+  public final LinearLayout rowAdminTopStudent3;
+
+  @NonNull
+  public final LinearLayout rowAdminTopStudent4;
+
+  @NonNull
+  public final LinearLayout rowAdminTopStudent5;
+
+  @NonNull
+  public final TextView tvAdminTopStudentAverage1;
+
+  @NonNull
+  public final TextView tvAdminTopStudentAverage2;
+
+  @NonNull
+  public final TextView tvAdminTopStudentAverage3;
+
+  @NonNull
+  public final TextView tvAdminTopStudentAverage4;
+
+  @NonNull
+  public final TextView tvAdminTopStudentAverage5;
+
+  @NonNull
+  public final TextView tvAdminTopStudentName1;
+
+  @NonNull
+  public final TextView tvAdminTopStudentName2;
+
+  @NonNull
+  public final TextView tvAdminTopStudentName3;
+
+  @NonNull
+  public final TextView tvAdminTopStudentName4;
+
+  @NonNull
+  public final TextView tvAdminTopStudentName5;
+
+  @NonNull
+  public final TextView tvAdminTopStudentsEmpty;
+
+  @NonNull
+  public final TextView tvAdminTopStudentsSubtitle;
 
   @NonNull
   public final TextView tvRoleChip;
@@ -62,10 +123,21 @@ public final class ActivityAdminHomeBinding implements ViewBinding {
   @NonNull
   public final TextView tvWelcome;
 
-  private ActivityAdminHomeBinding(@NonNull ScrollView rootView, @NonNull MaterialButton btnClasses,
-      @NonNull MaterialButton btnFilieres, @NonNull MaterialButton btnLogout,
-      @NonNull MaterialButton btnModules, @NonNull MaterialButton btnUsers,
-      @NonNull TextView tvRoleChip, @NonNull TextView tvStats, @NonNull TextView tvTotalClasses,
+  private ActivityAdminHomeBinding(@NonNull LinearLayout rootView,
+      @NonNull MaterialButton btnClasses, @NonNull MaterialButton btnFilieres,
+      @NonNull MaterialButton btnLogout, @NonNull MaterialButton btnModules,
+      @NonNull MaterialButton btnProfile, @NonNull MaterialButton btnTimetable,
+      @NonNull MaterialButton btnUsers, @NonNull MaterialCardView cardAdminTopStudents,
+      @NonNull LinearLayout rowAdminTopStudent1, @NonNull LinearLayout rowAdminTopStudent2,
+      @NonNull LinearLayout rowAdminTopStudent3, @NonNull LinearLayout rowAdminTopStudent4,
+      @NonNull LinearLayout rowAdminTopStudent5, @NonNull TextView tvAdminTopStudentAverage1,
+      @NonNull TextView tvAdminTopStudentAverage2, @NonNull TextView tvAdminTopStudentAverage3,
+      @NonNull TextView tvAdminTopStudentAverage4, @NonNull TextView tvAdminTopStudentAverage5,
+      @NonNull TextView tvAdminTopStudentName1, @NonNull TextView tvAdminTopStudentName2,
+      @NonNull TextView tvAdminTopStudentName3, @NonNull TextView tvAdminTopStudentName4,
+      @NonNull TextView tvAdminTopStudentName5, @NonNull TextView tvAdminTopStudentsEmpty,
+      @NonNull TextView tvAdminTopStudentsSubtitle, @NonNull TextView tvRoleChip,
+      @NonNull TextView tvStats, @NonNull TextView tvTotalClasses,
       @NonNull TextView tvTotalFilieres, @NonNull TextView tvTotalModules,
       @NonNull TextView tvTotalStudents, @NonNull TextView tvTotalTeachers,
       @NonNull TextView tvTotalUsers, @NonNull TextView tvWelcome) {
@@ -74,7 +146,27 @@ public final class ActivityAdminHomeBinding implements ViewBinding {
     this.btnFilieres = btnFilieres;
     this.btnLogout = btnLogout;
     this.btnModules = btnModules;
+    this.btnProfile = btnProfile;
+    this.btnTimetable = btnTimetable;
     this.btnUsers = btnUsers;
+    this.cardAdminTopStudents = cardAdminTopStudents;
+    this.rowAdminTopStudent1 = rowAdminTopStudent1;
+    this.rowAdminTopStudent2 = rowAdminTopStudent2;
+    this.rowAdminTopStudent3 = rowAdminTopStudent3;
+    this.rowAdminTopStudent4 = rowAdminTopStudent4;
+    this.rowAdminTopStudent5 = rowAdminTopStudent5;
+    this.tvAdminTopStudentAverage1 = tvAdminTopStudentAverage1;
+    this.tvAdminTopStudentAverage2 = tvAdminTopStudentAverage2;
+    this.tvAdminTopStudentAverage3 = tvAdminTopStudentAverage3;
+    this.tvAdminTopStudentAverage4 = tvAdminTopStudentAverage4;
+    this.tvAdminTopStudentAverage5 = tvAdminTopStudentAverage5;
+    this.tvAdminTopStudentName1 = tvAdminTopStudentName1;
+    this.tvAdminTopStudentName2 = tvAdminTopStudentName2;
+    this.tvAdminTopStudentName3 = tvAdminTopStudentName3;
+    this.tvAdminTopStudentName4 = tvAdminTopStudentName4;
+    this.tvAdminTopStudentName5 = tvAdminTopStudentName5;
+    this.tvAdminTopStudentsEmpty = tvAdminTopStudentsEmpty;
+    this.tvAdminTopStudentsSubtitle = tvAdminTopStudentsSubtitle;
     this.tvRoleChip = tvRoleChip;
     this.tvStats = tvStats;
     this.tvTotalClasses = tvTotalClasses;
@@ -88,7 +180,7 @@ public final class ActivityAdminHomeBinding implements ViewBinding {
 
   @Override
   @NonNull
-  public ScrollView getRoot() {
+  public LinearLayout getRoot() {
     return rootView;
   }
 
@@ -137,9 +229,129 @@ public final class ActivityAdminHomeBinding implements ViewBinding {
         break missingId;
       }
 
+      id = R.id.btnProfile;
+      MaterialButton btnProfile = ViewBindings.findChildViewById(rootView, id);
+      if (btnProfile == null) {
+        break missingId;
+      }
+
+      id = R.id.btnTimetable;
+      MaterialButton btnTimetable = ViewBindings.findChildViewById(rootView, id);
+      if (btnTimetable == null) {
+        break missingId;
+      }
+
       id = R.id.btnUsers;
       MaterialButton btnUsers = ViewBindings.findChildViewById(rootView, id);
       if (btnUsers == null) {
+        break missingId;
+      }
+
+      id = R.id.cardAdminTopStudents;
+      MaterialCardView cardAdminTopStudents = ViewBindings.findChildViewById(rootView, id);
+      if (cardAdminTopStudents == null) {
+        break missingId;
+      }
+
+      id = R.id.rowAdminTopStudent1;
+      LinearLayout rowAdminTopStudent1 = ViewBindings.findChildViewById(rootView, id);
+      if (rowAdminTopStudent1 == null) {
+        break missingId;
+      }
+
+      id = R.id.rowAdminTopStudent2;
+      LinearLayout rowAdminTopStudent2 = ViewBindings.findChildViewById(rootView, id);
+      if (rowAdminTopStudent2 == null) {
+        break missingId;
+      }
+
+      id = R.id.rowAdminTopStudent3;
+      LinearLayout rowAdminTopStudent3 = ViewBindings.findChildViewById(rootView, id);
+      if (rowAdminTopStudent3 == null) {
+        break missingId;
+      }
+
+      id = R.id.rowAdminTopStudent4;
+      LinearLayout rowAdminTopStudent4 = ViewBindings.findChildViewById(rootView, id);
+      if (rowAdminTopStudent4 == null) {
+        break missingId;
+      }
+
+      id = R.id.rowAdminTopStudent5;
+      LinearLayout rowAdminTopStudent5 = ViewBindings.findChildViewById(rootView, id);
+      if (rowAdminTopStudent5 == null) {
+        break missingId;
+      }
+
+      id = R.id.tvAdminTopStudentAverage1;
+      TextView tvAdminTopStudentAverage1 = ViewBindings.findChildViewById(rootView, id);
+      if (tvAdminTopStudentAverage1 == null) {
+        break missingId;
+      }
+
+      id = R.id.tvAdminTopStudentAverage2;
+      TextView tvAdminTopStudentAverage2 = ViewBindings.findChildViewById(rootView, id);
+      if (tvAdminTopStudentAverage2 == null) {
+        break missingId;
+      }
+
+      id = R.id.tvAdminTopStudentAverage3;
+      TextView tvAdminTopStudentAverage3 = ViewBindings.findChildViewById(rootView, id);
+      if (tvAdminTopStudentAverage3 == null) {
+        break missingId;
+      }
+
+      id = R.id.tvAdminTopStudentAverage4;
+      TextView tvAdminTopStudentAverage4 = ViewBindings.findChildViewById(rootView, id);
+      if (tvAdminTopStudentAverage4 == null) {
+        break missingId;
+      }
+
+      id = R.id.tvAdminTopStudentAverage5;
+      TextView tvAdminTopStudentAverage5 = ViewBindings.findChildViewById(rootView, id);
+      if (tvAdminTopStudentAverage5 == null) {
+        break missingId;
+      }
+
+      id = R.id.tvAdminTopStudentName1;
+      TextView tvAdminTopStudentName1 = ViewBindings.findChildViewById(rootView, id);
+      if (tvAdminTopStudentName1 == null) {
+        break missingId;
+      }
+
+      id = R.id.tvAdminTopStudentName2;
+      TextView tvAdminTopStudentName2 = ViewBindings.findChildViewById(rootView, id);
+      if (tvAdminTopStudentName2 == null) {
+        break missingId;
+      }
+
+      id = R.id.tvAdminTopStudentName3;
+      TextView tvAdminTopStudentName3 = ViewBindings.findChildViewById(rootView, id);
+      if (tvAdminTopStudentName3 == null) {
+        break missingId;
+      }
+
+      id = R.id.tvAdminTopStudentName4;
+      TextView tvAdminTopStudentName4 = ViewBindings.findChildViewById(rootView, id);
+      if (tvAdminTopStudentName4 == null) {
+        break missingId;
+      }
+
+      id = R.id.tvAdminTopStudentName5;
+      TextView tvAdminTopStudentName5 = ViewBindings.findChildViewById(rootView, id);
+      if (tvAdminTopStudentName5 == null) {
+        break missingId;
+      }
+
+      id = R.id.tvAdminTopStudentsEmpty;
+      TextView tvAdminTopStudentsEmpty = ViewBindings.findChildViewById(rootView, id);
+      if (tvAdminTopStudentsEmpty == null) {
+        break missingId;
+      }
+
+      id = R.id.tvAdminTopStudentsSubtitle;
+      TextView tvAdminTopStudentsSubtitle = ViewBindings.findChildViewById(rootView, id);
+      if (tvAdminTopStudentsSubtitle == null) {
         break missingId;
       }
 
@@ -197,8 +409,14 @@ public final class ActivityAdminHomeBinding implements ViewBinding {
         break missingId;
       }
 
-      return new ActivityAdminHomeBinding((ScrollView) rootView, btnClasses, btnFilieres, btnLogout,
-          btnModules, btnUsers, tvRoleChip, tvStats, tvTotalClasses, tvTotalFilieres,
+      return new ActivityAdminHomeBinding((LinearLayout) rootView, btnClasses, btnFilieres,
+          btnLogout, btnModules, btnProfile, btnTimetable, btnUsers, cardAdminTopStudents,
+          rowAdminTopStudent1, rowAdminTopStudent2, rowAdminTopStudent3, rowAdminTopStudent4,
+          rowAdminTopStudent5, tvAdminTopStudentAverage1, tvAdminTopStudentAverage2,
+          tvAdminTopStudentAverage3, tvAdminTopStudentAverage4, tvAdminTopStudentAverage5,
+          tvAdminTopStudentName1, tvAdminTopStudentName2, tvAdminTopStudentName3,
+          tvAdminTopStudentName4, tvAdminTopStudentName5, tvAdminTopStudentsEmpty,
+          tvAdminTopStudentsSubtitle, tvRoleChip, tvStats, tvTotalClasses, tvTotalFilieres,
           tvTotalModules, tvTotalStudents, tvTotalTeachers, tvTotalUsers, tvWelcome);
     }
     String missingId = rootView.getResources().getResourceName(id);

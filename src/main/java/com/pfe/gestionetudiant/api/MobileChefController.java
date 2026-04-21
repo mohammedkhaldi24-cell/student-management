@@ -3,30 +3,40 @@ package com.pfe.gestionetudiant.api;
 import com.pfe.gestionetudiant.model.Absence;
 import com.pfe.gestionetudiant.model.Announcement;
 import com.pfe.gestionetudiant.model.Classe;
+import com.pfe.gestionetudiant.model.EmploiDuTemps;
 import com.pfe.gestionetudiant.model.Filiere;
+import com.pfe.gestionetudiant.model.Module;
 import com.pfe.gestionetudiant.model.Note;
+import com.pfe.gestionetudiant.model.Role;
 import com.pfe.gestionetudiant.model.Student;
+import com.pfe.gestionetudiant.model.User;
 import com.pfe.gestionetudiant.repository.StudentRepository;
 import com.pfe.gestionetudiant.service.AbsenceService;
 import com.pfe.gestionetudiant.service.AnnouncementService;
 import com.pfe.gestionetudiant.service.ClasseService;
 import com.pfe.gestionetudiant.service.CourseContentService;
 import com.pfe.gestionetudiant.service.EmploiDuTempsService;
+import com.pfe.gestionetudiant.service.ModuleService;
 import com.pfe.gestionetudiant.service.NoteService;
+import com.pfe.gestionetudiant.service.UserService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.core.io.Resource;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.util.StringUtils;
+import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
+import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
+import java.time.LocalTime;
 import java.util.HashSet;
-import java.util.LinkedHashMap;
 import java.util.List;
-import java.util.Map;
 import java.util.Set;
 
 @RestController
@@ -44,6 +54,8 @@ public class MobileChefController {
     private final CourseContentService courseContentService;
     private final AnnouncementService announcementService;
     private final EmploiDuTempsService emploiDuTempsService;
+    private final ModuleService moduleService;
+    private final UserService userService;
 
     @GetMapping("/dashboard")
     public MobileDtos.ChefDashboard dashboard() {
@@ -66,18 +78,23 @@ public class MobileChefController {
     }
 
     @GetMapping("/classes")
-    public List<Map<String, Object>> classes() {
+    public List<MobileDtos.ClasseItem> classes() {
         Filiere filiere = accessService.currentChefFiliere();
         return classeService.findByFiliereId(filiere.getId()).stream()
-                .map(c -> {
-                    Map<String, Object> row = new LinkedHashMap<>();
-                    row.put("id", c.getId());
-                    row.put("nom", c.getNom());
-                    row.put("niveau", c.getNiveau());
-                    row.put("anneeAcademique", c.getAnneeAcademique());
-                    row.put("nombreEtudiants", studentRepository.countByClasseId(c.getId()));
-                    return row;
-                })
+                .map(c -> new MobileDtos.ClasseItem(
+                        c.getId(),
+                        c.getNom(),
+                        filiere.getId(),
+                        filiere.getNom()
+                ))
+                .toList();
+    }
+
+    @GetMapping("/modules")
+    public List<MobileDtos.TeacherModuleItem> modules() {
+        Filiere filiere = accessService.currentChefFiliere();
+        return moduleService.findByFiliereId(filiere.getId()).stream()
+                .map(mapper::toTeacherModuleItem)
                 .toList();
     }
 
@@ -194,6 +211,31 @@ public class MobileChefController {
                 .toList();
     }
 
+    @PostMapping("/timetable")
+    public MobileDtos.TimetableItem createTimetable(@RequestBody MobileDtos.AdminTimetableUpsertRequest request) {
+        Filiere filiere = accessService.currentChefFiliere();
+        EmploiDuTemps emploiDuTemps = new EmploiDuTemps();
+        applyTimetableRequest(emploiDuTemps, request, filiere, true);
+        return mapper.toTimetableItem(emploiDuTempsService.save(emploiDuTemps));
+    }
+
+    @PutMapping("/timetable/{id}")
+    public MobileDtos.TimetableItem updateTimetable(@PathVariable Long id,
+                                                    @RequestBody MobileDtos.AdminTimetableUpsertRequest request) {
+        Filiere filiere = accessService.currentChefFiliere();
+        EmploiDuTemps emploiDuTemps = requireTimetableInFiliere(id, filiere.getId());
+        applyTimetableRequest(emploiDuTemps, request, filiere, false);
+        return mapper.toTimetableItem(emploiDuTempsService.save(emploiDuTemps));
+    }
+
+    @DeleteMapping("/timetable/{id}")
+    public MobileDtos.ApiMessage deleteTimetable(@PathVariable Long id) {
+        Filiere filiere = accessService.currentChefFiliere();
+        EmploiDuTemps emploiDuTemps = requireTimetableInFiliere(id, filiere.getId());
+        emploiDuTempsService.delete(emploiDuTemps.getId());
+        return new MobileDtos.ApiMessage("Seance EDT supprimee.");
+    }
+
     private Classe requireClasseInFiliere(Long classeId, Long filiereId) {
         Classe classe = classeService.findById(classeId)
                 .orElseThrow(() -> new IllegalArgumentException("Classe introuvable."));
@@ -202,5 +244,83 @@ public class MobileChefController {
             throw new IllegalArgumentException("Classe non autorisee pour votre filiere.");
         }
         return classe;
+    }
+
+    private EmploiDuTemps requireTimetableInFiliere(Long id, Long filiereId) {
+        EmploiDuTemps emploiDuTemps = emploiDuTempsService.findById(id)
+                .orElseThrow(() -> new IllegalArgumentException("Seance EDT introuvable."));
+        if (emploiDuTemps.getFiliere() == null || !filiereId.equals(emploiDuTemps.getFiliere().getId())) {
+            throw new IllegalArgumentException("Seance hors filiere.");
+        }
+        return emploiDuTemps;
+    }
+
+    private void applyTimetableRequest(EmploiDuTemps emploiDuTemps,
+                                       MobileDtos.AdminTimetableUpsertRequest request,
+                                       Filiere filiere,
+                                       boolean creation) {
+        if (request == null) {
+            throw new IllegalArgumentException("Payload invalide.");
+        }
+        if (creation || StringUtils.hasText(request.jour())) {
+            emploiDuTemps.setJour(requireText(request.jour(), "Le jour est obligatoire."));
+        }
+        if (creation || StringUtils.hasText(request.heureDebut())) {
+            emploiDuTemps.setHeureDebut(parseTime(request.heureDebut(), "Heure de debut invalide (HH:mm)."));
+        }
+        if (creation || StringUtils.hasText(request.heureFin())) {
+            emploiDuTemps.setHeureFin(parseTime(request.heureFin(), "Heure de fin invalide (HH:mm)."));
+        }
+        if (creation || StringUtils.hasText(request.salle())) {
+            emploiDuTemps.setSalle(requireText(request.salle(), "La salle est obligatoire."));
+        }
+
+        emploiDuTemps.setFiliere(filiere);
+        emploiDuTemps.setValide(true);
+
+        if (request.classeId() != null) {
+            emploiDuTemps.setClasse(requireClasseInFiliere(request.classeId(), filiere.getId()));
+        } else if (creation || emploiDuTemps.getClasse() == null) {
+            throw new IllegalArgumentException("La classe est obligatoire.");
+        }
+
+        if (request.moduleId() != null) {
+            Module module = moduleService.findById(request.moduleId())
+                    .orElseThrow(() -> new IllegalArgumentException("Module introuvable."));
+            if (module.getFiliere() == null || !filiere.getId().equals(module.getFiliere().getId())) {
+                throw new IllegalArgumentException("Module hors filiere.");
+            }
+            emploiDuTemps.setModule(module);
+        } else if (creation || emploiDuTemps.getModule() == null) {
+            throw new IllegalArgumentException("Le module est obligatoire.");
+        }
+
+        if (request.teacherId() != null) {
+            if (request.teacherId() == 0L) {
+                emploiDuTemps.setTeacher(null);
+            } else {
+                User teacher = userService.findById(request.teacherId())
+                        .orElseThrow(() -> new IllegalArgumentException("Enseignant introuvable."));
+                if (teacher.getRole() != Role.TEACHER) {
+                    throw new IllegalArgumentException("Utilisateur non enseignant.");
+                }
+                emploiDuTemps.setTeacher(teacher);
+            }
+        }
+    }
+
+    private LocalTime parseTime(String value, String errorMessage) {
+        try {
+            return LocalTime.parse(requireText(value, errorMessage));
+        } catch (Exception ex) {
+            throw new IllegalArgumentException(errorMessage);
+        }
+    }
+
+    private String requireText(String value, String errorMessage) {
+        if (!StringUtils.hasText(value)) {
+            throw new IllegalArgumentException(errorMessage);
+        }
+        return value.trim();
     }
 }
